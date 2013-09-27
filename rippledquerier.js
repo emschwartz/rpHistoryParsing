@@ -255,8 +255,8 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
                 dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
                 return;
             }
-            if (val >= rows[i + 1][key]) {
-                dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+            if (val >= rows[rows.length-1][key]) {
+                dbRecursiveSearch(db, table, index, rows[i][index], rows[rows.length-1][index], key, val, callback);
                 return;
             }
         }
