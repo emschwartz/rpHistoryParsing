@@ -52,6 +52,7 @@ function getRawLedger(dbs, ledger_index, callback) {
 
             // winston.info("for ledger", ledger_index, "got", rows);
 
+            if (!callback) winston.error("callback is not defined");
             callback(null, rows[0]);
         });
 }
