@@ -112,7 +112,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     }
 
     var indices = _.map(_.range(num_queries), function(segment) {
-        return start + segment * ((end - start) / num_queries);
+        return start + segment * Math.floor((end - start) / num_queries);
     });
 
     var index_str = '';
