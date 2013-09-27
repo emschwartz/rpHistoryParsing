@@ -27,9 +27,9 @@ var rq = new RippledQuerier(MAX_ITERATORS);
 
 startClusteringDays();
 
-function startClusteringDays (){
+function startClusteringDays() {
 
-    getLastUploadedDailyPackage(function(err, prev_day_str){
+    getLastUploadedDailyPackage(function(err, prev_day_str) {
         if (err) {
             winston.error("Error geting last daily package:", err);
             return;
@@ -41,59 +41,60 @@ function startClusteringDays (){
 
 }
 
-function clusterAndUploadNextDay (prev_day_str){
+function clusterAndUploadNextDay(prev_day_str) {
 
     var this_day = moment(prev_day_str + MIDNIGHT_UTC).add("days", 1);
 
     winston.info("Clustering", this_day.format("YYYY-MM-DD"));
 
-        getNextDay(this_day, function(err, ledgers){
-            if (err) {
-                winston.error("Error geting daily ledgers:", err);
-                return;
-            }
-
-            winston.info("Got this many ledgers:", ledgers.length);
-
-            packageDay(ledgers, function(err, daily_package){
-                if (err) {
-                    winston.error("Error packaging daily ledgers:", err);
-                    return;
-                }
-
-                uploadToS3(this_day.format("YYYY-MM-DD"), daily_package, function(err, daily_package_str){
-                    if (err) {
-                        winston.error("Error uploading daily ledgers:", err);
-                        return;
-                    }
-
-                    setImmediate(function(){
-                        clusterAndUploadNextDay(daily_package_str);
-                    });
-
-                });
-
-
-            });
-
-        });
-}
-
-
-function getNextDay (start_day, callback) {
-    rq.getLedgersByTimeRange(start_day, moment(start_day).add('days', 1), function(err, ledgers){
+    getNextDay(this_day, function(err, ledgers) {
         if (err) {
-            winston.error("Error getting day of ledgers", err);
+            winston.error("Error geting daily ledgers:", err);
             return;
         }
 
-        callback(ledgers);
+        winston.info("Got this many ledgers:", ledgers.length);
+
+        packageDay(ledgers, function(err, daily_package) {
+            if (err) {
+                winston.error("Error packaging daily ledgers:", err);
+                return;
+            }
+
+            uploadToS3(this_day.format("YYYY-MM-DD"), daily_package, function(err, daily_package_str) {
+                if (err) {
+                    winston.error("Error uploading daily ledgers:", err);
+                    return;
+                }
+
+                setImmediate(function() {
+                    clusterAndUploadNextDay(daily_package_str);
+                });
+
+            });
+
+
+        });
 
     });
 }
 
-function packageDay (ledgers, callback) {
-    async.reduce(ledgers, '', function(daily_txt, ledger, async_callback){
+
+function getNextDay(start_day, callback) {
+    rq.getLedgersByTimeRange(start_day, moment(start_day).add('days', 1), function(err, ledgers) {
+        if (err) {
+            winston.error("Error getting day of ledgers", err);
+            callback(err);
+            return;
+        }
+
+        callback(null, ledgers);
+
+    });
+}
+
+function packageDay(ledgers, callback) {
+    async.reduce(ledgers, '', function(daily_txt, ledger, async_callback) {
         async_callback(null, (daily_txt + JSON.stringify(ledger) + '\n'));
     }, callback);
 }
@@ -228,14 +229,9 @@ function getLedgerManifest(callback) {
     });
 
     req.on('error', function(err) {
-            callback(err);
+        callback(err);
     });
 
     req.end();
 
 }
-
-
-
-
-
