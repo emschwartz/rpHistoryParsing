@@ -11,6 +11,7 @@ var config = require('./config');
 
 
 var FIRST_LEDGER = 32570;
+var FIRST_CLOSING_TIME = 410325670;
 
 
 // PRIVATE FUNCTIONS
@@ -197,13 +198,27 @@ function getLatestLedgerIndex(ledb, callback) {
 function searchLedgerByClosingTime(ledb, rpepoch, callback) {
     if (!callback) callback = printCallback;
 
+    if (rpepoch < FIRST_CLOSING_TIME) {
+        callback(null, FIRST_LEDGER);
+        return;
+    }
+
     getLatestLedgerIndex(ledb, function(err, latest_index) {
         if (err) {
             callback(err);
             return;
         }
 
-        dbRecursiveSearch(ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
+        getRawLedger(latest_index, function(err, latest_ledger){
+            if (rpepoch >= latest_ledger.ClosingTime) {
+                callback(null, latest_index);
+                return;
+            }
+
+            dbRecursiveSearch(ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
+
+        });
+
     });
 
 }
@@ -216,8 +231,8 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     if (end - start <= num_queries) {
         var query_str_final = "SELECT " + index + " FROM " + table + " " +
             "WHERE (" + index + ">=" + start + " " +
-            "and " + index + "<" + end + ") " +
-            // "and " + key + "<=" + val + ") " +
+            "and " + index + "<" + end + " " +
+            "and " + key + "<=" + val + ") " +
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
         db.all(query_str_final, function(err, rows) {
             winston.info("search got:", rows[0]);
@@ -255,10 +270,6 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
                 dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
                 return;
             }
-            if (val >= rows[rows.length-1][key]) {
-                dbRecursiveSearch(db, table, index, rows[i][index], rows[rows.length-1][index], key, val, callback);
-                return;
-            }
         }
         callback(new Error("Error in recursive search"));
     });
@@ -282,7 +293,7 @@ function RippledQuerier(max_iterators) {
     var rq = {};
 
     rq.FIRST_LEDGER = FIRST_LEDGER;
-    rq.FIRST_CLOSING_TIME = 410325670;
+    rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
 
     rq.getLatestLedgerIndex = function(callback) {
         getLatestLedgerIndex(ledb, callback);
