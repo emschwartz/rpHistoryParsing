@@ -22,8 +22,8 @@ var RippledQuerier = function(max_iterators, db_url) {
     connectToDbSync();
 
     function connectToDbSync(){
-        txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'));
-        ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'));
+        txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
+        ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
     }
     // function connectToDb(callback) {
     //     if (txdb && ledb) {
