@@ -68,7 +68,7 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
 }
 
 function getLatestLedgerIndex(ledb, callback) {
-    if (!callback) callback = this.printCallback;
+    if (!callback) callback = printCallback;
 
     ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
         if (err) {
@@ -80,7 +80,7 @@ function getLatestLedgerIndex(ledb, callback) {
 }
 
 function searchLedgerByClosingTime(ledb, rpepoch, callback) {
-    if (!callback) callback = this.printCallback;
+    if (!callback) callback = printCallback;
 
     getLatestLedgerIndex(ledb, function(err, latest_index) {
         if (err) {
@@ -94,7 +94,7 @@ function searchLedgerByClosingTime(ledb, rpepoch, callback) {
 }
 
 function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
-    if (!callback) callback = this.printCallback;
+    if (!callback) callback = printCallback;
 
     var num_queries = 20;
 
