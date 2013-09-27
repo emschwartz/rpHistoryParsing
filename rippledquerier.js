@@ -229,6 +229,11 @@ function searchLedgerByClosingTime(dbs, rpepoch, callback) {
         }
 
         getRawLedger(dbs, latest_index, function(err, latest_ledger){
+            if (err) {
+                callback(err);
+                return;
+            }
+
             if (rpepoch >= latest_ledger.ClosingTime) {
                 callback(null, latest_index);
                 return;
