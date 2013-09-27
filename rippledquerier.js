@@ -31,7 +31,7 @@ function rpEpochFromTimestamp(timestamp) {
 function getRawLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
-    winston.info("getting raw ledger", ledger_index);
+    // winston.info("getting raw ledger", ledger_index);
 
     dbs.ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
         function(err, rows) {
