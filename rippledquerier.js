@@ -17,8 +17,8 @@ var RippledQuerier = function(db_url) {
 
     winston.info("Connecting to dbs at:", db_url);
 
-    var txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
-    var ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
+    var txdb = new sqlite3.Database(path.resolve(db_url || ".", 'transaction.db'));
+    var ledb = new sqlite3.Database(path.resolve(db_url || ".", 'ledger.db'));
 
     winston.info(txdb, ledb);
 
