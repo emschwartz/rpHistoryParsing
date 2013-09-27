@@ -8,7 +8,7 @@ var sqlite3 = require('sqlite3').verbose(),
     async = require('async');
 
 
-var config = require('./config');
+// var config = require('./config');
 
 
 var RippledQuerier = function(db_url) {
@@ -21,10 +21,10 @@ var RippledQuerier = function(db_url) {
         if (txdb && ledb) return;
 
         winston.info("Connecting to db");
-        txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
+        txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
             if (err) throw err;
             winston.info("txdb connected");
-            ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
+            ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
                 if (err) throw err;
                 winston.info("ledb connected");
                 callback();
@@ -167,14 +167,32 @@ var RippledQuerier = function(db_url) {
                         callback(parsing_err);
                         return;
                     }
+
                     callback(null, parsed_ledger);
                 });
             });
         });
+    };
 
 
+    rq.getLedgerRange = function(start, end, callback){
+        if (!callback) callback = printCallback;
+
+        var indices = _.range(start, end);
+
+        async.mapLimit(indices, MAX_ITERATORS, getLedger, function(err, ledgers){
+            if (err) {
+                callback(err);
+                return;
+            }
+            callback(null, ledgers);
+        });
 
     };
+
+
+
+    
 
     return rq;
 
@@ -184,8 +202,8 @@ var RippledQuerier = function(db_url) {
 
 // TESTS
 
-var testrq = new RippledQuerier();
-testrq.getLedger(2000000);
+var testrq = new RippledQuerier("/ripple/server/db");
+testrq.getLedgerRange(2000000, 2000009);
 
 
 
