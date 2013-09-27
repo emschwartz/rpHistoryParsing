@@ -237,10 +237,10 @@ function RippledQuerier (max_iterators) {
         if (!callback) callback = printCallback;
 
         var start_moment = moment(start);
-        var end_momnet = momnet(end);
+        var end_moment = moment(end);
 
         var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
-        var end_rpepoch = rpEpochFromTimestamp(end_momnet.valueOf());
+        var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
 
         getLedgersByRpEpochRange(start_rpepoch, end_rpepoch, callback);
     };
