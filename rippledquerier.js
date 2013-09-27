@@ -130,12 +130,14 @@ function getLedger(dbs, ledger_index, callback) {
 
     getRawLedger(dbs, ledger_index, function(err, raw_ledger) {
         if (err) {
+            winston.error("Error getting raw ledger", ledger_index);
             callback(err);
             return;
         }
 
         getRawTxForLedger(dbs, ledger_index, function(err, raw_txs) {
             if (err) {
+                winston.error("Error getting raw tx for ledger", ledger_index);
                 callback(err);
                 return;
             }
