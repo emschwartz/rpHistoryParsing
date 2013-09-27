@@ -23,9 +23,10 @@ var RippledQuerier = function(params) {
     else
         MAX_ITERATORS = 100;
 
+    var self = this;
 
-    this.FIRST_LEDGER = 32570;
-    this.FIRST_CLOSING_TIME = 410325670;
+    self.FIRST_LEDGER = 32570;
+    self.FIRST_CLOSING_TIME = 410325670;
 
     var txdb, ledb;
     ledb = new sqlite3.Database(path.resolve(params.db_path || config.dbPath || "/ripple/server/db", 'ledger.db'));
@@ -155,9 +156,9 @@ var RippledQuerier = function(params) {
 // PUBLIC FUNCTIONS
 
 RippledQuerier.prototype.getLatestLedgerIndex = function(callback) {
-    if (!callback) callback = this.printCallback;
+    if (!callback) callback = self.printCallback;
 
-    this.ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
+    self.ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
         if (err) {
             callback(err);
             return;
