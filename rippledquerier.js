@@ -157,6 +157,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
         getLedger(dbs, ledger_index, async_callback);
     }, function(err, ledgers) {
         if (err) {
+            winston.error("Error getting ledger range:", err);
             callback(err);
             return;
         }
