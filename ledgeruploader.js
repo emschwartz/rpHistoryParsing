@@ -16,7 +16,7 @@ var client = knox.createClient({
 var MAX_UPLOADERS = 25;
 
 
-var rq = new RippledQuerier(100);
+var rq = RippledQuerier(100);
 
 
 startUploadingLedgers(1000);
