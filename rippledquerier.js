@@ -32,6 +32,8 @@ function getRawLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
     // winston.info("getting raw ledger", ledger_index);
+    if (!dbs) winston.error("dbs is not defined in getRawLedger");
+
 
     dbs.ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
         function(err, rows) {
@@ -133,6 +135,9 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 function getLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
+    if (!dbs) winston.error("dbs is not defined in getLedger");
+
+
     getRawLedger(dbs, ledger_index, function(err, raw_ledger) {
         if (err) {
             winston.error("Error getting raw ledger", ledger_index, "err", err);
@@ -157,6 +162,8 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     var indices = _.range(start, end);
+
+    if (!dbs) winston.error("dbs is not defined in getLedgerRange");
 
     winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
 
