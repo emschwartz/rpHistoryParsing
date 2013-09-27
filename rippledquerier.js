@@ -14,7 +14,6 @@ var sqlite3 = require('sqlite3').verbose(),
 var RippledQuerier = function(max_iterators, db_url) {
 
     if (!max_iterators) max_iterators = 100;
-    if (!db_url) db_url = "/ripple/server/db";
 
     var rq = {};
 
@@ -22,8 +21,8 @@ var RippledQuerier = function(max_iterators, db_url) {
     rq.FIRST_CLOSING_TIME = 410325670;
 
     var txdb, ledb;
-    ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
-    txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
+    ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || "/ripple/server/db", 'ledger.db'));
+    txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || "/ripple/server/db", 'transaction.db'));
 
 
     function printCallback(err, result) {
