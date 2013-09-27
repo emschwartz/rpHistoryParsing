@@ -186,7 +186,7 @@ function RippledQuerier (max_iterators) {
 
         var indices = _.range(start, end);
 
-        async.mapLimit(indices, max_iterators, getLedger, function(err, ledgers) {
+        async.mapLimit(indices, max_iterators, this.getLedger, function(err, ledgers) {
             if (err) {
                 callback(err);
                 return;
