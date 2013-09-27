@@ -106,7 +106,11 @@ var RippledQuerier = function(db_url) {
             throw led_err;
         }
 
+        winston.info("ledger pre tx", ledger);
+
         try {
+            winston.info("raw_txs.length", raw_txs.length);
+
             var transactions = _.map(raw_txs, function(raw_tx) {
 
                 // Parse tx
@@ -138,6 +142,7 @@ var RippledQuerier = function(db_url) {
 
             });
 
+            winston.info("ledger now", ledger);
             ledger.transactions = transactions;
             return ledger;
 
