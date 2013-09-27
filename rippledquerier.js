@@ -117,7 +117,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
 
     var index_str = '';
     _.each(indices, function(index) {
-        index_str += ("'" + index + "', ");
+        index_str += (index + ", ");
     });
     index_str = index_str.substring(0, index_str.length - 2);
 
