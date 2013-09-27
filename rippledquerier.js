@@ -11,8 +11,7 @@ var sqlite3 = require('sqlite3').verbose(),
 // var config = require('./config');
 
 
-var testrq = new RippledQuerier("/ripple/server/db");
-testrq.getLedger(20000000);
+
 
 
 var RippledQuerier = function(db_url) {
@@ -77,3 +76,8 @@ var RippledQuerier = function(db_url) {
     return rq;
 
 };
+
+exports.RippledQuerier = RippledQuerier;
+
+var testrq = new RippledQuerier("/ripple/server/db");
+testrq.getLedger(20000000);
