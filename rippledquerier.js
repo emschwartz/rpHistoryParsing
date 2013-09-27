@@ -138,6 +138,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
 
             for (var i = 0; i < rows.length - 1; i++) {
                 if (rows[i][key] <= val && val < rows[i + 1][key]) {
+                    winston.info("Found value between index", rows[i][index], "and", rows[i + 1][index]);
                     dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
                     return;
                 }
