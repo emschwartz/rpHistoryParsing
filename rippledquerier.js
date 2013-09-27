@@ -10,18 +10,24 @@ var sqlite3 = require('sqlite3').verbose(),
 
 var config = require('./config');
 
-var txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'));
-var ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'));
 
-setTimeout(function(){
-	winston.info(txdb, ledb);
 
-}, 1000);
+
 
 
 var RippledQuerier = function(db_url) {
 
     var rq = {};
+
+    var txdb, ledb;
+
+    function connectToDb(callback) {
+        txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'), function() {
+            ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(){
+            	callback();
+            });
+        });
+    }
 
     function printCallback(err, result) {
         if (err) {
@@ -33,6 +39,8 @@ var RippledQuerier = function(db_url) {
 
     function getRawLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
+
+        if (!txdb || !ledb) {connectToDb(function(){ getRawLedger(ledger_index, callback); }); return;};
 
         ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
@@ -56,6 +64,8 @@ var RippledQuerier = function(db_url) {
 
     function getRawTxForLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
+
+        if (!txdb || !ledb) {connectToDb(function(){ getRawLedger(ledger_index, callback); }); return;};
 
         txdb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
@@ -83,8 +93,8 @@ var RippledQuerier = function(db_url) {
 
 // TESTS
 
-// var testrq = new RippledQuerier();
-// testrq.getLedger(20000000);
+var testrq = new RippledQuerier();
+testrq.getLedger(20000000);
 
 
 
