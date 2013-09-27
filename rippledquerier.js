@@ -166,6 +166,12 @@ function getLedgerRange(ledb, start, end, max_iterators, callback) {
 function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
+    if (end_epoch < start_epoch) {
+        var temp = end_epoch;
+        end_epoch = start_epoch;
+        start_epoch = temp;
+    }
+
     searchLedgerByClosingTime(ledb, start_epoch, function(err, start_index) {
         if (err) {
             callback(err);
