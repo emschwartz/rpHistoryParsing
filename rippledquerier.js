@@ -96,6 +96,8 @@ function searchLedgerByClosingTime(ledb, rpepoch, callback) {
 function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     if (!callback) callback = printCallback;
 
+    winston.info("Recursively searching from", start, "to", end);
+
     var num_queries = 20;
 
     if (end - start <= num_queries) {
@@ -106,6 +108,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
         // winston.info(query_str_final);
         db.all(query_str_final, function(err, rows){
+            winston.info("search got:", rows[0]);
                 callback(err, rows[0][index]);
             });
         return;
@@ -125,7 +128,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
         "WHERE " + index + " IN (" + index_str + ") " +
         "ORDER BY " + index + " ASC;";
 
-    // winston.info("query_str_recur", query_str_recur);
+    winston.info("query_str_recur", query_str_recur);
 
     db.all(query_str_recur, function(err, rows) {
             if (err) {
