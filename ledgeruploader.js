@@ -197,4 +197,8 @@ function getLedgerManifest(callback) {
 
     }).end();
 
+    req.on('error', function(err) {
+            callback(err);
+    });
+
 }
