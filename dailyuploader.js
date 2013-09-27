@@ -88,6 +88,8 @@ function getNextDay(start_day, callback) {
             return;
         }
 
+        winston.info("getNextDay got this many ledgers", ledgers.length);
+
         callback(null, ledgers);
 
     });
