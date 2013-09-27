@@ -151,6 +151,18 @@ var RippledQuerier = function(params) {
 
     // PUBLIC FUNCTIONS
 
+    rq.getLatestLedgerIndex = function(callback) {
+        if (!callback) callback = printCallback;
+
+        ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows){
+            if (err) {
+                callback(err);
+                return;
+            }
+            callback(rows[0].LedgerSeq);
+        });
+    };
+
     rq.getLedger = function(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
@@ -219,9 +231,7 @@ var RippledQuerier = function(params) {
                 callback(null, results);
 
             });
-
         });
-
     };
 
 
