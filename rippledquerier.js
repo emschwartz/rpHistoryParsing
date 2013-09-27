@@ -150,7 +150,7 @@ function RippledQuerier (max_iterators) {
     rq.getLatestLedgerIndex = function(callback) {
         if (!callback) callback = this.printCallback;
 
-        this.ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
+        ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
             if (err) {
                 callback(err);
                 return;
