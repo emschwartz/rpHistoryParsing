@@ -133,6 +133,9 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     winston.info("db", db);
 
     db.all(query_str_recur, function(err, rows){
+            
+            winston.info("err", err, "rows", rows);
+            
             if (err) {
                 callback("Error querying db:", err);
                 return;
