@@ -178,7 +178,9 @@ function getLedgerManifest(callback) {
 
     winston.info("getting ledger manifest");
 
-    var req = client.get('/meta/ledger-manifest.json').on('response', function(res) {
+    var req = client.get('/meta/ledger-manifest.json');
+
+    req.on('response', function(res) {
 
         var manifest = '';
 
@@ -195,10 +197,12 @@ function getLedgerManifest(callback) {
             callback(err);
         });
 
-    }).end();
+    });
 
     req.on('error', function(err) {
             callback(err);
     });
+
+    req.end();
 
 }
