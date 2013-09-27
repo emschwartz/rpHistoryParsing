@@ -109,8 +109,6 @@ var RippledQuerier = function(db_url) {
         try {
             var transactions = _.map(raw_ledger.Transactions, function(raw_tx) {
 
-                // winston.info(raw_tx);
-
                 // Parse tx
                 var tx_buffer = new Buffer(raw_tx.RawTxn);
                 var tx_buff_arr = _.map(tx_buffer, function(elem) {
@@ -119,6 +117,8 @@ var RippledQuerier = function(db_url) {
                 var tx_serialized_obj = new ripple.SerializedObject(tx_buffer);
                 var parsed_tx = tx_serialized_obj.to_json();
 
+                winston.info("parsed_tx:", JSON.stringify(parsed_tx));
+
                 // Parse metadata
                 var meta_buffer = new Buffer(raw_tx.TxnMeta);
                 var meta_buff_arry = _.map(meta_buffer, function(elem) {
@@ -126,6 +126,8 @@ var RippledQuerier = function(db_url) {
                 });
                 var meta_serialized_obj = new ripple.SerializedObject(meta_buffer);
                 var parsed_meta = meta_serialized_obj.to_json();
+
+                winston.info("parsed_meta:", JSON.stringify(parsed_meta));
 
                 parsed_tx.metaData = parsed_meta;
 
