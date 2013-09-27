@@ -13,6 +13,8 @@ var config = require('./config');
 var txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'));
 var ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'));
 
+winston.info(txdb, ledb);
+
 
 var RippledQuerier = function(db_url) {
 
