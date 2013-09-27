@@ -19,29 +19,9 @@ var RippledQuerier = function(max_iterators, db_url) {
     var rq = {};
 
     var txdb, ledb;
-    connectToDbSync();
+    ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
+    txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
 
-    function connectToDbSync(){
-        txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
-        ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
-    }
-    // function connectToDb(callback) {
-    //     if (txdb && ledb) {
-    //         callback();
-    //         return;
-    //     }
-
-    //     winston.info("Connecting to db");
-    //     txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
-    //         if (err) throw err;
-    //         winston.info("txdb connected");
-    //         ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
-    //             if (err) throw err;
-    //             winston.info("ledb connected");
-    //             callback();
-    //         });
-    //     });
-    // }
 
     function printCallback(err, result) {
         if (err) {
@@ -53,8 +33,6 @@ var RippledQuerier = function(max_iterators, db_url) {
 
     function getRawLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
-
-
 
         ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
@@ -77,9 +55,21 @@ var RippledQuerier = function(max_iterators, db_url) {
             });
     }
 
-    function getRawTxForLedger(ledger_index, callback) {
+    function getRawLedgersForEpochRange (start_epoch, end_epoch, callback) {
         if (!callback) callback = printCallback;
 
+        ledb.all("SELECT * FROM Ledgers WHERE (ClosingTime >= ? and ClosingTime < ?);", [start_epoch, end_epoch],
+            function(err, rows){
+                if (err) {
+                    callback(err);
+                    return;
+                }
+                callback(null, rows);
+            });
+    }
+
+    function getRawTxForLedger(ledger_index, callback) {
+        if (!callback) callback = printCallback;
 
         txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
@@ -93,7 +83,7 @@ var RippledQuerier = function(max_iterators, db_url) {
             });
     }
 
-    function parseLedger(raw_ledger, raw_txs) {
+    function parseLedger(raw_ledger, raw_txs, callback) {
 
         winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
 
@@ -115,12 +105,7 @@ var RippledQuerier = function(max_iterators, db_url) {
                 total_coins: raw_ledger.TotalCoins,
                 transaction_hash: raw_ledger.TransSetHash
             };
-        } catch (led_err) {
-            winston.error("Error parsing ledger", raw_ledger.LedgerSeq);
-            throw led_err;
-        }
 
-        try {
             var transactions = _.map(raw_txs, function(raw_tx) {
 
                 // Parse tx
@@ -147,14 +132,16 @@ var RippledQuerier = function(max_iterators, db_url) {
             });
 
             ledger.transactions = transactions;
-            return ledger;
+            callback(null, ledger);
 
-        } catch (tx_err) {
-            winston.error("Error parsing transaction");
-            throw tx_err;
+        } catch (err) {
+            callback(err);
         }
 
     }
+
+
+    // PUBLIC FUNCTIONS
 
     rq.getLedger = function(ledger_index, callback) {
         if (!callback) callback = printCallback;
@@ -171,16 +158,8 @@ var RippledQuerier = function(max_iterators, db_url) {
                     return;
                 }
 
-                var parsed_ledger;
+                parseLedger(raw_ledger, raw_txs, callback);
 
-                try {
-                    parsed_ledger = parseLedger(raw_ledger, raw_txs);
-                } catch (parsing_err) {
-                    callback(parsing_err);
-                    return;
-                }
-
-                callback(null, parsed_ledger);
             });
         });
     };
@@ -201,7 +180,43 @@ var RippledQuerier = function(max_iterators, db_url) {
 
     };
 
-    
+    rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
+        if (!callback) callback = printCallback;
+
+        getRawLedgersForEpochRange(rp_start, rp_end, function(err, raw_ledgers){
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            async.mapLimit(raw_ledgers, max_iterators, function(raw_ledger, async_callback){
+
+                var ledger_index = raw_ledger.LedgerSeq;
+                getRawTxForLedger(ledger_index, function(err, raw_txs){
+                    if (err) {
+                        async_callback(err);
+                        return;
+                    }
+
+                    parseLedger(raw_ledger, raw_txs, async_callback);
+
+                });
+
+            }, function(err, results){
+                if (err) {
+                    callback(err);
+                    return;
+                }
+
+                callback(results);
+
+            });
+
+        });
+
+    };
+
+
     return rq;
 
 };
@@ -211,7 +226,13 @@ var RippledQuerier = function(max_iterators, db_url) {
 // TESTS
 
 var testrq = new RippledQuerier();
-testrq.getLedgerRange(2000000, 2000009);
+testrq.getLedgersByRpEpochRange(431582650, 431582680, function(err, ledgers){
+    if (err) {
+        winston.error(err);
+        return;
+    }
+    winston.info("Got this many ledgers:", ledgers.length);
+});
 
 
 
