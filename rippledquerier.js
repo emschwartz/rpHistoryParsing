@@ -331,7 +331,7 @@ function RippledQuerier(max_iterators) {
     rq.FIRST_LEDGER = FIRST_LEDGER;
     rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
 
-    rq.getLatestLedgerIndex = function(dbs, callback) {
+    rq.getLatestLedgerIndex = function(callback) {
         getLatestLedgerIndex(dbs, callback);
     };
 
