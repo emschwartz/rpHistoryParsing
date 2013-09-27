@@ -12,7 +12,7 @@ var config = require('./config');
 // Can be called with params
 //  max_iterators (for async functions)
 //  db_path (local path to rippled server)
-var RippledQuerier = (function(params) {
+(function(params) {
 
     if (!params) params = {};
 
@@ -23,7 +23,6 @@ var RippledQuerier = (function(params) {
     else
         MAX_ITERATORS = 100;
 
-    var rq = {};
 
     rq.FIRST_LEDGER = 32570;
     rq.FIRST_CLOSING_TIME = 410325670;
@@ -192,7 +191,7 @@ var RippledQuerier = (function(params) {
 
         var indices = _.range(start, end);
 
-        async.mapLimit(indices, max_iterators, this.getLedger, function(err, ledgers) {
+        async.mapLimit(indices, max_iterators, rq.getLedger, function(err, ledgers) {
             if (err) {
                 callback(err);
                 return;
@@ -236,7 +235,6 @@ var RippledQuerier = (function(params) {
         });
     };
 
-
     return rq;
 
 }());
@@ -251,7 +249,7 @@ var RippledQuerier = (function(params) {
 //         winston.error(err);
 //         return;
 //     }
-//     winston.info("Got this many ledgers:", ledgers.length);
+//     winston.info("Got rq many ledgers:", ledgers.length);
 // });
 
 
