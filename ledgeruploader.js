@@ -13,6 +13,7 @@ var client = knox.createClient({
     secret: config.s3.secret,
     bucket: config.s3.bucket
 });
+
 var MAX_UPLOADERS = 25;
 
 
@@ -26,13 +27,13 @@ function startUploadingLedgers(batch_size) {
 
     winston.info("starting to upload ledgers");
 
-    getLastUploadedLedger(function(err, last_indiv_ledger) {
+    getLastUploadedLedger(function(err, latest_indiv_ledger) {
         if (err) {
             winston.error("Error getting last uploaded ledger", err);
             return;
         }
 
-        uploadNextBatch(last_indiv_ledger, batch_size, uploadNextBatch);
+        uploadNextBatch(latest_indiv_ledger, batch_size, uploadNextBatch);
 
     });
 
@@ -78,7 +79,7 @@ function uploadNextBatch(batch_start, batch_size) {
 
 function uploadToS3(ledger, callback) {
 
-    winston.info("uploading ledger to s3:", ledger.ledger_index);
+    // winston.info("uploading ledger to s3:", ledger.ledger_index);
 
     var ledger_str = JSON.stringify(ledger);
 
@@ -119,7 +120,7 @@ function uploadToS3(ledger, callback) {
 
 function updateS3Manifest(ledger_index) {
 
-    winston.info("updating s3 manifest");
+    // winston.info("updating s3 manifest, latest_indiv_ledger:", ledger_index);
 
     getLedgerManifest(function(manifest) {
 
@@ -167,12 +168,12 @@ function getLastUploadedLedger(callback) {
     winston.info("getting last uploaded ledger");
 
     getLedgerManifest(function(err, manifest) {
-        if (err || !manifest.last_indiv_ledger) {
+        if (err || !manifest.latest_indiv_ledger) {
             winston.info("first ledger:", rq.FIRST_LEDGER);
             callback(null, rq.FIRST_LEDGER);
         } else {
-            winston.info("last uploaded ledger:", manifest.last_indiv_ledger);
-            callback(null, manifest.last_indiv_ledger);
+            winston.info("last uploaded ledger:", manifest.latest_indiv_ledger);
+            callback(null, manifest.latest_indiv_ledger);
         }
     });
 }
