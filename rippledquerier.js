@@ -15,7 +15,7 @@ var testrq = new RippledQuerier("/ripple/server/db");
 testrq.getLedger(20000000);
 
 
-var RippledQuerier = (function(db_url) {
+var RippledQuerier = function(db_url) {
 
     var rq = {};
 
@@ -76,4 +76,4 @@ var RippledQuerier = (function(db_url) {
 
     return rq;
 
-}());
+};
