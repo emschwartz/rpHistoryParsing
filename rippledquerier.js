@@ -1,5 +1,3 @@
-winston.info("I got included");
-
 var sqlite3 = require('sqlite3').verbose(),
     winston = require('winston'),
     path = require('path'),

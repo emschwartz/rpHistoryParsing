@@ -15,7 +15,7 @@ var client = knox.createClient({
 });
 var MAX_UPLOADERS = 25;
 
-winston.info(RippledQuerier);
+winston.info(RippledQuerier.RippledQuerier);
 
 var rq = RippledQuerier(100);
 
