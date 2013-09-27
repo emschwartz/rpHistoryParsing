@@ -107,7 +107,7 @@ var RippledQuerier = function(db_url) {
         }
 
         try {
-            var transactions = _.map(raw_ledger.Transactions, function(raw_tx) {
+            var transactions = _.map(raw_txs, function(raw_tx) {
 
                 // Parse tx
                 var tx_buffer = new Buffer(raw_tx.RawTxn);
