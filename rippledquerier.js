@@ -150,6 +150,8 @@ function getLedgerRange(ledb, start, end, max_iterators, callback) {
 
     var indices = _.range(start, end);
 
+    winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
+
     async.mapLimit(indices, max_iterators, getLedger, function(err, ledgers) {
         if (err) {
             callback(err);
@@ -180,7 +182,7 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators,
 
             winston.info("end_epoch", end_epoch, "end_index", end_index);
 
-            getLedgerRange(ledb, start_index, end_index, max_iterators, callback);
+            getLedgerRange(ledb, start_index, end_index + 1, max_iterators, callback);
 
         });
 
