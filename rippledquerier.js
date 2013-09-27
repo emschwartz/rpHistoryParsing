@@ -22,10 +22,15 @@ var RippledQuerier = function(db_url) {
     var txdb, ledb;
 
     function connectToDb(callback) {
+
+    	winston.info("Connecting to db");
+
         txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
         	if (err) throw err;
+        	winston.info("txdb connected");
             ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(err){
             	if (err) throw err;
+            	winston.info("ledb connected");
             	callback();
             });
         });
@@ -47,6 +52,7 @@ var RippledQuerier = function(db_url) {
         ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
                 if (err) {
+                	winston.error("Error getting raw ledger:", ledger_index);
                     callback(err);
                     return;
                 }
@@ -72,6 +78,7 @@ var RippledQuerier = function(db_url) {
         txdb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
                 if (err) {
+                	winston.error("Error getting raw txs for ledger:", ledger_index);
                     callback(err);
                     return;
                 }
