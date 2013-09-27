@@ -18,6 +18,9 @@ var RippledQuerier = function(max_iterators, db_url) {
 
     var rq = {};
 
+    rq.FIRST_LEDGER = 32570;
+    rq.FIRST_CLOSING_TIME = 410325670;
+
     var txdb, ledb;
     ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
     txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
@@ -208,7 +211,7 @@ var RippledQuerier = function(max_iterators, db_url) {
                     return;
                 }
 
-                callback(results);
+                callback(null, results);
 
             });
 
@@ -225,14 +228,14 @@ var RippledQuerier = function(max_iterators, db_url) {
 
 // TESTS
 
-var testrq = new RippledQuerier();
-testrq.getLedgersByRpEpochRange(431582650, 431582680, function(err, ledgers){
-    if (err) {
-        winston.error(err);
-        return;
-    }
-    winston.info("Got this many ledgers:", ledgers.length);
-});
+// var testrq = new RippledQuerier();
+// testrq.getLedgersByRpEpochRange(431582650, 431582680, function(err, ledgers){
+//     if (err) {
+//         winston.error(err);
+//         return;
+//     }
+//     winston.info("Got this many ledgers:", ledgers.length);
+// });
 
 
 
