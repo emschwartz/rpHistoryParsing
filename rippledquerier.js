@@ -83,6 +83,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
     var ledger;
 
+    // TODO TEST THIS PARSING ALGORITHM
+
     try {
         ledger = {
             accepted: true,
