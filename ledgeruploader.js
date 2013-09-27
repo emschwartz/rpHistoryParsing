@@ -184,6 +184,11 @@ function getLedgerManifest(callback) {
 
         var manifest = '';
 
+        if (res.statusCode !== 200) {
+            callback(new Error("Error downloading ledger manifest"));
+            return;
+        }
+
         res.on('data', function(chunk) {
             manifest += chunk;
         });
