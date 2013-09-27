@@ -20,6 +20,8 @@ var MAX_UPLOADERS = 25;
 
 var rq = new RippledQuerier(10);
 
+rq.getLedger(2439819);
+
 
 rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, ledgers){
     if (err) {
