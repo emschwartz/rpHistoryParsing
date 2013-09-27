@@ -7,7 +7,7 @@ var sqlite3 = require('sqlite3').verbose(),
     async = require('async');
 
 
-// var config = require('./config');
+var config = require('./config');
 
 // Can be called with params
 //  max_iterators (for async functions)
