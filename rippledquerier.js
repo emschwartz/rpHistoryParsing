@@ -126,7 +126,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         callback(null, ledger);
 
     } catch (err) {
-        winston.error("Error parsing ledger:", raw_ledger.LedgerSeq);
+        winston.error("Error parsing ledger:", err);
         callback(err);
     }
 
