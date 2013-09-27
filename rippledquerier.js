@@ -8,7 +8,7 @@ var sqlite3 = require('sqlite3').verbose(),
     async = require('async');
 
 
-var config = require('./config');
+// var config = require('./config');
 
 
 var testrq = new RippledQuerier("/ripple/server/db");
@@ -19,8 +19,8 @@ var RippledQuerier = (function(db_url) {
 
     var rq = {};
 
-    var txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'));
-    var ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'));
+    var txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
+    var ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
 
     function printCallback(err, result) {
         if (err) {
