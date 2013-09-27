@@ -127,13 +127,13 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 function getLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
-    getRawLedger(dbs.ledb, ledger_index, function(err, raw_ledger) {
+    getRawLedger(dbs, ledger_index, function(err, raw_ledger) {
         if (err) {
             callback(err);
             return;
         }
 
-        getRawTxForLedger(txdb, ledger_index, function(err, raw_txs) {
+        getRawTxForLedger(dbs, ledger_index, function(err, raw_txs) {
             if (err) {
                 callback(err);
                 return;
@@ -218,13 +218,13 @@ function searchLedgerByClosingTime(dbs, rpepoch, callback) {
         return;
     }
 
-    getLatestLedgerIndex(dbs.ledb, function(err, latest_index) {
+    getLatestLedgerIndex(dbs, function(err, latest_index) {
         if (err) {
             callback(err);
             return;
         }
 
-        getRawLedger(dbs.ledb, latest_index, function(err, latest_ledger){
+        getRawLedger(dbs, latest_index, function(err, latest_ledger){
             if (rpepoch >= latest_ledger.ClosingTime) {
                 callback(null, latest_index);
                 return;
