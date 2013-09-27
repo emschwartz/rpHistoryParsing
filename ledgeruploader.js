@@ -3,7 +3,8 @@ var winston = require('winston'),
     moment = require('moment'),
     _ = require('lodash'),
     async = require('async'),
-    knox = require('knox');
+    knox = require('knox'),
+    RippledQuerier = require('./rippledquerier');
 
 var config = require('./config');
 
