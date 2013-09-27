@@ -51,111 +51,6 @@ function getRawLedger(ledb, ledger_index, callback) {
         });
 }
 
-// THIS IS VERY SLOW!!
-
-function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
-    if (!callback) callback = printCallback;
-
-    ledb.all("SELECT * FROM Ledgers WHERE (ClosingTime >= ? and ClosingTime < ?);", [start_epoch, end_epoch],
-        function(err, rows) {
-            if (err) {
-                callback(err);
-                return;
-            }
-            callback(null, rows);
-        });
-
-}
-
-function getLatestLedgerIndex(ledb, callback) {
-    if (!callback) callback = printCallback;
-
-    ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
-        if (err) {
-            callback(err);
-            return;
-        }
-        callback(null, rows[0].LedgerSeq);
-    });
-}
-
-function searchLedgerByClosingTime(ledb, rpepoch, callback) {
-    if (!callback) callback = printCallback;
-
-    getLatestLedgerIndex(ledb, function(err, latest_index) {
-        if (err) {
-            callback(err);
-            return;
-        }
-
-        dbRecursiveSearch(ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
-    });
-
-}
-
-function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
-    if (!callback) callback = printCallback;
-
-    winston.info("Recursively searching from", start, "to", end);
-
-    var num_queries = 20;
-
-    if (end - start <= num_queries) {
-        var query_str_final = "SELECT " + index + " FROM " + table + " " +
-            "WHERE (" + index + ">=" + start + " " +
-            "and " + index + "<" + end + " " +
-            "and " + key + "<=" + val + ") " +
-            "ORDER BY ABS(" + key + "-" + val + ") ASC;";
-        // winston.info(query_str_final);
-        db.all(query_str_final, function(err, rows){
-            winston.info("search got:", rows[0]);
-                callback(err, rows[0][index]);
-            });
-        return;
-    }
-
-    var indices = _.map(_.range(num_queries + 1), function(segment) {
-        return start + segment * Math.floor((end - start) / num_queries);
-    });
-    indices[indices.length-1]++;
-
-    var index_str = '';
-    _.each(indices, function(index) {
-        index_str += (index + ", ");
-    });
-    index_str = index_str.substring(0, index_str.length - 2);
-
-    var query_str_recur = "SELECT * FROM " + table + " " +
-        "WHERE " + index + " IN (" + index_str + ") " +
-        "ORDER BY " + index + " ASC;";
-
-    winston.info("query_str_recur", query_str_recur);
-
-    winston.info("db", db);
-
-    db.all(query_str_recur, function(err, rows){
-            
-            if (err) {
-                winston.info("Got here");
-                callback(err);
-                return;
-            }
-
-            winston.info("rows.length", rows.length);
-
-            for (var i = 0; i < rows.length - 1; i++) {
-                winston.info("rows[i][key]", rows[i][key], "val", val, "rows[i + 1][key]", rows[i + 1][key]);
-                if (rows[i][key] <= val && val < rows[i + 1][key]) {
-                    winston.info("Found value between index", rows[i][index], "and", rows[i + 1][index]);
-                    dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
-                    return;
-                }
-            }
-            callback(new Error("Error in recursive search"));
-        });
-
-}
-
 function getRawTxForLedger(txdb, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -228,6 +123,148 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
 }
 
+function getLedger(ledb, ledger_index, callback) {
+    if (!callback) callback = printCallback;
+
+    getRawLedger(ledb, ledger_index, function(err, raw_ledger) {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        getRawTxForLedger(txdb, ledger_index, function(err, raw_txs) {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            parseLedger(raw_ledger, raw_txs, callback);
+
+        });
+    });
+}
+
+function getLedgerRange(ledb, start, end, callback) {
+    if (!callback) callback = printCallback;
+
+    var indices = _.range(start, end);
+
+    async.mapLimit(indices, max_iterators, getLedger, function(err, ledgers) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, ledgers);
+    });
+
+}
+
+
+function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
+    if (!callback) callback = printCallback;
+
+    searchLedgerByClosingTime(ledb, start_epoch, function(err, start_index) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        searchLedgerByClosingTime(ledb, end_epoch, function(err, end_index) {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            getLedgerRange(ledb, start_index, end_index, callback);
+
+        });
+
+    });
+
+}
+
+function getLatestLedgerIndex(ledb, callback) {
+    if (!callback) callback = printCallback;
+
+    ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, rows[0].LedgerSeq);
+    });
+}
+
+function searchLedgerByClosingTime(ledb, rpepoch, callback) {
+    if (!callback) callback = printCallback;
+
+    getLatestLedgerIndex(ledb, function(err, latest_index) {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        dbRecursiveSearch(ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
+    });
+
+}
+
+function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
+    if (!callback) callback = printCallback;
+
+    winston.info("Recursively searching from", start, "to", end);
+
+    var num_queries = 20;
+
+    if (end - start <= num_queries) {
+        var query_str_final = "SELECT " + index + " FROM " + table + " " +
+            "WHERE (" + index + ">=" + start + " " +
+            "and " + index + "<" + end + " " +
+            "and " + key + "<=" + val + ") " +
+            "ORDER BY ABS(" + key + "-" + val + ") ASC;";
+        db.all(query_str_final, function(err, rows) {
+            winston.info("search got:", rows[0]);
+            callback(err, rows[0][index]);
+        });
+        return;
+    }
+
+    var indices = _.map(_.range(num_queries + 1), function(segment) {
+        return start + segment * Math.floor((end - start) / num_queries);
+    });
+    indices[indices.length - 1]++;
+
+    var index_str = '';
+    _.each(indices, function(index) {
+        index_str += (index + ", ");
+    });
+    index_str = index_str.substring(0, index_str.length - 2);
+
+    var query_str_recur = "SELECT * FROM " + table + " " +
+        "WHERE " + index + " IN (" + index_str + ") " +
+        "ORDER BY " + index + " ASC;";
+
+    db.all(query_str_recur, function(err, rows) {
+
+        if (err) {
+            winston.info("Got here");
+            callback(err);
+            return;
+        }
+
+        for (var i = 0; i < rows.length - 1; i++) {
+            winston.info("rows[i][key]", rows[i][key], "val", val, "rows[i + 1][key]", rows[i + 1][key]);
+            if (rows[i][key] <= val && val < rows[i + 1][key]) {
+                dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+                return;
+            }
+        }
+        callback(new Error("Error in recursive search"));
+    });
+
+}
+
+
+
 
 // EXPORTS
 
@@ -250,46 +287,15 @@ function RippledQuerier(max_iterators) {
     };
 
     rq.getLedger = function(ledger_index, callback) {
-        if (!callback) callback = printCallback;
-
-        getRawLedger(ledb, ledger_index, function(err, raw_ledger) {
-            if (err) {
-                callback(err);
-                return;
-            }
-
-            getRawTxForLedger(txdb, ledger_index, function(err, raw_txs) {
-                if (err) {
-                    callback(err);
-                    return;
-                }
-
-                parseLedger(raw_ledger, raw_txs, callback);
-
-            });
-        });
+        getLedger(ledb, ledger_index, callback);
     };
-
 
     rq.searchLedgerByClosingTime = function(rpepoch, callback) {
         searchLedgerByClosingTime(ledb, rpepoch, callback);
     };
 
-
-
     rq.getLedgerRange = function(start, end, callback) {
-        if (!callback) callback = printCallback;
-
-        var indices = _.range(start, end);
-
-        async.mapLimit(indices, max_iterators, this.getLedger, function(err, ledgers) {
-            if (err) {
-                callback(err);
-                return;
-            }
-            callback(null, ledgers);
-        });
-
+        getLedgerRange(ledb, start, end, callback);
     };
 
     rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
