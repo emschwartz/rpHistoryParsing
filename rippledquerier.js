@@ -78,6 +78,9 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
     // winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
 
+    if (!raw_ledger || !raw_txs)
+        winston.error("raw_ledger", raw_ledger, "raw_txs", raw_txs);
+
     var ledger;
 
     try {
