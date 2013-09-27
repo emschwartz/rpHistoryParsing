@@ -216,8 +216,8 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     if (end - start <= num_queries) {
         var query_str_final = "SELECT " + index + " FROM " + table + " " +
             "WHERE (" + index + ">=" + start + " " +
-            "and " + index + "<" + end + " " +
-            "and " + key + "<=" + val + ") " +
+            "and " + index + "<" + end + ") " +
+            // "and " + key + "<=" + val + ") " +
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
         db.all(query_str_final, function(err, rows) {
             winston.info("search got:", rows[0]);
@@ -252,6 +252,10 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
         for (var i = 0; i < rows.length - 1; i++) {
             winston.info("rows[i][index]",rows[i][index], "rows[i][key]", rows[i][key], "val", val, "rows[i][index]", rows[i][index], "rows[i + 1][key]", rows[i + 1][key]);
             if (rows[i][key] <= val && val < rows[i + 1][key]) {
+                dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+                return;
+            }
+            if (val >= rows[i + 1][key]) {
                 dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
                 return;
             }
