@@ -46,6 +46,8 @@ function uploadNextBatch(batch_start, batch_size) {
         if (batch_end >= latest_index)
             batch_end = latest_index;
 
+        winston.info("Uploading batch from", batch_start, "to", batch_end);
+
         rq.getLedgerRange(batch_start, batch_end, function(err, ledgers) {
             if (err) {
                 winston.error("Error getting ledger range", err);
