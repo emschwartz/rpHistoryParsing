@@ -242,7 +242,7 @@ function RippledQuerier (max_iterators) {
         var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
         var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
 
-        getLedgersByRpEpochRange(start_rpepoch, end_rpepoch, callback);
+        this.getLedgersByRpEpochRange(start_rpepoch, end_rpepoch, callback);
     };
 
     return rq;
