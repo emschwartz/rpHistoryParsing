@@ -165,7 +165,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
 
     if (!dbs) winston.error("dbs is not defined in getLedgerRange");
 
-    winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
+    // winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
 
     async.mapLimit(indices, max_iterators, function(ledger_index, async_callback){
         getLedger(dbs, ledger_index, async_callback);
@@ -196,7 +196,7 @@ function getRawLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, 
             return;
         }
 
-        winston.info("start_epoch", start_epoch, "start_index", start_index);
+        // winston.info("start_epoch", start_epoch, "start_index", start_index);
 
         searchLedgerByClosingTime(dbs, end_epoch, function(err, end_index) {
             if (err) {
@@ -204,7 +204,7 @@ function getRawLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, 
                 return;
             }
 
-            winston.info("end_epoch", end_epoch, "end_index", end_index);
+            // winston.info("end_epoch", end_epoch, "end_index", end_index);
 
             getLedgerRange(dbs, start_index, end_index + 1, max_iterators, callback);
 
@@ -295,7 +295,6 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     db.all(query_str_recur, function(err, rows) {
 
         if (err) {
-            winston.info("Got here");
             callback(err);
             return;
         }
