@@ -2,7 +2,6 @@ var sqlite3 = require('sqlite3').verbose(),
     winston = require('winston'),
     path = require('path'),
     ripple = require('ripple-lib'),
-    // knox = require('knox'),
     moment = require('moment'),
     _ = require('lodash'),
     async = require('async');
@@ -10,10 +9,17 @@ var sqlite3 = require('sqlite3').verbose(),
 
 // var config = require('./config');
 
+// Can be called with params
+//  max_iterators (for async functions)
+//  db_path (local path to rippled server)
+var RippledQuerier = function(params) {
 
-var RippledQuerier = function(max_iterators, db_url) {
+    var MAX_ITERATORS;
 
-    if (!max_iterators) max_iterators = 100;
+    if (params.max_iterators)
+        MAX_ITERATORS = params.max_iterators;
+    else
+        MAX_ITERATORS = 100;
 
     var rq = {};
 
@@ -21,8 +27,8 @@ var RippledQuerier = function(max_iterators, db_url) {
     rq.FIRST_CLOSING_TIME = 410325670;
 
     var txdb, ledb;
-    ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || "/ripple/server/db", 'ledger.db'));
-    txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || "/ripple/server/db", 'transaction.db'));
+    ledb = new sqlite3.Database(path.resolve(params.db_path || config.dbPath || "/ripple/server/db", 'ledger.db'));
+    txdb = new sqlite3.Database(path.resolve(params.db_path || config.dbPath || "/ripple/server/db", 'transaction.db'));
 
 
     function printCallback(err, result) {
