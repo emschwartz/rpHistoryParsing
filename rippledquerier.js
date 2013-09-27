@@ -244,7 +244,7 @@ function RippledQuerier (max_iterators) {
 
     return rq;
 
-};
+}
 
 
 // TESTS
@@ -260,4 +260,4 @@ function RippledQuerier (max_iterators) {
 
 
 
-exports.RippledQuerier = RippledQuerier;
+module.exports.RippledQuerier = RippledQuerier;
