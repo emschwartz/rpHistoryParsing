@@ -14,6 +14,8 @@ var sqlite3 = require('sqlite3').verbose(),
 //  db_path (local path to rippled server)
 var RippledQuerier = (function(params) {
 
+    if (!params) params = {};
+
     var MAX_ITERATORS;
 
     if (params.max_iterators)
