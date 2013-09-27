@@ -17,7 +17,9 @@ var MAX_UPLOADERS = 25;
 
 winston.info(RippledQuerier.RippledQuerier);
 
-var rq = RippledQuerier(100);
+console.log(RippledQuerier.RippledQuerier);
+
+var rq = RippledQuerier.RippledQuerier(100);
 
 
 startUploadingLedgers(1000);
