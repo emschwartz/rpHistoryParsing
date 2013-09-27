@@ -31,6 +31,8 @@ function rpEpochFromTimestamp(timestamp) {
 function getRawLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
+    winston.info("getting raw ledger", ledger_index);
+
     dbs.ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
         function(err, rows) {
             if (err) {
@@ -47,6 +49,8 @@ function getRawLedger(dbs, ledger_index, callback) {
             if (rows.length > 1) {
                 winston.error("dbs.ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
             }
+
+            winston.info("for ledger", ledger_index, "got", rows);
 
             callback(null, rows[0]);
         });
