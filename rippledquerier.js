@@ -153,7 +153,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
     winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
 
     async.mapLimit(indices, max_iterators, function(ledger_index, async_callback){
-        getLedger(dbs.ledb, ledger_index, async_callback);
+        getLedger(dbs, ledger_index, async_callback);
     }, function(err, ledgers) {
         if (err) {
             callback(err);
