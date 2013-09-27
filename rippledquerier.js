@@ -83,8 +83,8 @@ var RippledQuerier = function(db_url) {
 
         connectToDb(function() {
 
-            getRawLedger(callback);
-            getRawTxForLedger(callback);
+            getRawLedger(ledger_index, callback);
+            getRawTxForLedger(ledger_index, callback);
 
         });
 
