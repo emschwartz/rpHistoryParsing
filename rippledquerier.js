@@ -109,7 +109,8 @@ var RippledQuerier = function(db_url) {
         winston.info("ledger pre tx", ledger);
 
         try {
-            winston.info("raw_txs.length", raw_txs.length);
+            winston.info("raw_txs.length", raw_txs.length, raw_txs);
+            winston.info("is ripple-lib defined?", (typeof ripple));
 
             var transactions = _.map(raw_txs, function(raw_tx) {
 
