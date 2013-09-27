@@ -169,11 +169,16 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators,
             callback(err);
             return;
         }
+
+        winston.info("start_epoch", start_epoch, "start_index", start_index);
+
         searchLedgerByClosingTime(ledb, end_epoch, function(err, end_index) {
             if (err) {
                 callback(err);
                 return;
             }
+
+            winston.info("end_epoch", end_epoch, "end_index", end_index);
 
             getLedgerRange(ledb, start_index, end_index, max_iterators, callback);
 
