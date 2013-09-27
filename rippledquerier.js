@@ -125,7 +125,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
         "WHERE " + index + " IN (" + index_str + ") " +
         "ORDER BY " + index + " ASC;";
 
-    winston.info("query_str_recur", query_str_recur);
+    // winston.info("query_str_recur", query_str_recur);
 
     db.all(query_str_recur, function(err, rows) {
             if (err) {
