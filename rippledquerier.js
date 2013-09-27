@@ -19,23 +19,26 @@ var RippledQuerier = function(max_iterators, db_url) {
     var rq = {};
 
     var txdb, ledb;
-    txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'));
-    ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'));
+    // txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'));
+    // ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'));
 
-    // function connectToDb(callback) {
-    //     if (txdb || ledb) return;
+    function connectToDb(callback) {
+        if (txdb || ledb) {
+            callback();
+            return;
+        }
 
-    //     winston.info("Connecting to db");
-    //     txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
-    //         if (err) throw err;
-    //         winston.info("txdb connected");
-    //         ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
-    //             if (err) throw err;
-    //             winston.info("ledb connected");
-    //             callback();
-    //         });
-    //     });
-    // }
+        winston.info("Connecting to db");
+        txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
+            if (err) throw err;
+            winston.info("txdb connected");
+            ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
+                if (err) throw err;
+                winston.info("ledb connected");
+                callback();
+            });
+        });
+    }
 
     function printCallback(err, result) {
         if (err) {
@@ -48,40 +51,48 @@ var RippledQuerier = function(max_iterators, db_url) {
     function getRawLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
-            function(err, rows) {
-                if (err) {
-                    winston.error("Error getting raw ledger:", ledger_index);
-                    callback(err);
-                    return;
-                }
+        connectToDb(function() {
 
-                if (rows.length === 0) {
-                    callback(new Error("ledb has no ledger of index: " + ledger_index));
-                    return;
-                }
+            ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
+                function(err, rows) {
+                    if (err) {
+                        winston.error("Error getting raw ledger:", ledger_index);
+                        callback(err);
+                        return;
+                    }
 
-                if (rows.length > 1) {
-                    winston.error("ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
-                }
+                    if (rows.length === 0) {
+                        callback(new Error("ledb has no ledger of index: " + ledger_index));
+                        return;
+                    }
 
-                callback(null, rows[0]);
-            });
+                    if (rows.length > 1) {
+                        winston.error("ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
+                    }
+
+                    callback(null, rows[0]);
+                });
+        });
     }
 
     function getRawTxForLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
-            function(err, rows) {
-                if (err) {
-                    winston.error("Error getting raw txs for ledger:", ledger_index);
-                    callback(err);
-                    return;
-                }
+        connectToDb(function() {
 
-                callback(null, rows);
-            });
+
+
+            txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
+                function(err, rows) {
+                    if (err) {
+                        winston.error("Error getting raw txs for ledger:", ledger_index);
+                        callback(err);
+                        return;
+                    }
+
+                    callback(null, rows);
+                });
+        });
     }
 
     function parseLedger(raw_ledger, raw_txs) {
@@ -191,9 +202,6 @@ var RippledQuerier = function(max_iterators, db_url) {
         });
 
     };
-
-
-
 
 
     return rq;
