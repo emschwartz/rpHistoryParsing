@@ -12,7 +12,7 @@ var sqlite3 = require('sqlite3').verbose(),
 // Can be called with params
 //  max_iterators (for async functions)
 //  db_path (local path to rippled server)
-var RippledQuerier = function(params) {
+var RippledQuerier = (function(params) {
 
     var MAX_ITERATORS;
 
@@ -237,7 +237,7 @@ var RippledQuerier = function(params) {
 
     return rq;
 
-};
+}());
 
 
 
