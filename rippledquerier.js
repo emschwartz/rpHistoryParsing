@@ -104,10 +104,10 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
             "and " + index + "<" + end + " " +
             "and " + key + "<=" + val + ") " +
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
-        winston.info(query_str_final);
-        // db.all(query_str_final, fuction(err, rows){
-        //         callback(err, rows[0][index]);
-        //     });
+        // winston.info(query_str_final);
+        db.all(query_str_final, fuction(err, rows){
+                callback(err, rows[0][index]);
+            });
         return;
     }
 
@@ -125,22 +125,22 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
         "WHERE " + index + " IN (" + index_str + ") " +
         "ORDER BY " + index + " ASC;";
 
-    winston.info(query_str_recur);
+    // winston.info(query_str_recur);
 
-    // db.all(query_str_recur, function(err, rows) {
-    //         if (err) {
-    //             callback(err);
-    //             return;
-    //         }
+    db.all(query_str_recur, function(err, rows) {
+            if (err) {
+                callback(err);
+                return;
+            }
 
-    //         for (var i = 0; i < rows.length - 1; i++) {
-    //             if (rows[i][key] <= val && val < rows[i + 1][key]) {
-    //                 dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
-    //                 return;
-    //             }
-    //         }
-    //         callback(new Error("Error in recursive search"));
-    //     });
+            for (var i = 0; i < rows.length - 1; i++) {
+                if (rows[i][key] <= val && val < rows[i + 1][key]) {
+                    dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+                    return;
+                }
+            }
+            callback(new Error("Error in recursive search"));
+        });
 
 }
 
