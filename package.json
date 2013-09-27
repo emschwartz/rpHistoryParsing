@@ -2,6 +2,10 @@
   "name": "rpHistoryParsing",
   "version": "0.0.1",
   "description": "A collection of tools that parse data from the Ripple network.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/emschwartz/rpHistoryParsing.git"
+    },
   "keywords": [
     "ripple",
     "db",
@@ -17,5 +21,8 @@
     "lodash": "1.3.1",
     "async": "0.2.9",
     "winston": "0.7.2"
+  },
+  "engines": {
+    "node": ">=0.10"
   }
 }
