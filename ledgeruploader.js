@@ -5,6 +5,8 @@ var winston = require('winston'),
     async = require('async'),
     knox = require('knox');
 
+var config = require('./config');
+
 var client = knox.createClient({
     key: config.s3.key,
     secret: config.s3.secret,
