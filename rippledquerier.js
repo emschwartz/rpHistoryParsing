@@ -329,6 +329,8 @@ function RippledQuerier(max_iterators) {
     rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
         if (!callback) callback = printCallback;
 
+        var txdb = txdb;
+
         getRawLedgersForEpochRange(ledb, rp_start, rp_end, max_iterators, function(err, raw_ledgers) {
             if (err) {
                 callback(err);
