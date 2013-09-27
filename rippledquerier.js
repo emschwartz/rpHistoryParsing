@@ -39,7 +39,7 @@ var RippledQuerier = function(db_url) {
                     return;
                 }
 
-                if (ledb_rows.length === 0) {
+                if (rows.length === 0) {
                     callback(new Error("ledb has no ledger of index: " + ledger_index));
                     return;
                 }
