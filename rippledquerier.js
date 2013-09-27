@@ -69,7 +69,7 @@ function getRawTxForLedger(dbs, ledger_index, callback) {
 
 function parseLedger(raw_ledger, raw_txs, callback) {
 
-    winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
+    // winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
 
     var ledger;
 
@@ -119,6 +119,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         callback(null, ledger);
 
     } catch (err) {
+        winston.error("Error parsing ledger:", raw_ledger.LedgerSeq);
         callback(err);
     }
 
