@@ -100,6 +100,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
             transaction_hash: raw_ledger.TransSetHash
         };
 
+        winston.info("ledger up to here:", ledger);
+
         var transactions = _.map(raw_txs, function(raw_tx) {
 
             // Parse tx
@@ -126,6 +128,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         });
 
         ledger.transactions = transactions;
+        
+        winston.info("parsed ledger", ledger);
         callback(null, ledger);
 
     } catch (err) {
