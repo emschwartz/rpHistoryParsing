@@ -105,7 +105,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
             "and " + key + "<=" + val + ") " +
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
         // winston.info(query_str_final);
-        db.all(query_str_final, fuction(err, rows){
+        db.all(query_str_final, function(err, rows){
                 callback(err, rows[0][index]);
             });
         return;
