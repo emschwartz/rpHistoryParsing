@@ -10,6 +10,9 @@ var sqlite3 = require('sqlite3').verbose(),
 var config = require('./config');
 
 
+var FIRST_LEDGER = 32570;
+
+
 // PRIVATE FUNCTIONS
 
 function printCallback(err, result) {
@@ -48,6 +51,8 @@ function getRawLedger(ledb, ledger_index, callback) {
         });
 }
 
+// THIS IS VERY SLOW!!
+
 function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
     if (!callback) callback = printCallback;
 
@@ -59,6 +64,79 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
             }
             callback(null, rows);
         });
+
+}
+
+function getLatestLedgerIndex(callback) {
+    if (!callback) callback = this.printCallback;
+
+    ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
+        if (err) {
+            callback(err);
+            return;
+        }
+        callback(null, rows[0].LedgerSeq);
+    });
+}
+
+function searchLedgerByClosingTime(ledb, rpepoch, callback) {
+    if (!callback) callback = this.printCallback;
+
+    getLatestLedgerIndex(function(err, latest_index) {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        dbRecursiveSearch(ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
+    });
+
+}
+
+function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
+    if (!callback) callback = this.printCallback;
+
+    var num_queries = 20;
+
+    if (start - end <= num_queries) {
+        var query_str = "SELECT " + index + " FROM " + table + " " +
+            "WHERE (" + index + ">=" + start + " " +
+            "and " + index + "<" + end + " " +
+            "and " + key + "<=" + val + ") " +
+            "ORDER BY ABS(" + key + "-" + val + ") ASC;";
+        db.all(query_str, fuction(err, rows) {
+                callback(err, rows[0][index]);
+            });
+        return;
+    }
+
+    var indicies = _.map(_.range(num_queries), function(segment) {
+        return start + segment * ((end - start) / num_queries);
+    });
+
+    var index_str = '';
+    _.each(indices, function(index) {
+        index_str += (index + ", ");
+    });
+    index_str = index_str.substring(0, index_str.length - 2);
+
+    db.all("SELECT * FROM " + table + " " +
+        "WHERE " + index + " IN (" + index_str + ") " +
+        "ORDER BY " + index + " ASC;", function(err, rows) {
+            if (err) {
+                callback(err);
+                return;
+            }
+
+            for (var i = 0; i < rows.length - 1; i++) {
+                if (rows[i][key] <= val && val < rows[i + 1][key]) {
+                    dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+                    return;
+                }
+            }
+            callback(new Error("Error in recursive search"));
+        });
+
 }
 
 function getRawTxForLedger(txdb, ledger_index, callback) {
@@ -136,7 +214,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
 // EXPORTS
 
-function RippledQuerier (max_iterators) {
+function RippledQuerier(max_iterators) {
 
     if (!max_iterators)
         max_iterators = 1000;
@@ -147,19 +225,11 @@ function RippledQuerier (max_iterators) {
 
     var rq = {};
 
-    rq.FIRST_LEDGER = 32570;
+    rq.FIRST_LEDGER = FIRST_LEDGER;
     rq.FIRST_CLOSING_TIME = 410325670;
 
     rq.getLatestLedgerIndex = function(callback) {
-        if (!callback) callback = this.printCallback;
-
-        ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
-            if (err) {
-                callback(err);
-                return;
-            }
-            callback(null, rows[0].LedgerSeq);
-        });
+        getLatestLedgerIndex(callback);
     };
 
     rq.getLedger = function(ledger_index, callback) {
@@ -182,6 +252,12 @@ function RippledQuerier (max_iterators) {
             });
         });
     };
+
+
+    rq.searchLedgerByClosingTime = function(rpepoch, callback) {
+        searchLedgerByClosingTime(ledb, rpepoch, callback);
+    };
+
 
 
     rq.getLedgerRange = function(start, end, callback) {
