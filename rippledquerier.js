@@ -111,9 +111,10 @@ var RippledQuerier = function(db_url) {
 
                 // Parse tx
                 var tx_buffer = new Buffer(raw_tx.RawTxn);
-                var tx_buff_arr = _.map(tx_buffer, function(elem) {
-                    return elem;
-                });
+                var tx_buff_arr = [];
+                for (var i = 0, len = tx_buffer.length; i < len; i++) {
+                    tx_buff_arr.push(tx_buffer[i]);
+                }
                 var tx_serialized_obj = new ripple.SerializedObject(tx_buffer_arr);
                 var parsed_tx = tx_serialized_obj.to_json();
 
@@ -121,9 +122,11 @@ var RippledQuerier = function(db_url) {
 
                 // Parse metadata
                 var meta_buffer = new Buffer(raw_tx.TxnMeta);
-                var meta_buff_arr = _.map(meta_buffer, function(elem) {
-                    return elem;
-                });
+                var meta_buff_arr = [];
+                for (var j = 0, len2 = meta_buffer.length; j < len2; j++) {
+                    meta_buff_arr.push(meta_buffer[j]);
+                }
+
                 var meta_serialized_obj = new ripple.SerializedObject(meta_buff_arr);
                 var parsed_meta = meta_serialized_obj.to_json();
 
