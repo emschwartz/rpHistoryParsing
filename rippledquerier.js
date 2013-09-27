@@ -36,7 +36,7 @@ function getRawLedger(dbs, ledger_index, callback) {
     dbs.ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
         function(err, rows) {
             if (err) {
-                winston.error("Error getting raw ledger:", ledger_index);
+                winston.error("Error getting raw ledger:", ledger_index, rows);
                 callback(err);
                 return;
             }
@@ -50,7 +50,7 @@ function getRawLedger(dbs, ledger_index, callback) {
                 winston.error("dbs.ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
             }
 
-            winston.info("for ledger", ledger_index, "got", rows);
+            // winston.info("for ledger", ledger_index, "got", rows);
 
             callback(null, rows[0]);
         });
