@@ -104,7 +104,8 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
             "and " + index + "<" + end + " " +
             "and " + key + "<=" + val + ") " +
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
-        db.all(query_str, fuction(err, rows) {
+        winston.info(query_str);
+        db.all(query_str, fuction(err, rows){
                 callback(err, rows[0][index]);
             });
         return;
@@ -120,9 +121,11 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     });
     index_str = index_str.substring(0, index_str.length - 2);
 
-    db.all("SELECT * FROM " + table + " " +
+    var query_str = "SELECT * FROM " + table + " " +
         "WHERE " + index + " IN (" + index_str + ") " +
-        "ORDER BY " + index + " ASC;", function(err, rows) {
+        "ORDER BY " + index + " ASC;";
+
+    db.all(query_str, function(err, rows) {
             if (err) {
                 callback(err);
                 return;
