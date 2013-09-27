@@ -123,7 +123,10 @@ function updateS3Manifest(ledger_index) {
 
     getLedgerManifest(function(manifest) {
 
-        if (typeof manifest.latest_indiv_ledger !== "undefined" && ledger_index <= manifest.latest_indiv_ledger)
+        if (!manifest)
+            manifest = {};
+
+        if (manifest.latest_indiv_ledger !== "undefined" && ledger_index <= manifest.latest_indiv_ledger)
             return;
 
         manifest.latest_indiv_ledger = ledger_index;
