@@ -24,7 +24,7 @@ function rpEpochFromTimestamp(timestamp) {
     return timestamp / 1000 - 0x386D4380;
 }
 
-function getRawLedger(ledger_index, callback) {
+function getRawLedger(ledb, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
     ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
@@ -48,7 +48,7 @@ function getRawLedger(ledger_index, callback) {
         });
 }
 
-function getRawLedgersForEpochRange(start_epoch, end_epoch, callback) {
+function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
     if (!callback) callback = printCallback;
 
     ledb.all("SELECT * FROM Ledgers WHERE (ClosingTime >= ? and ClosingTime < ?);", [start_epoch, end_epoch],
@@ -61,7 +61,7 @@ function getRawLedgersForEpochRange(start_epoch, end_epoch, callback) {
         });
 }
 
-function getRawTxForLedger(ledger_index, callback) {
+function getRawTxForLedger(txdb, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
     txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
@@ -137,7 +137,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 // EXPORTS
 
 function RippledQuerier (max_iterators) {
-    
+
     var ledb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db'));
     var txdb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'));
 
@@ -162,13 +162,13 @@ function RippledQuerier (max_iterators) {
     rq.getLedger = function(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        getRawLedger(ledger_index, function(err, raw_ledger) {
+        getRawLedger(ledb, ledger_index, function(err, raw_ledger) {
             if (err) {
                 callback(err);
                 return;
             }
 
-            getRawTxForLedger(ledger_index, function(err, raw_txs) {
+            getRawTxForLedger(txdb, ledger_index, function(err, raw_txs) {
                 if (err) {
                     callback(err);
                     return;
@@ -199,7 +199,7 @@ function RippledQuerier (max_iterators) {
     rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
         if (!callback) callback = printCallback;
 
-        getRawLedgersForEpochRange(rp_start, rp_end, function(err, raw_ledgers) {
+        getRawLedgersForEpochRange(ledb, rp_start, rp_end, function(err, raw_ledgers) {
             if (err) {
                 callback(err);
                 return;
@@ -208,7 +208,7 @@ function RippledQuerier (max_iterators) {
             async.mapLimit(raw_ledgers, max_iterators, function(raw_ledger, async_callback) {
 
                 var ledger_index = raw_ledger.LedgerSeq;
-                getRawTxForLedger(ledger_index, function(err, raw_txs) {
+                getRawTxForLedger(txdb, ledger_index, function(err, raw_txs) {
                     if (err) {
                         async_callback(err);
                         return;
@@ -239,7 +239,7 @@ function RippledQuerier (max_iterators) {
         var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
         var end_rpepoch = rpEpochFromTimestamp(end_momnet.valueOf());
 
-        this.getLedgersByRpEpochRange(start_rpepoch, end_rpepoch, callback);
+        getLedgersByRpEpochRange(start_rpepoch, end_rpepoch, callback);
     };
 
     return rq;
