@@ -20,6 +20,8 @@ var RippledQuerier = function(db_url) {
     var txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
     var ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
 
+    winston.info(txdb, ledb);
+
     function printCallback(err, result) {
         if (err) {
             winston.error(err);
@@ -80,7 +82,7 @@ var RippledQuerier = function(db_url) {
 
 // TESTS
 
-var testrq = new RippledQuerier("/ripple/server/db/");
+var testrq = new RippledQuerier("/ripple/server/db");
 testrq.getLedger(20000000);
 
 
