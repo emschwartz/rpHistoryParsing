@@ -21,14 +21,15 @@ var MAX_UPLOADERS = 25;
 var rq = new RippledQuerier(100);
 
 
-// rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, ledgers){
-//     if (err) {
-//         winston.error(err);
-//         return;
-//     }
+rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, ledgers){
+    if (err) {
+        winston.error(err);
+        return;
+    }
 
-//     winston.info("Got this many ledgers:", ledgers.length);
+    winston.info("Got this many ledgers:", ledgers.length);
 
-// });
+});
 
-rq.searchLedgerByClosingTime(433630980);
+// rq.searchLedgerByClosingTime(433630980);
+
