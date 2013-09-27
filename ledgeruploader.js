@@ -4,7 +4,7 @@ var winston = require('winston'),
     _ = require('lodash'),
     async = require('async'),
     knox = require('knox'),
-    RippledQuerier = require('./rippledquerier').RippledQuerier;
+    RippledQuerier = require('./rippledquerier');
 
 var config = require('./config');
 
@@ -17,7 +17,7 @@ var MAX_UPLOADERS = 25;
 
 
 
-var rq = RippledQuerier(100);
+var rq = new RippledQuerier(100);
 
 
 startUploadingLedgers(1000);
