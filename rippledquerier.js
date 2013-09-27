@@ -99,19 +99,19 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     var num_queries = 20;
 
     if (end - start <= num_queries) {
-        var query_str = "SELECT " + index + " FROM " + table + " " +
+        var query_str_final = "SELECT " + index + " FROM " + table + " " +
             "WHERE (" + index + ">=" + start + " " +
             "and " + index + "<" + end + " " +
             "and " + key + "<=" + val + ") " +
             "ORDER BY ABS(" + key + "-" + val + ") ASC;";
-        winston.info(query_str);
-        // db.all(query_str, fuction(err, rows){
+        winston.info(query_str_final);
+        // db.all(query_str_final, fuction(err, rows){
         //         callback(err, rows[0][index]);
         //     });
         return;
     }
 
-    var indicies = _.map(_.range(num_queries), function(segment) {
+    var indices = _.map(_.range(num_queries), function(segment) {
         return start + segment * ((end - start) / num_queries);
     });
 
@@ -121,13 +121,13 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     });
     index_str = index_str.substring(0, index_str.length - 2);
 
-    var query_str = "SELECT * FROM " + table + " " +
+    var query_str_recur = "SELECT * FROM " + table + " " +
         "WHERE " + index + " IN (" + index_str + ") " +
         "ORDER BY " + index + " ASC;";
 
-    winston.info(query_str);
+    winston.info(query_str_recur);
 
-    // db.all(query_str, function(err, rows) {
+    // db.all(query_str_recur, function(err, rows) {
     //         if (err) {
     //             callback(err);
     //             return;
