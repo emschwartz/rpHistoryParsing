@@ -11,12 +11,11 @@ var sqlite3 = require('sqlite3').verbose(),
 // var config = require('./config');
 
 
-
-
-
 var RippledQuerier = function(db_url) {
 
     var rq = {};
+
+    winston.info("Connecting to dbs at:", db_url);
 
     var txdb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'transaction.db'));
     var ledb = new sqlite3.Database(path.resolve(db_url || config.dbPath || ".", 'ledger.db'));
@@ -77,7 +76,13 @@ var RippledQuerier = function(db_url) {
 
 };
 
-exports.RippledQuerier = RippledQuerier;
+
+
+// TESTS
 
 var testrq = new RippledQuerier("/ripple/server/db");
 testrq.getLedger(20000000);
+
+
+
+exports.RippledQuerier = RippledQuerier;
