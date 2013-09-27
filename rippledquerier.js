@@ -98,7 +98,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
 
     var num_queries = 20;
 
-    if (start - end <= num_queries) {
+    if (end - start <= num_queries) {
         var query_str = "SELECT " + index + " FROM " + table + " " +
             "WHERE (" + index + ">=" + start + " " +
             "and " + index + "<" + end + " " +
