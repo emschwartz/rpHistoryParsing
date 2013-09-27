@@ -13,6 +13,9 @@ var sqlite3 = require('sqlite3').verbose(),
 
 var RippledQuerier = function(max_iterators, db_url) {
 
+    if (!max_iterators) max_iterators = 100;
+    if (!db_url) db_url = "/ripple/server/db";
+
     var rq = {};
 
     var txdb, ledb;
@@ -202,7 +205,7 @@ var RippledQuerier = function(max_iterators, db_url) {
 
 // TESTS
 
-var testrq = new RippledQuerier("/ripple/server/db");
+var testrq = new RippledQuerier();
 testrq.getLedgerRange(2000000, 2000009);
 
 
