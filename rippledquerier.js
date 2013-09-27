@@ -22,8 +22,10 @@ var RippledQuerier = function(db_url) {
     var txdb, ledb;
 
     function connectToDb(callback) {
-        txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'), function() {
-            ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(){
+        txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
+        	if (err) throw err;
+            ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(err){
+            	if (err) throw err;
             	callback();
             });
         });
