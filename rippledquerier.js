@@ -109,36 +109,44 @@ var RippledQuerier = function(db_url) {
         winston.info("ledger pre tx", ledger);
 
         try {
-            winston.info("raw_txs.length", raw_txs.length, raw_txs);
-            winston.info("is ripple-lib defined?", (typeof ripple));
+            winston.info("raw_txs.length", raw_txs.length);
 
             var transactions = _.map(raw_txs, function(raw_tx) {
 
                 // Parse tx
                 var tx_buffer = new Buffer(raw_tx.RawTxn);
+                winston.info("buffer", tx_buffer);
+
                 var tx_buff_arr = [];
                 for (var i = 0, len = tx_buffer.length; i < len; i++) {
                     tx_buff_arr.push(tx_buffer[i]);
                 }
-                var tx_serialized_obj = new ripple.SerializedObject(tx_buffer_arr);
-                var parsed_tx = tx_serialized_obj.to_json();
+                winston.info("tx_buff_arr", tx_buff_arr);
 
+                var tx_serialized_obj = new ripple.SerializedObject(tx_buffer_arr);
+                winston.info("tx_serialized_obj", tx_serialized_obj);
+
+                var parsed_tx = tx_serialized_obj.to_json();
                 winston.info("parsed_tx:", JSON.stringify(parsed_tx));
 
                 // Parse metadata
                 var meta_buffer = new Buffer(raw_tx.TxnMeta);
+                winston.info("meta_buffer", meta_buffer);
                 var meta_buff_arr = [];
                 for (var j = 0, len2 = meta_buffer.length; j < len2; j++) {
                     meta_buff_arr.push(meta_buffer[j]);
                 }
+                winston.info("meta_buff_arr", meta_buff_arr);
 
                 var meta_serialized_obj = new ripple.SerializedObject(meta_buff_arr);
-                var parsed_meta = meta_serialized_obj.to_json();
+                winston.info("meta_serialized_obj", meta_serialized_obj);
 
+                var parsed_meta = meta_serialized_obj.to_json();
                 winston.info("parsed_meta:", JSON.stringify(parsed_meta));
 
                 parsed_tx.metaData = parsed_meta;
 
+                winston.info("parsed_tx", parsed_tx);
                 return parsed_tx;
 
             });
