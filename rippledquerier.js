@@ -135,7 +135,7 @@ function getLedger(dbs, ledger_index, callback) {
 
     getRawLedger(dbs, ledger_index, function(err, raw_ledger) {
         if (err) {
-            winston.error("Error getting raw ledger", ledger_index);
+            winston.error("Error getting raw ledger", ledger_index, "err", err);
             callback(err);
             return;
         }
