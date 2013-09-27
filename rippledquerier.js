@@ -190,6 +190,9 @@ function getRawLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, 
         start_epoch = temp;
     }
 
+    if (start_epoch < FIRST_CLOSING_TIME)
+        start_epoch = FIRST_CLOSING_TIME;
+
     searchLedgerByClosingTime(dbs, start_epoch, function(err, start_index) {
         if (err) {
             callback(err);
