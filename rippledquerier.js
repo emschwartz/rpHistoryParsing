@@ -11,10 +11,6 @@ var sqlite3 = require('sqlite3').verbose(),
 var config = require('./config');
 
 
-
-
-
-
 var RippledQuerier = function(db_url) {
 
     var rq = {};
@@ -22,16 +18,16 @@ var RippledQuerier = function(db_url) {
     var txdb, ledb;
 
     function connectToDb(callback) {
+        if (txdb && ledb) return;
 
-    	winston.info("Connecting to db");
-
+        winston.info("Connecting to db");
         txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
-        	if (err) throw err;
-        	winston.info("txdb connected");
-            ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(err){
-            	if (err) throw err;
-            	winston.info("ledb connected");
-            	callback();
+            if (err) throw err;
+            winston.info("txdb connected");
+            ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
+                if (err) throw err;
+                winston.info("ledb connected");
+                callback();
             });
         });
     }
@@ -47,12 +43,10 @@ var RippledQuerier = function(db_url) {
     function getRawLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        if (!txdb || !ledb) {connectToDb(function(){ getRawLedger(ledger_index, callback); }); return;};
-
         ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
                 if (err) {
-                	winston.error("Error getting raw ledger:", ledger_index);
+                    winston.error("Error getting raw ledger:", ledger_index);
                     callback(err);
                     return;
                 }
@@ -73,12 +67,10 @@ var RippledQuerier = function(db_url) {
     function getRawTxForLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        if (!txdb || !ledb) {connectToDb(function(){ getRawLedger(ledger_index, callback); }); return;};
-
         txdb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
                 if (err) {
-                	winston.error("Error getting raw txs for ledger:", ledger_index);
+                    winston.error("Error getting raw txs for ledger:", ledger_index);
                     callback(err);
                     return;
                 }
@@ -89,8 +81,14 @@ var RippledQuerier = function(db_url) {
 
     rq.getLedger = function(ledger_index, callback) {
 
-        getRawLedger(callback);
-        getRawTxForLedger(callback);
+        connectToDb(function() {
+
+            getRawLedger(callback);
+            getRawTxForLedger(callback);
+
+        });
+
+
 
     };
 
