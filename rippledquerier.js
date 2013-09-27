@@ -24,6 +24,10 @@ var config = require('./config');
         MAX_ITERATORS = 100;
 
 
+
+
+    var rq = {};
+
     rq.FIRST_LEDGER = 32570;
     rq.FIRST_CLOSING_TIME = 410325670;
 
