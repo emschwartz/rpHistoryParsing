@@ -79,13 +79,98 @@ var RippledQuerier = function(db_url) {
             });
     }
 
+    function parseLedger(raw_ledger, raw_txs) {
+
+        winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
+
+        var ledger;
+
+        try {
+            ledger = {
+                accepted: true,
+                account_hash: raw_ledger.AccountSetHash,
+                close_time_rpepoch: raw_ledger.ClosingTime,
+                close_time_timestamp: ripple.utils.toTimestamp(raw_ledger.ClosingTime),
+                close_time_human: moment(ripple.utils.toTimestamp(raw_ledger.ClosingTime)).format("YYYY-MM-DD HH:mm:ss Z"),
+                close_time_resolution: raw_ledger.CloseTimeRes,
+                closed: true,
+                hash: raw_ledger.LedgerHash,
+                ledger_hash: raw_ledger.LedgerHash,
+                ledger_index: raw_ledger.LedgerSeq,
+                parent_hash: raw_ledger.PrevHash,
+                total_coins: raw_ledger.TotalCoins,
+                transaction_hash: raw_ledger.TransSetHash
+            };
+        } catch (led_err) {
+            winston.error("Error parsing ledger", raw_ledger.LedgerSeq);
+            throw led_err;
+        }
+
+        try {
+            var transactions = _.map(raw_ledger.Transactions, function(raw_tx) {
+
+                // winston.info(raw_tx);
+
+                // Parse tx
+                var tx_buffer = new Buffer(raw_tx.RawTxn);
+                var tx_buff_arr = _.map(tx_buffer, function(elem) {
+                    return elem;
+                });
+                var tx_serialized_obj = new ripple.SerializedObject(tx_buffer);
+                var parsed_tx = tx_serialized_obj.to_json();
+
+                // Parse metadata
+                var meta_buffer = new Buffer(raw_tx.TxnMeta);
+                var meta_buff_arry = _.map(meta_buffer, function(elem) {
+                    return elem;
+                });
+                var meta_serialized_obj = new ripple.SerializedObject(meta_buffer);
+                var parsed_meta = meta_serialized_obj.to_json();
+
+                parsed_tx.metaData = parsed_meta;
+
+                return parsed_tx;
+
+            });
+
+            ledger.transactions = transactions;
+            return ledger;
+
+        } catch (tx_err) {
+            winston.error("Error parsing transaction");
+            throw tx_err;
+        }
+
+    }
+
     rq.getLedger = function(ledger_index, callback) {
+        if (!callback) callback = printCallback;
 
         connectToDb(function() {
 
-            getRawLedger(ledger_index, callback);
-            getRawTxForLedger(ledger_index, callback);
+            getRawLedger(ledger_index, function(err, raw_ledger) {
+                if (err) {
+                    callback(err);
+                    return;
+                }
 
+                getRawTxForLedger(ledger_index, function(err, raw_txs) {
+                    if (err) {
+                        callback(err);
+                        return;
+                    }
+
+                    var parsed_ledger;
+
+                    try {
+                        parsed_ledger = parseLedger(raw_ledger, raw_txs);
+                    } catch (parsing_err) {
+                        callback(parsing_err);
+                        return;
+                    }
+                    callback(null, parsed_ledger);
+                });
+            });
         });
 
 
