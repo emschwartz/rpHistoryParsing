@@ -28,10 +28,10 @@ function rpEpochFromTimestamp(timestamp) {
     return timestamp / 1000 - 0x386D4380;
 }
 
-function getRawLedger(ledb, ledger_index, callback) {
+function getRawLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
-    ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
+    dbs.ledb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
         function(err, rows) {
             if (err) {
                 winston.error("Error getting raw ledger:", ledger_index);
@@ -40,22 +40,22 @@ function getRawLedger(ledb, ledger_index, callback) {
             }
 
             if (rows.length === 0) {
-                callback(new Error("ledb has no ledger of index: " + ledger_index));
+                callback(new Error("dbs.ledb has no ledger of index: " + ledger_index));
                 return;
             }
 
             if (rows.length > 1) {
-                winston.error("ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
+                winston.error("dbs.ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
             }
 
             callback(null, rows[0]);
         });
 }
 
-function getRawTxForLedger(txdb, ledger_index, callback) {
+function getRawTxForLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
-    txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
+    dbs.txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
         function(err, rows) {
             if (err) {
                 winston.error("Error getting raw txs for ledger:", ledger_index);
@@ -124,10 +124,10 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
 }
 
-function getLedger(ledb, ledger_index, callback) {
+function getLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
-    getRawLedger(ledb, ledger_index, function(err, raw_ledger) {
+    getRawLedger(dbs.ledb, ledger_index, function(err, raw_ledger) {
         if (err) {
             callback(err);
             return;
@@ -145,7 +145,7 @@ function getLedger(ledb, ledger_index, callback) {
     });
 }
 
-function getLedgerRange(ledb, start, end, max_iterators, callback) {
+function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     var indices = _.range(start, end);
@@ -153,7 +153,7 @@ function getLedgerRange(ledb, start, end, max_iterators, callback) {
     winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
 
     async.mapLimit(indices, max_iterators, function(ledger_index, async_callback){
-        getLedger(ledb, ledger_index, async_callback);
+        getLedger(dbs.ledb, ledger_index, async_callback);
     }, function(err, ledgers) {
         if (err) {
             callback(err);
@@ -165,7 +165,7 @@ function getLedgerRange(ledb, start, end, max_iterators, callback) {
 }
 
 
-function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators, callback) {
+function getRawLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     if (end_epoch < start_epoch) {
@@ -174,7 +174,7 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators,
         start_epoch = temp;
     }
 
-    searchLedgerByClosingTime(ledb, start_epoch, function(err, start_index) {
+    searchLedgerByClosingTime(dbs.ledb, start_epoch, function(err, start_index) {
         if (err) {
             callback(err);
             return;
@@ -182,7 +182,7 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators,
 
         winston.info("start_epoch", start_epoch, "start_index", start_index);
 
-        searchLedgerByClosingTime(ledb, end_epoch, function(err, end_index) {
+        searchLedgerByClosingTime(dbs.ledb, end_epoch, function(err, end_index) {
             if (err) {
                 callback(err);
                 return;
@@ -190,7 +190,7 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators,
 
             winston.info("end_epoch", end_epoch, "end_index", end_index);
 
-            getLedgerRange(ledb, start_index, end_index + 1, max_iterators, callback);
+            getLedgerRange(dbs.ledb, start_index, end_index + 1, max_iterators, callback);
 
         });
 
@@ -198,10 +198,10 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators,
 
 }
 
-function getLatestLedgerIndex(ledb, callback) {
+function getLatestLedgerIndex(dbs, callback) {
     if (!callback) callback = printCallback;
 
-    ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
+    dbs.ledb.all("SELECT LedgerSeq FROM Ledgers ORDER BY LedgerSeq DESC LIMIT 1;", function(err, rows) {
         if (err) {
             callback(err);
             return;
@@ -210,7 +210,7 @@ function getLatestLedgerIndex(ledb, callback) {
     });
 }
 
-function searchLedgerByClosingTime(ledb, rpepoch, callback) {
+function searchLedgerByClosingTime(dbs, rpepoch, callback) {
     if (!callback) callback = printCallback;
 
     if (rpepoch < FIRST_CLOSING_TIME) {
@@ -218,19 +218,19 @@ function searchLedgerByClosingTime(ledb, rpepoch, callback) {
         return;
     }
 
-    getLatestLedgerIndex(ledb, function(err, latest_index) {
+    getLatestLedgerIndex(dbs.ledb, function(err, latest_index) {
         if (err) {
             callback(err);
             return;
         }
 
-        getRawLedger(ledb, latest_index, function(err, latest_ledger){
+        getRawLedger(dbs.ledb, latest_index, function(err, latest_ledger){
             if (rpepoch >= latest_ledger.ClosingTime) {
                 callback(null, latest_index);
                 return;
             }
 
-            dbRecursiveSearch(ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
+            dbRecursiveSearch(dbs.ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
 
         });
 
@@ -301,9 +301,10 @@ function RippledQuerier(max_iterators) {
     if (!max_iterators)
         max_iterators = 1000;
 
-    var ledb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db'));
-    var txdb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'));
-
+    var dbs = {
+        ledb: new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db')),
+        txdb: new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'))
+    };
 
     var rq = {};
 
@@ -311,27 +312,25 @@ function RippledQuerier(max_iterators) {
     rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
 
     rq.getLatestLedgerIndex = function(callback) {
-        getLatestLedgerIndex(ledb, callback);
+        getLatestLedgerIndex(dbs, callback);
     };
 
     rq.getLedger = function(ledger_index, callback) {
-        getLedger(ledb, ledger_index, callback);
+        getLedger(dbs, ledger_index, callback);
     };
 
     rq.searchLedgerByClosingTime = function(rpepoch, callback) {
-        searchLedgerByClosingTime(ledb, rpepoch, callback);
+        searchLedgerByClosingTime(dbs, rpepoch, callback);
     };
 
     rq.getLedgerRange = function(start, end, callback) {
-        getLedgerRange(ledb, start, end, max_iterators, callback);
+        getLedgerRange(dbs, start, end, max_iterators, callback);
     };
 
     rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
         if (!callback) callback = printCallback;
 
-        var txdb = txdb;
-
-        getRawLedgersForEpochRange(ledb, rp_start, rp_end, max_iterators, function(err, raw_ledgers) {
+        getRawLedgersForEpochRange(dbs, rp_start, rp_end, max_iterators, function(err, raw_ledgers) {
             if (err) {
                 callback(err);
                 return;
@@ -340,7 +339,7 @@ function RippledQuerier(max_iterators) {
             async.mapLimit(raw_ledgers, max_iterators, function(raw_ledger, async_callback) {
 
                 var ledger_index = raw_ledger.LedgerSeq;
-                getRawTxForLedger(txdb, ledger_index, function(err, raw_txs) {
+                getRawTxForLedger(dbs, ledger_index, function(err, raw_txs) {
                     if (err) {
                         async_callback(err);
                         return;
