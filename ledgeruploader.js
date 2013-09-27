@@ -17,7 +17,7 @@ var MAX_UPLOADERS = 25;
 
 
 
-var rq = new RippledQuerier(100);
+var rq = new RippledQuerier(1000);
 
 
 startUploadingLedgers(1000);
