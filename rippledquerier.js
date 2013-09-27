@@ -155,7 +155,7 @@ function RippledQuerier (max_iterators) {
                 callback(err);
                 return;
             }
-            callback(rows[0].LedgerSeq);
+            callback(null, rows[0].LedgerSeq);
         });
     };
 
