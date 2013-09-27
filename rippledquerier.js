@@ -19,21 +19,23 @@ var RippledQuerier = function(max_iterators, db_url) {
     var rq = {};
 
     var txdb, ledb;
+    txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'));
+    ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'));
 
-    function connectToDb(callback) {
-        if (txdb && ledb) return;
+    // function connectToDb(callback) {
+    //     if (txdb || ledb) return;
 
-        winston.info("Connecting to db");
-        txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
-            if (err) throw err;
-            winston.info("txdb connected");
-            ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
-                if (err) throw err;
-                winston.info("ledb connected");
-                callback();
-            });
-        });
-    }
+    //     winston.info("Connecting to db");
+    //     txdb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'transaction.db'), function(err) {
+    //         if (err) throw err;
+    //         winston.info("txdb connected");
+    //         ledb = new sqlite3.Database(db_url || path.resolve(config.dbPath || ".", 'ledger.db'), function(err) {
+    //             if (err) throw err;
+    //             winston.info("ledb connected");
+    //             callback();
+    //         });
+    //     });
+    // }
 
     function printCallback(err, result) {
         if (err) {
@@ -148,42 +150,39 @@ var RippledQuerier = function(max_iterators, db_url) {
     rq.getLedger = function(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        connectToDb(function() {
+        getRawLedger(ledger_index, function(err, raw_ledger) {
+            if (err) {
+                callback(err);
+                return;
+            }
 
-            getRawLedger(ledger_index, function(err, raw_ledger) {
+            getRawTxForLedger(ledger_index, function(err, raw_txs) {
                 if (err) {
                     callback(err);
                     return;
                 }
 
-                getRawTxForLedger(ledger_index, function(err, raw_txs) {
-                    if (err) {
-                        callback(err);
-                        return;
-                    }
+                var parsed_ledger;
 
-                    var parsed_ledger;
+                try {
+                    parsed_ledger = parseLedger(raw_ledger, raw_txs);
+                } catch (parsing_err) {
+                    callback(parsing_err);
+                    return;
+                }
 
-                    try {
-                        parsed_ledger = parseLedger(raw_ledger, raw_txs);
-                    } catch (parsing_err) {
-                        callback(parsing_err);
-                        return;
-                    }
-
-                    callback(null, parsed_ledger);
-                });
+                callback(null, parsed_ledger);
             });
         });
     };
 
 
-    rq.getLedgerRange = function(start, end, callback){
+    rq.getLedgerRange = function(start, end, callback) {
         if (!callback) callback = printCallback;
 
         var indices = _.range(start, end);
 
-        async.mapLimit(indices, max_iterators, this.getLedger, function(err, ledgers){
+        async.mapLimit(indices, max_iterators, this.getLedger, function(err, ledgers) {
             if (err) {
                 callback(err);
                 return;
@@ -195,7 +194,7 @@ var RippledQuerier = function(max_iterators, db_url) {
 
 
 
-    
+
 
     return rq;
 
