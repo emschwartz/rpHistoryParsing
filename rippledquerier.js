@@ -2,7 +2,7 @@ var sqlite3 = require('sqlite3').verbose(),
     winston = require('winston'),
     path = require('path'),
     ripple = require('ripple-lib'),
-    knox = require('knox'),
+    // knox = require('knox'),
     moment = require('moment'),
     _ = require('lodash'),
     async = require('async');
@@ -13,7 +13,10 @@ var config = require('./config');
 var txdb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'transaction.db'));
 var ledb = new sqlite3.Database(path.resolve(config.dbPath || ".", 'ledger.db'));
 
-winston.info(txdb, ledb);
+setTimeout(function(){
+	winston.info(txdb, ledb);
+
+}, 1000);
 
 
 var RippledQuerier = function(db_url) {
