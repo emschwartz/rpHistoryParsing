@@ -11,7 +11,7 @@ var sqlite3 = require('sqlite3').verbose(),
 // var config = require('./config');
 
 
-var RippledQuerier = function(db_url) {
+var RippledQuerier = function(max_iterators, db_url) {
 
     var rq = {};
 
@@ -180,7 +180,7 @@ var RippledQuerier = function(db_url) {
 
         var indices = _.range(start, end);
 
-        async.mapLimit(indices, MAX_ITERATORS, getLedger, function(err, ledgers){
+        async.mapLimit(indices, max_iterators, getLedger, function(err, ledgers){
             if (err) {
                 callback(err);
                 return;
