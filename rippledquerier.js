@@ -101,7 +101,7 @@ var RippledQuerier = function(db_url) {
 // TESTS
 
 var testrq = new RippledQuerier();
-testrq.getLedger(20000000);
+testrq.getLedger(2000000);
 
 
 
