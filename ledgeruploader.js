@@ -4,7 +4,7 @@ var winston = require('winston'),
     _ = require('lodash'),
     async = require('async'),
     knox = require('knox'),
-    RippledQuerier = require('./rippledquerier');
+    RippledQuerier = require('./rippledquerier').RippledQuerier;
 
 var config = require('./config');
 
@@ -15,11 +15,9 @@ var client = knox.createClient({
 });
 var MAX_UPLOADERS = 25;
 
-winston.info(RippledQuerier.RippledQuerier);
 
-console.log(RippledQuerier.RippledQuerier);
 
-var rq = RippledQuerier.RippledQuerier(100);
+var rq = RippledQuerier(100);
 
 
 startUploadingLedgers(1000);

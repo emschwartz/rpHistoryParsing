@@ -137,7 +137,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 // EXPORTS
 
 function RippledQuerier (max_iterators) {
-
+console.log('aaaa');
+return ;
     var ledb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db'));
     var txdb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'));
 
