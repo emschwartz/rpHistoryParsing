@@ -67,7 +67,7 @@ var RippledQuerier = function(db_url) {
     function getRawTxForLedger(ledger_index, callback) {
         if (!callback) callback = printCallback;
 
-        txdb.all("SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ledger_index],
+        txdb.all("SELECT * FROM Transactions WHERE LedgerSeq = ?;", [ledger_index],
             function(err, rows) {
                 if (err) {
                     winston.error("Error getting raw txs for ledger:", ledger_index);
