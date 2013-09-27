@@ -145,7 +145,7 @@ function getLedger(ledb, ledger_index, callback) {
     });
 }
 
-function getLedgerRange(ledb, start, end, callback) {
+function getLedgerRange(ledb, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     var indices = _.range(start, end);
@@ -161,7 +161,7 @@ function getLedgerRange(ledb, start, end, callback) {
 }
 
 
-function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
+function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     searchLedgerByClosingTime(ledb, start_epoch, function(err, start_index) {
@@ -175,7 +175,7 @@ function getRawLedgersForEpochRange(ledb, start_epoch, end_epoch, callback) {
                 return;
             }
 
-            getLedgerRange(ledb, start_index, end_index, callback);
+            getLedgerRange(ledb, start_index, end_index, max_iterators, callback);
 
         });
 
@@ -308,13 +308,13 @@ function RippledQuerier(max_iterators) {
     };
 
     rq.getLedgerRange = function(start, end, callback) {
-        getLedgerRange(ledb, start, end, callback);
+        getLedgerRange(ledb, start, end, max_iterators, callback);
     };
 
     rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
         if (!callback) callback = printCallback;
 
-        getRawLedgersForEpochRange(ledb, rp_start, rp_end, function(err, raw_ledgers) {
+        getRawLedgersForEpochRange(ledb, rp_start, rp_end, max_iterators, function(err, raw_ledgers) {
             if (err) {
                 callback(err);
                 return;
