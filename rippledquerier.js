@@ -80,7 +80,7 @@ var RippledQuerier = function(db_url) {
 
 // TESTS
 
-var testrq = new RippledQuerier("/ripple/server/db");
+var testrq = new RippledQuerier("/ripple/server/db/");
 testrq.getLedger(20000000);
 
 
