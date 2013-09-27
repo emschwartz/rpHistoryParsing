@@ -244,7 +244,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
     return rq;
 
-}());
+})(max_iterators);
 
 
 // TESTS
