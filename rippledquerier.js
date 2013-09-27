@@ -136,8 +136,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
 // EXPORTS
 
-(function (max_iterators) {
-
+function RippledQuerier (max_iterators) {
+    
     var ledb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db'));
     var txdb = new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'));
 
@@ -244,7 +244,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
     return rq;
 
-})(max_iterators);
+}
 
 
 // TESTS
@@ -260,4 +260,4 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
 
 
-// module.exports.RippledQuerier = RippledQuerier;
+module.exports.RippledQuerier = RippledQuerier;

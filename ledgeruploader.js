@@ -4,7 +4,7 @@ var winston = require('winston'),
     _ = require('lodash'),
     async = require('async'),
     knox = require('knox'),
-    RippledQuerier = require('./rippledquerier');
+    RippledQuerier = require('./rippledquerier').RippledQuerier;
 
 var config = require('./config');
 
