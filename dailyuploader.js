@@ -4,6 +4,7 @@ var winston = require('winston'),
     _ = require('lodash'),
     async = require('async'),
     knox = require('knox'),
+    streamifier = require('streamifier'),
     MultiPartUpload = require('knox-mpu'),
     RippledQuerier = require('./rippledquerier').RippledQuerier;
 
@@ -172,10 +173,12 @@ function packageDay(ledgers, callback) {
 
 function uploadToS3 (day_str, daily_package, callback) {
 
+    var daily_package_stream = streamifier.createReadStream(daily_package);
+
     var upload = new MultiPartUpload({
         client: client,
         objectName: '/daily-packages/' + day_str + '.txt',
-        stream: daily_package
+        stream: daily_package_stream
     }, function(err, body){
         if (err) {
             winston.error("Error uploading daily package:", day_str);
