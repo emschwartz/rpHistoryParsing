@@ -384,7 +384,6 @@ function RippledQuerier(max_iterators) {
 
     // rq.getLedgersForTimeRange gets the PARSED ledgers between the two given momentjs-readable times
     rq.getLedgersForTimeRange = function(start, end, callback) {
-        if (!callback) callback = printCallback;
 
         var start_moment = moment(start);
         winston.info("start_moment", start_moment.format());
