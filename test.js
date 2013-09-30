@@ -29,7 +29,10 @@ rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, 
         return;
     }
 
-    winston.info("Got this many ledgers:", ledgers.length);
+    _.each(ledgers, function(ledger){
+        if (ledger.transactions.length > 0)
+            winston.info(JSON.stringify(ledger));
+    });
 
 });
 
