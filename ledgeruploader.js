@@ -29,7 +29,11 @@ function startUploadingLedgers(batch_size, force_start) {
 
     if (force_start) {
 
-        uploadNextBatch(force_start, batch_size);
+        if (force_start === "start") {
+            uploadNextBatch(rq.FIRST_LEDGER, batch_size);
+        } else if (typeof force_start === "number") {
+            uploadNextBatch(force_start, batch_size);
+        }
 
     } else {
 
