@@ -396,7 +396,7 @@ function RippledQuerier(max_iterators) {
         var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
         winston.info("end_rpepoch", end_rpepoch);
 
-        this.getLedgersForRpEpochRange(start_rpepoch, end_rpepoch, callback);
+        getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, callback);
     };
 
     return rq;
