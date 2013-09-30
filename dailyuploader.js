@@ -23,9 +23,16 @@ var FIRST_DAY = moment(FIRST_DAY_STR + MIDNIGHT_UTC);
 
 
 
-var rq = new RippledQuerier(MAX_ITERATORS);
 
+// Run the script
+var rq = new RippledQuerier(MAX_ITERATORS);
 startClusteringDays();
+
+
+
+
+
+
 
 function startClusteringDays() {
 
@@ -45,7 +52,8 @@ function clusterAndUploadNextDay(prev_day_str) {
 
     var this_day = moment(prev_day_str + MIDNIGHT_UTC).add("days", 1);
 
-    winston.info("Clustering", this_day.format("YYYY-MM-DD"));
+    winston.info("Clustering", this_day.format());
+
 
     getNextDay(this_day, function(err, ledgers) {
         if (err) {
@@ -55,11 +63,13 @@ function clusterAndUploadNextDay(prev_day_str) {
 
         winston.info("Got this many ledgers:", ledgers.length);
 
+
         packageDay(ledgers, function(err, daily_package) {
             if (err) {
                 winston.error("Error packaging daily ledgers:", err);
                 return;
             }
+
 
             uploadToS3(this_day.format("YYYY-MM-DD"), daily_package, function(err, daily_package_str) {
                 if (err) {
@@ -82,16 +92,12 @@ function clusterAndUploadNextDay(prev_day_str) {
 
 function getNextDay(start_day, callback) {
 
-    
-
-    rq.getLedgersForTimeRange(start_day, moment(start_day).add('days', 1), function(err, ledgers) {
+    rq.getLedgersForTimeRange(moment(start_day), moment(start_day).add('days', 1), function(err, ledgers) {
         if (err) {
             winston.error("Error getting day of ledgers", err);
             callback(err);
             return;
         }
-
-        // winston.info("getNextDay got this many ledgers", ledgers.length);
 
         callback(null, ledgers);
 
@@ -190,15 +196,20 @@ function updateS3Manifest(latest_daily_package) {
 
 function getLastUploadedDailyPackage(callback) {
 
-    winston.info("getting last uploaded ledger");
+    winston.info("getting last uploaded daily package");
 
     getLedgerManifest(function(err, manifest) {
+
         if (err || !manifest.latest_daily_package) {
+
             winston.info("first day:", moment(FIRST_DAY).subtract("days", 1).format("YYYY-MM-DD"));
             callback(null, moment(FIRST_DAY).subtract("days", 1).format("YYYY-MM-DD"));
+       
         } else {
+
             winston.info("last uploaded daily package:", manifest.latest_daily_package);
             callback(null, manifest.latest_daily_package);
+
         }
     });
 }

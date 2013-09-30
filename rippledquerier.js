@@ -16,6 +16,8 @@ var FIRST_CLOSING_TIME = 410325670;
 
 // PRIVATE FUNCTIONS
 
+
+// printCallback is used as the default callback function
 function printCallback(err, result) {
     if (err) {
         winston.error(err);
@@ -24,10 +26,13 @@ function printCallback(err, result) {
     }
 }
 
+// rpEpochFromTimestamp converts the ripple epochs to a javascript timestamp
 function rpEpochFromTimestamp(timestamp) {
     return timestamp / 1000 - 0x386D4380;
 }
 
+
+// getRawLedger gets the raw (encoded) ledger blob from the ledb database 
 function getRawLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -59,6 +64,7 @@ function getRawLedger(dbs, ledger_index, callback) {
         });
 }
 
+// getRawTxForLedger gets the raw tx blobs from the txdb database
 function getRawTxForLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -74,6 +80,7 @@ function getRawTxForLedger(dbs, ledger_index, callback) {
         });
 }
 
+// parseLedger parses the raw ledger and associated raw txs into a single json ledger
 function parseLedger(raw_ledger, raw_txs, callback) {
 
     // winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
@@ -81,12 +88,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     if (!raw_ledger || !raw_txs)
         winston.error("raw_ledger", raw_ledger, "raw_txs", raw_txs);
 
-    var ledger;
-
-    // TODO TEST THIS PARSING ALGORITHM
-
     try {
-        ledger = {
+        var ledger = {
             accepted: true,
             account_hash: raw_ledger.AccountSetHash,
             close_time_rpepoch: raw_ledger.ClosingTime,
@@ -141,6 +144,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
 }
 
+// getLedger gets the PARSED ledger (and associated transactions) corresponding to the ledger_index
 function getLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -167,6 +171,7 @@ function getLedger(dbs, ledger_index, callback) {
     });
 }
 
+// getLedgerRange gets the PARSED ledgers for the given range of indices
 function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
@@ -192,7 +197,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
 
 }
 
-
+// getLedgersForRpEpochRange gets the PARSED ledgers that closed between the given ripple epoch times
 function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
@@ -211,7 +216,7 @@ function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, c
             return;
         }
 
-        // winston.info("start_epoch", start_epoch, "start_index", start_index);
+        winston.info("start_epoch", start_epoch, "start_index", start_index);
 
         searchLedgerByClosingTime(dbs, end_epoch, function(err, end_index) {
             if (err) {
@@ -219,7 +224,7 @@ function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, c
                 return;
             }
 
-            // winston.info("end_epoch", end_epoch, "end_index", end_index);
+            winston.info("end_epoch", end_epoch, "end_index", end_index);
 
             getLedgerRange(dbs, start_index, end_index + 1, max_iterators, callback);
 
@@ -229,6 +234,8 @@ function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, c
 
 }
 
+
+// getLatestLedgerIndex gets the most recent ledger index in the ledger db
 function getLatestLedgerIndex(dbs, callback) {
     if (!callback) callback = printCallback;
 
@@ -241,6 +248,8 @@ function getLatestLedgerIndex(dbs, callback) {
     });
 }
 
+
+// searchLedgerByClosingTime finds the ledger index of the ledger that closed nearest to the given rpepoch
 function searchLedgerByClosingTime(dbs, rpepoch, callback) {
     if (!callback) callback = printCallback;
 
@@ -369,6 +378,7 @@ function RippledQuerier(max_iterators) {
         getLedgersForRpEpochRange(dbs, rp_start, rp_end, callback);
     };
 
+    // rq.getLedgersForTimeRange gets the PARSED ledgers between the two given momentjs-readable times
     rq.getLedgersForTimeRange = function(start, end, callback) {
         if (!callback) callback = printCallback;
 
