@@ -379,7 +379,7 @@ function RippledQuerier(max_iterators) {
     };
 
     rq.getLedgersForRpEpochRange = function(rp_start, rp_end, callback) {
-        getLedgersForRpEpochRange(dbs, rp_start, rp_end, callback);
+        getLedgersForRpEpochRange(dbs, rp_start, rp_end, max_iterators, callback);
     };
 
     // rq.getLedgersForTimeRange gets the PARSED ledgers between the two given momentjs-readable times
@@ -395,7 +395,7 @@ function RippledQuerier(max_iterators) {
         var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
         winston.info("end_rpepoch", end_rpepoch);
 
-        getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, callback);
+        getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
     };
 
     return rq;
