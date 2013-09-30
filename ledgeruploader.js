@@ -21,7 +21,7 @@ var MAX_UPLOADERS = 25;
 var rq = new RippledQuerier(1000);
 
 
-startUploadingLedgers(1000);
+startUploadingLedgers(1000, "start");
 
 function startUploadingLedgers(batch_size, force_start) {
 
