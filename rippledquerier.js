@@ -102,7 +102,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
             transaction_hash: raw_ledger.TransSetHash
         };
 
-        winston.info("ledger up to here:", ledger);
+        // winston.info("ledger up to here:", ledger);
 
         var transactions = _.map(raw_txs, function(raw_tx) {
 
@@ -131,7 +131,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
         ledger.transactions = transactions;
         
-        winston.info("parsed ledger", ledger);
+        // winston.info("parsed ledger", ledger);
         callback(null, ledger);
 
     } catch (err) {
@@ -408,19 +408,5 @@ function RippledQuerier(max_iterators) {
     return rq;
 
 }
-
-
-// TESTS
-
-// var testrq = new RippledQuerier();
-// testrq.getLedgersByRpEpochRange(431582650, 431582680, function(err, ledgers){
-//     if (err) {
-//         winston.error(err);
-//         return;
-//     }
-//     winston.info("Got rq many ledgers:", ledgers.length);
-// });
-
-
 
 module.exports.RippledQuerier = RippledQuerier;
