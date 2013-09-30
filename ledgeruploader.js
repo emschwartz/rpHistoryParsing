@@ -21,23 +21,28 @@ var MAX_UPLOADERS = 25;
 var rq = new RippledQuerier(1000);
 
 
-// startUploadingLedgers(1000);
+startUploadingLedgers(1000);
 
-uploadNextBatch(1268267, 1000);
-
-function startUploadingLedgers(batch_size) {
+function startUploadingLedgers(batch_size, force_start) {
 
     winston.info("starting to upload ledgers");
 
-    getLastUploadedLedger(function(err, latest_indiv_ledger) {
-        if (err) {
-            winston.error("Error getting last uploaded ledger", err);
-            return;
-        }
+    if (force_start) {
 
-        uploadNextBatch(latest_indiv_ledger, batch_size, uploadNextBatch);
+        uploadNextBatch(force_start, batch_size);
 
-    });
+    } else {
+
+        getLastUploadedLedger(function(err, latest_indiv_ledger) {
+            if (err) {
+                winston.error("Error getting last uploaded ledger", err);
+                return;
+            }
+
+            uploadNextBatch(latest_indiv_ledger, batch_size, uploadNextBatch);
+
+        });
+    }
 
 }
 
@@ -211,7 +216,7 @@ function getLedgerManifest(callback) {
     });
 
     req.on('error', function(err) {
-            callback(err);
+        callback(err);
     });
 
     req.end();
