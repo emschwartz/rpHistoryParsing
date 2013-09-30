@@ -109,7 +109,7 @@ function getNextDay(start_day, callback) {
             return;
         }
 
-        winston.info("getNextDay got this many ledgers:", ledgers.length);
+        // winston.info("getNextDay got this many ledgers:", ledgers.length);
 
         callback(null, ledgers);
 
@@ -132,7 +132,7 @@ function packageDay(ledgers, callback) {
 // uploadToS3 uploads a daily ledger package to S3
 function uploadToS3(day_str, daily_package, callback) {
 
-    // winston.info("uploading ledger to s3:", ledger.ledger_index);
+    winston.info("uploading daily package to s3:", day_str);
 
     var req = client.put('/daily-packages/' + day_str + '.txt', {
         'Content-Length': daily_package.length,

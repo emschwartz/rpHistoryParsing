@@ -285,6 +285,7 @@ function searchLedgerByClosingTime(dbs, rpepoch, callback) {
 
             dbRecursiveSearch(dbs.ledb, "Ledgers", "LedgerSeq", FIRST_LEDGER, latest_index, "ClosingTime", rpepoch, callback);
 
+
         });
 
     });
@@ -337,7 +338,9 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
         for (var i = 0; i < rows.length - 1; i++) {
             // winston.info("rows[i][index]",rows[i][index], "rows[i][key]", rows[i][key], "val", val, "rows[i][index]", rows[i][index], "rows[i + 1][key]", rows[i + 1][key]);
             if (rows[i][key] <= val && val < rows[i + 1][key]) {
-                dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+                setImmediate(function(){
+                    dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
+                });
                 return;
             }
         }
@@ -401,6 +404,8 @@ function RippledQuerier(max_iterators) {
 
         getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
     };
+
+    rq.runFnOnEachTimeBlock = function(time_block_type, )
 
     return rq;
 
