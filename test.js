@@ -49,13 +49,29 @@ var rq = new RippledQuerier(1000);
 
 // rq.getLedgersForTimeRange("2013-01-01T00:00:00+00:00", "2013-01-02T00:00:00+00:00");
 
-rq.getLedgersForTimeRange(moment().subtract("days", 1), moment(), function(err, ledgers){
+// rq.getLedgersForTimeRange(moment().subtract("days", 1), moment(), function(err, ledgers){
+//     if (err) {
+//         winston.error(err);
+//         return;
+//     }
+//     winston.info(ledgers.length);
+// });
+
+
+
+rq.getLedgerRange(1900000, 2000000, function(err, results){
     if (err) {
         winston.error(err);
         return;
     }
-    winston.info(ledgers.length);
+
+    winston.info(results.length);
+
 });
+
+
+
+// TESTING FUNCTIONS
 
 function compareS3toDB(ledger_index) {
 
