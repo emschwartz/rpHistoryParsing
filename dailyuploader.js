@@ -114,9 +114,18 @@ function getNextDay(start_day, callback) {
 }
 
 function packageDay(ledgers, callback) {
-    async.reduce(ledgers, '', function(daily_txt, ledger, async_callback) {
-        async_callback(null, (daily_txt + JSON.stringify(ledger) + '\n'));
-    }, callback);
+    // async.reduce(ledgers, '', function(daily_txt, ledger, async_callback) {
+    //     async_callback(null, (daily_txt + JSON.stringify(ledger) + '\n'));
+    // }, callback);
+
+    var daily_txt = '';
+
+    _.each(ledgers, function(ledger){
+        daily_txt += (JSON.stringify(ledger) + '\n');
+    });
+
+    callback(null, daily_txt);
+
 }
 
 function uploadToS3(day_str, daily_package, callback) {
