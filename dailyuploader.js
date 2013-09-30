@@ -132,7 +132,7 @@ function uploadToS3(day_str, daily_package, callback) {
 
     // winston.info("uploading ledger to s3:", ledger.ledger_index);
 
-    var daily_package_str = JSON.stringify(daily_package);
+    // var daily_package_str = JSON.stringify(daily_package);
 
     var req = client.put('/daily-packages/' + day_str + '.txt', {
         'Content-Length': daily_package_str.length,
@@ -217,12 +217,12 @@ function getLastUploadedDailyPackage(callback) {
 
         if (err || !manifest.latest_daily_package) {
 
-            winston.info("first day:", moment(FIRST_DAY).format("YYYY-MM-DD"));
+            // winston.info("first day:", moment(FIRST_DAY).format("YYYY-MM-DD"));
             callback(null, moment(FIRST_DAY).format("YYYY-MM-DD"));
 
         } else {
 
-            winston.info("last uploaded daily package:", manifest.latest_daily_package);
+            // winston.info("last uploaded daily package:", manifest.latest_daily_package);
             callback(null, manifest.latest_daily_package);
 
         }
