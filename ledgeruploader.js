@@ -116,8 +116,9 @@ function uploadToS3(ledger, callback) {
         });
 
         if (200 === res.statusCode) {
-            winston.info("Ledger", ledger.ledger_index, "saved to S3 at:", req.url);
-            // updateS3Manifest(ledger.ledger_index);
+            
+            winston.info("Ledger:", ledger.ledger_index, "with this many txs:", ledger.transactions.length, "saved to S3 at:", req.url);
+            
             if (callback)
                 callback();
         }
