@@ -27,18 +27,18 @@ rq.getLedger(1297768);
 // 1268267
 
 
-rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, ledgers){
-    if (err) {
-        winston.error(err);
-        return;
-    }
+// rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, ledgers){
+//     if (err) {
+//         winston.error(err);
+//         return;
+//     }
 
-    _.each(ledgers, function(ledger){
-        if (ledger.transactions.length > 0)
-            winston.info(JSON.stringify(ledger));
-    });
+//     _.each(ledgers, function(ledger){
+//         if (ledger.transactions.length > 0)
+//             winston.info(JSON.stringify(ledger));
+//     });
 
-});
+// });
 
 // rq.searchLedgerByClosingTime(433630980);
 
