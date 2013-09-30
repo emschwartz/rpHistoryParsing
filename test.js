@@ -47,7 +47,7 @@ var rq = new RippledQuerier(100);
 
 // compareS3toDB(222215);
 
-rq.getLedgersByTimeRange("2013-01-01T00:00:00+00:00", "2013-01-02T00:00:00+00:00");
+rq.getLedgersForTimeRange("2013-01-01T00:00:00+00:00", "2013-01-02T00:00:00+00:00");
 
 function compareS3toDB(ledger_index) {
 
