@@ -33,7 +33,7 @@ startClusteringDays();
 
 
 
-
+// startClusteringDays gets the last uploaded daily package and starts clustering the next one
 function startClusteringDays() {
 
     getLastUploadedDailyPackage(function(err, prev_day_str) {
@@ -48,6 +48,9 @@ function startClusteringDays() {
 
 }
 
+
+// clusterAndUploadNextDay gets the next day of ledgers from the RippledQuerier,
+// packages it, uploads it to S3, and starts clustering and uploading the next day
 function clusterAndUploadNextDay(prev_day_str) {
 
     var this_day = moment(prev_day_str + MIDNIGHT_UTC).add("days", 1);
@@ -96,7 +99,7 @@ function clusterAndUploadNextDay(prev_day_str) {
     });
 }
 
-
+// getNextDay gets a day's worth of ledgers from the RippledQuerier
 function getNextDay(start_day, callback) {
 
     rq.getLedgersForTimeRange(moment(start_day), moment(start_day).add('days', 1), function(err, ledgers) {
@@ -113,26 +116,23 @@ function getNextDay(start_day, callback) {
     });
 }
 
+// packageDay aggregates ledgers into a string where each ledger is separated by a newline
 function packageDay(ledgers, callback) {
-    // async.reduce(ledgers, '', function(daily_txt, ledger, async_callback) {
-    //     async_callback(null, (daily_txt + JSON.stringify(ledger) + '\n'));
-    // }, callback);
 
     var daily_txt = '';
 
     for (var i = 0, len = ledgers.length; i < len; i++){
-        daily_txt = daily_txt + JSON.stringify(ledgers[i] + '\n');
+        daily_txt += JSON.stringify(ledgers[i]) + '\n';
     }
 
     callback(null, daily_txt);
 
 }
 
+// uploadToS3 uploads a daily ledger package to S3
 function uploadToS3(day_str, daily_package, callback) {
 
     // winston.info("uploading ledger to s3:", ledger.ledger_index);
-
-    // var daily_package = JSON.stringify(daily_package);
 
     var req = client.put('/daily-packages/' + day_str + '.txt', {
         'Content-Length': daily_package.length,
@@ -168,7 +168,7 @@ function uploadToS3(day_str, daily_package, callback) {
 
 }
 
-
+// updateS3Manifest updates the daily package manifest to record the last day uploaded
 function updateS3Manifest(latest_daily_package) {
 
     getLedgerManifest(function(manifest) {
