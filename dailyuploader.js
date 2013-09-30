@@ -81,7 +81,7 @@ function clusterAndUploadNextDay(prev_day_str) {
 
 
 function getNextDay(start_day, callback) {
-    rq.getLedgersByTimeRange(start_day, moment(start_day).add('days', 1), function(err, ledgers) {
+    rq.getLedgersForTimeRange(start_day, moment(start_day).add('days', 1), function(err, ledgers) {
         if (err) {
             winston.error("Error getting day of ledgers", err);
             callback(err);

@@ -365,11 +365,11 @@ function RippledQuerier(max_iterators) {
         getLedgerRange(dbs, start, end, max_iterators, callback);
     };
 
-    rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
-        getLedgersByRpEpochRange(dbs, rp_start, rp_end, callback);
+    rq.getLedgersForRpEpochRange = function(rp_start, rp_end, callback) {
+        getLedgersForRpEpochRange(dbs, rp_start, rp_end, callback);
     };
 
-    rq.getLedgersByTimeRange = function(start, end, callback) {
+    rq.getLedgersForTimeRange = function(start, end, callback) {
         if (!callback) callback = printCallback;
 
         var start_moment = moment(start);
@@ -378,7 +378,7 @@ function RippledQuerier(max_iterators) {
         var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
         var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
 
-        this.getLedgersByRpEpochRange(start_rpepoch, end_rpepoch, callback);
+        this.getLedgersForRpEpochRange(start_rpepoch, end_rpepoch, callback);
     };
 
     return rq;
