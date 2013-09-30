@@ -190,6 +190,8 @@ function uploadToS3 (day_str, daily_package, callback) {
 
         winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
 
+        updateS3Manifest(day_str);
+
         callback(null, day_str);
 
     });
