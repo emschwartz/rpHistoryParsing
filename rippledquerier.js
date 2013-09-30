@@ -383,10 +383,14 @@ function RippledQuerier(max_iterators) {
         if (!callback) callback = printCallback;
 
         var start_moment = moment(start);
+        winston.info("start_moment", start_moment.format());
         var end_moment = moment(end);
+        winston.info("end_moment", end_moment.format());
 
         var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
+        winston.info("start_rpepoch", start_rpepoch);
         var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
+        winston.info("end_rpepoch", end_rpepoch);
 
         this.getLedgersForRpEpochRange(start_rpepoch, end_rpepoch, callback);
     };
