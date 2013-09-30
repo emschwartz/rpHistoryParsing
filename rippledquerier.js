@@ -193,7 +193,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
 }
 
 
-function getLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
+function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     if (end_epoch < start_epoch) {
