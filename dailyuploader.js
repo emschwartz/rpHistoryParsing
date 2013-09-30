@@ -78,14 +78,14 @@ function clusterAndUploadNextDay(prev_day_str) {
             }
 
 
-            uploadToS3(this_day.format("YYYY-MM-DD"), daily_package, function(err, daily_package_str) {
+            uploadToS3(this_day.format("YYYY-MM-DD"), daily_package, function(err, day_str) {
                 if (err) {
                     winston.error("Error uploading daily ledgers:", err);
                     return;
                 }
 
                 setImmediate(function() {
-                    clusterAndUploadNextDay(daily_package_str);
+                    clusterAndUploadNextDay(day_str);
                 });
 
             });
@@ -132,10 +132,10 @@ function uploadToS3(day_str, daily_package, callback) {
 
     // winston.info("uploading ledger to s3:", ledger.ledger_index);
 
-    // var daily_package_str = JSON.stringify(daily_package);
+    // var daily_package = JSON.stringify(daily_package);
 
     var req = client.put('/daily-packages/' + day_str + '.txt', {
-        'Content-Length': daily_package_str.length,
+        'Content-Length': daily_package.length,
         'Content-Type': 'text/plain'
     });
 
@@ -164,7 +164,7 @@ function uploadToS3(day_str, daily_package, callback) {
 
     });
 
-    req.end(daily_package_str);
+    req.end(daily_package);
 
 }
 
