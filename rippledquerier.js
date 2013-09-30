@@ -224,7 +224,7 @@ function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, c
             return;
         }
 
-        winston.info("start_epoch", start_epoch, "start_index", start_index);
+        // winston.info("start_epoch", start_epoch, "start_index", start_index);
 
         searchLedgerByClosingTime(dbs, end_epoch, function(err, end_index) {
             if (err) {
@@ -232,7 +232,7 @@ function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, c
                 return;
             }
 
-            winston.info("end_epoch", end_epoch, "end_index", end_index);
+            // winston.info("end_epoch", end_epoch, "end_index", end_index);
 
             getLedgerRange(dbs, start_index, end_index + 1, max_iterators, callback);
 

@@ -47,7 +47,15 @@ var rq = new RippledQuerier(100);
 
 // compareS3toDB(222215);
 
-rq.getLedgersForTimeRange("2013-01-01T00:00:00+00:00", "2013-01-02T00:00:00+00:00");
+// rq.getLedgersForTimeRange("2013-01-01T00:00:00+00:00", "2013-01-02T00:00:00+00:00");
+
+rq.getLedgersForTimeRange(moment().subtract("months", 1), moment(), function(err, ledgers){
+    if (err) {
+        winston.error(err);
+        return;
+    }
+    winston.info(ledgers.length);
+});
 
 function compareS3toDB(ledger_index) {
 
