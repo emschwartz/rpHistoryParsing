@@ -63,6 +63,13 @@ function clusterAndUploadNextDay(prev_day_str) {
 
         winston.info("Got this many ledgers:", ledgers.length);
 
+        if (ledgers.length === 0) {
+            setImmediate(function() {
+                clusterAndUploadNextDay(this_day.moment("YYYY-MM-DD"));
+            });
+            return;
+        }
+
 
         packageDay(ledgers, function(err, daily_package) {
             if (err) {
@@ -204,7 +211,7 @@ function getLastUploadedDailyPackage(callback) {
 
             winston.info("first day:", moment(FIRST_DAY).subtract("days", 1).format("YYYY-MM-DD"));
             callback(null, moment(FIRST_DAY).subtract("days", 1).format("YYYY-MM-DD"));
-       
+
         } else {
 
             winston.info("last uploaded daily package:", manifest.latest_daily_package);
