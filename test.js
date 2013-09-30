@@ -45,68 +45,75 @@ var rq = new RippledQuerier(100);
 // rq.searchLedgerByClosingTime(433630980);
 
 
+compareDocumentPosition(1268267);
 
-downloadLedger(1297768, function(err, dwn_ledger){
-    if (err) {
-        winston.error(err);
-        return;
-    }
-    rq.getLedger(1297768, function(err, db_ledger){
-        var differences = diff(dwn_ledger, db_ledger);
-        winston.info(JSON.stringify(differences));
+
+
+function compareS3toDB(ledger_index) {
+
+    downloadLedger(ledger_index, function(err, dwn_ledger) {
+        if (err) {
+            winston.error(err);
+            return;
+        }
+        rq.getLedger(ledger_index, function(err, db_ledger) {
+            var differences = diff(dwn_ledger, db_ledger);
+            winston.info(JSON.stringify(differences));
+        });
+        // winston.info(ledger.transactions.length);
     });
-    // winston.info(ledger.transactions.length);
-});
 
-function downloadLedger (ledger_num, callback) {
+}
 
-        client.get('ledgers/' + ledger_num + '.json').on('response', function(res) {
+function downloadLedger(ledger_num, callback) {
 
-            var dataBuffer = '';
+    client.get('ledgers/' + ledger_num + '.json').on('response', function(res) {
 
-            if (200 === res.statusCode) {
+        var dataBuffer = '';
 
-                res.on('error', function(){
+        if (200 === res.statusCode) {
 
-                    winston.error("error while downloading ledger: " + ledger_num + " retrying in 1 sec");
-                    setTimeout(function(){
-                        downloadLedger(ledger_num, callback);
-                    }, 1000);
+            res.on('error', function() {
 
-                });
+                winston.error("error while downloading ledger: " + ledger_num + " retrying in 1 sec");
+                setTimeout(function() {
+                    downloadLedger(ledger_num, callback);
+                }, 1000);
 
-                res.setEncoding('utf8');
+            });
 
-                res.on('data', function(data) {
-                    dataBuffer += data;
-                });
+            res.setEncoding('utf8');
 
-                res.on('end', function() {
+            res.on('data', function(data) {
+                dataBuffer += data;
+            });
 
-                    var ledger;
+            res.on('end', function() {
 
-                    try {
+                var ledger;
 
-                        ledger = JSON.parse(dataBuffer);
-                        callback(null, ledger);
+                try {
+
+                    ledger = JSON.parse(dataBuffer);
+                    callback(null, ledger);
 
 
-                    } catch (e) {
+                } catch (e) {
 
-                        callback(e);
+                    callback(e);
 
-                    }
+                }
 
-                    // if (ledger.ledger_index !== ledger_num) {
-                    //     callback(new Error("Ledger index for file " + ledger_num + ".json is " + ledger.ledger_index));
-                    //     return;
-                    // }
+                // if (ledger.ledger_index !== ledger_num) {
+                //     callback(new Error("Ledger index for file " + ledger_num + ".json is " + ledger.ledger_index));
+                //     return;
+                // }
 
-                    
 
-                });
 
-            }
-        }).end(); // finish the client.get request
+            });
+
+        }
+    }).end(); // finish the client.get request
 
 }
