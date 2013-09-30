@@ -45,7 +45,7 @@ var rq = new RippledQuerier(100);
 // rq.searchLedgerByClosingTime(433630980);
 
 
-compareS3toDB(1268267);
+compareS3toDB(222215);
 
 
 
