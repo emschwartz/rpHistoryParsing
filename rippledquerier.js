@@ -170,9 +170,12 @@ function getLedger(dbs, ledger_index, callback) {
 function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
-    var indices = _.range(start, end);
+    if (!dbs) {
+        winston.error("dbs is not defined in getLedgerRange");
+        return;
+    }
 
-    if (!dbs) winston.error("dbs is not defined in getLedgerRange");
+    var indices = _.range(start, end);
 
     // winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
 
@@ -190,7 +193,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
 }
 
 
-function getRawLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
+function getLedgersForEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
     if (end_epoch < start_epoch) {
@@ -271,6 +274,9 @@ function searchLedgerByClosingTime(dbs, rpepoch, callback) {
 
 }
 
+
+// dbRecursiveSearch is like a binary search but with 20 divisions each time instead of 2
+// (because querying the db is slower than iterating through 20 results)
 function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     if (!callback) callback = printCallback;
 
@@ -360,37 +366,7 @@ function RippledQuerier(max_iterators) {
     };
 
     rq.getLedgersByRpEpochRange = function(rp_start, rp_end, callback) {
-        if (!callback) callback = printCallback;
-
-        getRawLedgersForEpochRange(dbs, rp_start, rp_end, max_iterators, function(err, raw_ledgers) {
-            if (err) {
-                callback(err);
-                return;
-            }
-
-            async.mapLimit(raw_ledgers, max_iterators, function(raw_ledger, async_callback) {
-
-                var ledger_index = raw_ledger.LedgerSeq;
-                getRawTxForLedger(dbs, ledger_index, function(err, raw_txs) {
-                    if (err) {
-                        async_callback(err);
-                        return;
-                    }
-
-                    parseLedger(raw_ledger, raw_txs, async_callback);
-
-                });
-
-            }, function(err, results) {
-                if (err) {
-                    callback(err);
-                    return;
-                }
-
-                callback(null, results);
-
-            });
-        });
+        getLedgersByRpEpochRange(dbs, rp_start, rp_end, callback);
     };
 
     rq.getLedgersByTimeRange = function(start, end, callback) {

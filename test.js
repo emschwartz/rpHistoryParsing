@@ -4,6 +4,7 @@ var winston = require('winston'),
     _ = require('lodash'),
     async = require('async'),
     knox = require('knox'),
+    diff = require('deep-diff'),
     RippledQuerier = require('./rippledquerier').RippledQuerier;
 
 var config = require('./config');
@@ -43,12 +44,17 @@ var rq = new RippledQuerier(100);
 
 // rq.searchLedgerByClosingTime(433630980);
 
-downloadLedger(1297768, function(err, ledger){
+
+
+downloadLedger(1297768, function(err, dwn_ledger){
     if (err) {
         winston.error(err);
         return;
     }
-    winston.info(ledger);
+    rq.getLedger(1297768, function(err, db_ledger){
+        var differences = diff(dwn_ledger, db_ledger);
+        winston.info(JSON.stringify(differences));
+    });
     // winston.info(ledger.transactions.length);
 });
 
