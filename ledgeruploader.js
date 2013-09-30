@@ -153,7 +153,7 @@ function updateS3Manifest(ledger_index) {
 
         var manifest_str = JSON.stringify(manifest);
 
-        var req = client.put('/meta/ledger-manifest.json', {
+        var req = client.put('/meta/indiv-ledger-manifest.json', {
             'Content-Length': manifest_str.length,
             'Content-Type': 'application/json'
         });
@@ -201,7 +201,7 @@ function getLedgerManifest(callback) {
 
     winston.info("getting ledger manifest");
 
-    var req = client.get('/meta/ledger-manifest.json');
+    var req = client.get('/meta/indiv-ledger-manifest.json');
 
     req.on('response', function(res) {
 

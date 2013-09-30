@@ -134,9 +134,9 @@ function uploadToS3(day_str, daily_package, callback) {
 
     var daily_package_str = JSON.stringify(daily_package);
 
-    var req = client.put('/daily-packages/' + day_str + '.json', {
+    var req = client.put('/daily-packages/' + day_str + '.txt', {
         'Content-Length': daily_package_str.length,
-        'Content-Type': 'application/json'
+        'Content-Type': 'text/plain'
     });
 
     req.on('error', function(err) {
@@ -176,14 +176,11 @@ function updateS3Manifest(latest_daily_package) {
         if (!manifest)
             manifest = {};
 
-        if (manifest.latest_daily_package !== "undefined" && latest_daily_package <= manifest.latest_daily_package)
-            return;
-
         manifest.latest_daily_package = latest_daily_package;
 
         var manifest_str = JSON.stringify(manifest);
 
-        var req = client.put('/meta/ledger-manifest.json', {
+        var req = client.put('/meta/daily-ledger-manifest.json', {
             'Content-Length': manifest_str.length,
             'Content-Type': 'application/json'
         });
@@ -236,7 +233,7 @@ function getLedgerManifest(callback) {
 
     winston.info("getting ledger manifest");
 
-    var req = client.get('/meta/ledger-manifest.json');
+    var req = client.get('/meta/daily-ledger-manifest.json');
 
     req.on('response', function(res) {
 
