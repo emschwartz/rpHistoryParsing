@@ -65,7 +65,7 @@ function clusterAndUploadNextDay(prev_day_str) {
 
         if (ledgers.length === 0) {
             setImmediate(function() {
-                clusterAndUploadNextDay(this_day.moment("YYYY-MM-DD"));
+                clusterAndUploadNextDay(this_day.format("YYYY-MM-DD"));
             });
             return;
         }

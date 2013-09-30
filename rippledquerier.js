@@ -88,8 +88,10 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     if (!raw_ledger || !raw_txs)
         winston.error("raw_ledger", raw_ledger, "raw_txs", raw_txs);
 
+    var ledger;
+
     try {
-        var ledger = {
+        ledger = {
             accepted: true,
             account_hash: raw_ledger.AccountSetHash,
             close_time_rpepoch: raw_ledger.ClosingTime,
@@ -135,12 +137,14 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         ledger.transactions = transactions;
         
         // winston.info("parsed ledger", ledger);
-        callback(null, ledger);
-
+        
     } catch (err) {
         winston.error("Error parsing ledger:", err);
         callback(err);
+        return;
     }
+
+    callback(null, ledger);
 
 }
 
@@ -386,14 +390,14 @@ function RippledQuerier(max_iterators) {
     rq.getLedgersForTimeRange = function(start, end, callback) {
 
         var start_moment = moment(start);
-        winston.info("start_moment", start_moment.format());
+        // winston.info("start_moment", start_moment.format());
         var end_moment = moment(end);
-        winston.info("end_moment", end_moment.format());
+        // winston.info("end_moment", end_moment.format());
 
         var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
-        winston.info("start_rpepoch", start_rpepoch);
+        // winston.info("start_rpepoch", start_rpepoch);
         var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
-        winston.info("end_rpepoch", end_rpepoch);
+        // winston.info("end_rpepoch", end_rpepoch);
 
         getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
     };
