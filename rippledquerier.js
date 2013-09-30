@@ -405,7 +405,7 @@ function RippledQuerier(max_iterators) {
         getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
     };
 
-    rq.runFnOnEachTimeBlock = function(time_block_type, )
+    // rq.runFnOnEachTimeBlock = function(time_block_type, )
 
     return rq;
 
