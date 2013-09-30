@@ -120,9 +120,9 @@ function packageDay(ledgers, callback) {
 
     var daily_txt = '';
 
-    _.each(ledgers, function(ledger){
-        daily_txt += (JSON.stringify(ledger) + '\n');
-    });
+    for (var i = 0, len = ledgers.length; i < len; i++){
+        daily_txt = daily_txt + JSON.stringify(ledgers[i] + '\n');
+    }
 
     callback(null, daily_txt);
 
