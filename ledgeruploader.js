@@ -23,7 +23,7 @@ var rq = new RippledQuerier(1000);
 
 // startUploadingLedgers(1000);
 
-uploadNextBatch(1297768, 1);
+uploadNextBatch(1268267, 1000);
 
 function startUploadingLedgers(batch_size) {
 
