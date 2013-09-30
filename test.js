@@ -26,7 +26,7 @@ var rq = new RippledQuerier(100);
 // 1297768
 // 1268267
 
-rq.getLedgerRange(1297768, 1297769);
+// rq.getLedgerRange(1297768, 1297769);
 
 // rq.getLedgersByTimeRange(moment(), moment().subtract("hours", 1), function(err, ledgers){
 //     if (err) {
