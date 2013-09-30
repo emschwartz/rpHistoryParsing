@@ -43,7 +43,11 @@ var rq = new RippledQuerier(100);
 
 // rq.searchLedgerByClosingTime(433630980);
 
-downloadLedger(1297768, function(ledger){
+downloadLedger(1297768, function(err, ledger){
+    if (err) {
+        winston.error(err);
+        return;
+    }
     winston.info(ledger);
     // winston.info(ledger.transactions.length);
 });
@@ -53,23 +57,6 @@ function downloadLedger (ledger_num, callback) {
         client.get('ledgers/' + ledger_num + '.json').on('response', function(res) {
 
             var dataBuffer = '';
-
-            if (404 === res.statusCode) {
-
-                // winston.error('ledger/' + ledger_num + '.json doesn\'t exist, statusCode:', res.statusCode);
-                // callback();
-                // return;
-
-            }
-
-            if (500 === res.statusCode) {
-
-                winston.error("got statusCode 500 for ledger:", ledger_num, ", retrying in 1 sec");
-                setTimeout(function(){
-                    downloadLedger(ledger_num, callback);
-                }, 1000);
-
-            }
 
             if (200 === res.statusCode) {
 
@@ -95,23 +82,21 @@ function downloadLedger (ledger_num, callback) {
                     try {
 
                         ledger = JSON.parse(dataBuffer);
+                        callback(null, ledger);
 
 
                     } catch (e) {
 
-                        winston.error("Malformed JSON at: ledger/" + ledger_num + ".json, trying again in 1 sec");
-                        setTimeout(function(){
-                            downloadLedger(ledger_num, callback);
-                        }, 1000);
+                        callback(e);
 
                     }
 
-                    if (ledger.ledger_index !== ledger_num) {
-                        callback(new Error("Ledger index for file " + ledger_num + ".json is " + ledger.ledger_index));
-                        return;
-                    }
+                    // if (ledger.ledger_index !== ledger_num) {
+                    //     callback(new Error("Ledger index for file " + ledger_num + ".json is " + ledger.ledger_index));
+                    //     return;
+                    // }
 
-                    callback(null, ledger);
+                    
 
                 });
 
