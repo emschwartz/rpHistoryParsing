@@ -192,6 +192,10 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
             callback(err);
             return;
         }
+
+        if (ledgers.length === 0)
+            winston.info("getLedgerRange got 0 ledgers for range", start, end);
+
         callback(null, ledgers);
     });
 

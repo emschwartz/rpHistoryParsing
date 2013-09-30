@@ -209,8 +209,8 @@ function getLastUploadedDailyPackage(callback) {
 
         if (err || !manifest.latest_daily_package) {
 
-            winston.info("first day:", moment(FIRST_DAY).subtract("days", 1).format("YYYY-MM-DD"));
-            callback(null, moment(FIRST_DAY).subtract("days", 1).format("YYYY-MM-DD"));
+            winston.info("first day:", moment(FIRST_DAY).format("YYYY-MM-DD"));
+            callback(null, moment(FIRST_DAY).format("YYYY-MM-DD"));
 
         } else {
 
