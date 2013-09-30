@@ -45,7 +45,7 @@ var rq = new RippledQuerier(100);
 
 downloadLedger(1297768, function(ledger){
     winston.info(ledger);
-    winston.info(ledger.transactions.length);
+    // winston.info(ledger.transactions.length);
 });
 
 function downloadLedger (ledger_num, callback) {
