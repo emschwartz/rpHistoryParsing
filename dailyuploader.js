@@ -4,6 +4,7 @@ var winston = require('winston'),
     _ = require('lodash'),
     async = require('async'),
     knox = require('knox'),
+    MultiPartUpload = require('knox-mpu'),
     RippledQuerier = require('./rippledquerier').RippledQuerier;
 
 var config = require('./config');
@@ -130,43 +131,66 @@ function packageDay(ledgers, callback) {
 }
 
 // uploadToS3 uploads a daily ledger package to S3
-function uploadToS3(day_str, daily_package, callback) {
+// function uploadToS3(day_str, daily_package, callback) {
 
-    winston.info("uploading daily package to s3:", day_str);
+//     winston.info("uploading daily package to s3:", day_str);
 
-    var req = client.put('/daily-packages/' + day_str + '.txt', {
-        'Content-Length': daily_package.length,
-        'Content-Type': 'text/plain'
-    });
+//     var req = client.put('/daily-packages/' + day_str + '.txt', {
+//         'Content-Length': daily_package.length,
+//         'Content-Type': 'text/plain'
+//     });
 
-    req.on('error', function(err) {
-        winston.error("Error uploading daily package", day_str, "to S3", err, "trying again in 1 sec");
-        setTimeout(function() {
-            uploadToS3(day_str, daily_package, callback);
-        }, 1000);
-    });
+//     req.on('error', function(err) {
+//         winston.error("Error uploading daily package", day_str, "to S3", err, "trying again in 1 sec");
+//         setTimeout(function() {
+//             uploadToS3(day_str, daily_package, callback);
+//         }, 1000);
+//     });
 
-    req.on('response', function(res) {
+//     req.on('response', function(res) {
 
-        res.on('error', function(err) {
-            winston.error("Error uploading daily package", day_str, "to S3", err, "trying again in 1 sec");
-            setTimeout(function() {
-                uploadToS3(day_str, daily_package, callback);
-            }, 1000);
-        });
+//         res.on('error', function(err) {
+//             winston.error("Error uploading daily package", day_str, "to S3", err, "trying again in 1 sec");
+//             setTimeout(function() {
+//                 uploadToS3(day_str, daily_package, callback);
+//             }, 1000);
+//         });
 
-        if (200 === res.statusCode) {
-            winston.info("Daily package", day_str, "saved to S3 at:", req.url);
-            updateS3Manifest(day_str);
-            if (callback)
-                callback(null, day_str);
+//         if (200 === res.statusCode) {
+//             winston.info("Daily package", day_str, "saved to S3 at:", req.url);
+//             updateS3Manifest(day_str);
+//             if (callback)
+//                 callback(null, day_str);
+//         }
+
+//     });
+
+//     req.end(daily_package);
+
+// }
+
+
+function uploadToS3 (day_str, daily_package, callback) {
+
+    var upload = new MultiPartUpload({
+        client: client,
+        objectName: '/daily-packages/' + day_str + '.txt',
+        stream: daily_package
+    }, function(err, body){
+        if (err) {
+            winston.error("Error uploading daily package:", day_str);
+            callback(err);
+            return;
         }
 
+        winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
+
+        callback(null, day_str);
+
     });
 
-    req.end(daily_package);
-
 }
+
 
 // updateS3Manifest updates the daily package manifest to record the last day uploaded
 function updateS3Manifest(latest_daily_package) {
