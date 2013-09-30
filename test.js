@@ -19,7 +19,7 @@ var MAX_UPLOADERS = 25;
 
 
 
-var rq = new RippledQuerier(100);
+var rq = new RippledQuerier(1000);
 
 // rq.getLedger(1297768);
 // 1379087
@@ -49,7 +49,7 @@ var rq = new RippledQuerier(100);
 
 // rq.getLedgersForTimeRange("2013-01-01T00:00:00+00:00", "2013-01-02T00:00:00+00:00");
 
-rq.getLedgersForTimeRange(moment().subtract("months", 1), moment(), function(err, ledgers){
+rq.getLedgersForTimeRange(moment().subtract("days", 1), moment(), function(err, ledgers){
     if (err) {
         winston.error(err);
         return;
