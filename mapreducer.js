@@ -49,7 +49,7 @@ applyToChunksOfTime("days", 1,
 
         var num_transactions = 0;
 
-        for (var r = 0, len = ledgers.length; r++) {
+        for (var r = 0, len = ledgers.length; r < len; r++) {
             num_transactions += ledgers[r].transactions.length;
         }
 
