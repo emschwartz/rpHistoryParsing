@@ -2,6 +2,7 @@ var winston = require('winston'),
     moment = require('moment'),
     _ = require('lodash'),
     async = require('async'),
+    fs = require('fs'),
     RippledQuerier = require('./rippledquerier').RippledQuerier;
 
 
