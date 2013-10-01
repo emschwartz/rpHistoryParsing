@@ -41,15 +41,15 @@ function applyToChunksOfTime(time_chunk_type, time_chunk_multiple, start_time, s
 }
 
 
-var headers = "first_ledger_index, 
-               last_ledger_index, 
-               first_closing_time, 
-               last_closing_time, 
-               num_ledgers, 
-               num_transactions,
-               Payment,
-               OfferCreate,
-               OfferCancel,
+var headers = "first_ledger_index, \
+               last_ledger_index, \
+               first_closing_time, \
+               last_closing_time, \
+               num_ledgers, \
+               num_transactions,\
+               Payment,\
+               OfferCreate,\
+               OfferCancel,\
                TrustSet\n";
 
 fs.writeFileSync("tx_history.csv", headers);
