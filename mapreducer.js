@@ -87,11 +87,15 @@ function mapOverAll (iterator, callback) {
     mapOverRange("FIRST", "LAST", iterator, callback);
 }
 
+var headers = "ledger_index, closing_time, num_transactions\n";
+
+fs.writeFileSync("tx_history.csv", headers);
+
 applyToAll(function(ledger, async_callback){
 
-    var row = ledger.ledger_index + ", " + ledger.close_time_human + ", " + ledger.transactions.length) + "\n";
+    var row = ledger.ledger_index + ", " + ledger.close_time_human + ", " + ledger.transactions.length + "\n";
 
-    fs.appenFile("tx_history.csv", row, async_callback);
+    fs.appendFile("tx_history.csv", row, async_callback);
 
 
 }, function(err){
