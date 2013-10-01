@@ -176,6 +176,7 @@ function uploadToS3 (day_str, daily_package, callback) {
     var daily_package_stream = streamifier.createReadStream(daily_package);
 
     var upload = new MultiPartUpload({
+        tmpDir: '/mnt/tmp',
         client: client,
         objectName: '/daily-packages/' + day_str + '.txt',
         stream: daily_package_stream
