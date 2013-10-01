@@ -51,7 +51,7 @@ function applyToAll (iterator, callback) {
 
 
 
-applyToRange(2500000, "LAST", function(ledger, async_callback){
+applyToRange(2400000, "LAST", function(ledger, async_callback){
 
     winston.info("Ledger", ledger.ledger_index, "has", ledger.transactions.length, "transactions");
     async_callback();
