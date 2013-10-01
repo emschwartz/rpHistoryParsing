@@ -20,6 +20,8 @@ function applyToChunksOfTime(time_chunk_type, time_chunk_multiple, start_time, s
         return;
     }
 
+    winston.info("Working on day:", moment(start_time).format("YYYY-MM-DD"));
+
     var batch_end_time = moment(start_time).add(time_chunk_type, time_chunk_multiple);
 
     rq.getLedgersForTimeRange(moment(start_time),
