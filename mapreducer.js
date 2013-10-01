@@ -22,6 +22,8 @@ function applyToRange (first_index, last_index, iterator, callback) {
         });
     }
 
+    winston.info("applying to ledgers from", first_index, "to", last_index);
+
     var indices = _.range(first_index, last_index);
 
     async.each(indices, function(index, async_callback){
