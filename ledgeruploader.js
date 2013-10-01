@@ -32,7 +32,7 @@ startUploadingLedgers(1000);
 
 function startUploadingLedgers(batch_size, force_start) {
 
-    winston.info("starting to upload ledgers");
+    // winston.info("starting to upload ledgers");
 
     if (force_start) {
 
@@ -71,7 +71,7 @@ function uploadNextBatch(batch_start, batch_size) {
         if (batch_end >= latest_index)
             batch_end = latest_index;
 
-        winston.info("Uploading batch from", batch_start, "to", batch_end);
+        // winston.info("Uploading batch from", batch_start, "to", batch_end);
 
         rq.getLedgerRange(batch_start, batch_end, function(err, ledgers) {
             if (err) {
@@ -124,7 +124,7 @@ function uploadToS3(ledger, callback) {
 
         if (200 === res.statusCode) {
             
-            winston.info("Ledger:", ledger.ledger_index, "with this many txs:", ledger.transactions.length, "saved to S3 at:", req.url);
+            // winston.info("Ledger:", ledger.ledger_index, "with this many txs:", ledger.transactions.length, "saved to S3 at:", req.url);
             
             if (callback)
                 callback();
@@ -199,7 +199,7 @@ function getLastUploadedLedger(callback) {
 
 function getLedgerManifest(callback) {
 
-    winston.info("getting ledger manifest");
+    // winston.info("getting ledger manifest");
 
     var req = client.get('/meta/indiv-ledger-manifest.json');
 
