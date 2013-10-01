@@ -11,6 +11,9 @@ var rq = new RippledQuerier(MAX_ITERATORS);
 
 function applyToRange (first_index, last_index, iterator, callback) {
 
+    winston.info(first_index, last_index);
+    winston.info('last_index === "LAST"', last_index === "LAST");
+
     if (first_index === null || first_index === "FIRST" || first_index === "first") {
         first_index = rq.FIRST_INDEX;
     }
