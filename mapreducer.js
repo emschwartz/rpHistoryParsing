@@ -47,10 +47,12 @@ var headers = "first_ledger_index, \
                last_closing_time, \
                num_ledgers, \
                num_transactions,\
-               Payment,\
-               OfferCreate,\
-               OfferCancel,\
-               TrustSet\n";
+               Payment tx,\
+               OfferCreate tx,\
+               OfferCancel tx,\
+               TrustSet tx,\
+               AccountSet tx,\
+               accounts_created\n";
 
 fs.writeFileSync("tx_history.csv", headers);
 
@@ -68,21 +70,36 @@ applyToChunksOfTime("days", 1,
         var transaction_counts = {
             Payment: 0,
             OfferCreate:0,
+            OfferCancel: 0,
             TrustSet: 0,
-            OfferCancel: 0
+            AccountSet: 0
         }
 
         var total_transactions = 0;
 
+        var accounts_created = 0;
+
         for (var r = 0, len = ledgers.length; r < len; r++) {
             var led = ledgers[r];
             for (var t = 0, trans = led.transactions.length; t < trans; t++) {
+
+                // count transactions
                 total_transactions++;
+
+                // count transaction types
                 var type = led.transactions[t].TransactionType;
                 if (transaction_counts.hasOwnProperty(type)) {
                     transaction_counts[type] = transaction_counts[type] + 1;
                 } else {
                     winston.info("Found unknown TransactionType:", type);
+                }
+
+                // count accounts created
+                var affected_nodes = led.transactions[t].metaData.AffectedNodes;
+                for (var n = 0, nodes = affected_nodes.length; n < nodes; n++) {
+                    if (affected_nodes[n].hasOwnProperty("CreatedNode")
+                        && affected_nodes[n].CreatedNode.LedgerEntryType === "AccountRoot")
+                        accounts_created++;
                 }
             }
         }
@@ -96,7 +113,9 @@ applyToChunksOfTime("days", 1,
                   transaction_counts.Payment + ", " +
                   transaction_counts.OfferCreate + ", " +
                   transaction_counts.OfferCancel + ", " +
-                  transaction_counts.TrustSet + "\n";
+                  transaction_counts.TrustSet + ", " +
+                  transaction_counts.AccountSet + ", " +
+                  accounts_created + "\n";
 
 
         fs.appendFile("tx_history.csv", row, async_callback);
