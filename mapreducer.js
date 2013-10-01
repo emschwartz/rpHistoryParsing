@@ -11,15 +11,16 @@ var rq = new RippledQuerier(MAX_ITERATORS);
 
 function applyToRange (first_index, last_index, iterator, callback) {
 
-    winston.info(first_index, last_index);
-    winston.info('last_index === "LAST"', last_index === "LAST");
-
     if (first_index === null || first_index === "FIRST" || first_index === "first") {
         first_index = rq.FIRST_INDEX;
     }
 
     if (last_index === null || last_index === "LAST" || last_index === "last") {
-        rq.getLatestLedgerIndex(function(rq_last_index){
+        rq.getLatestLedgerIndex(function(err, rq_last_index){
+            if (err) {
+                callback(err);
+                return;
+            }
             applyToRange(first_index, rq_last_index, iterator, callback);
         });
         return;
