@@ -16,8 +16,8 @@ function applyToRange (first_index, last_index, iterator, callback) {
     }
 
     if (last_index === null || last_index === "LAST" || last_index === "last") {
-        rq.getLatestLedgerIndex(function(last_index){
-            applyToRange(first_index, last_index, iterator, callback);
+        rq.getLatestLedgerIndex(function(rq_last_index){
+            applyToRange(first_index, rq_last_index, iterator, callback);
             return;
         });
     }
