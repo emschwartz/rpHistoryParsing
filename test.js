@@ -73,25 +73,25 @@ rq.getLedger(1);
 // });
 
 
-rq.mapOverLedgerRange(1900000, 2000000, function(ledger, async_callback) {
+// rq.mapOverLedgerRange(1900000, 2000000, function(ledger, async_callback) {
 
-    try {
+//     try {
 
-        var to_return = {};
-        to_return.close_time = ledger.close_time_human;
-        to_return.num_transactions = ledger.transactions.length;
+//         var to_return = {};
+//         to_return.close_time = ledger.close_time_human;
+//         to_return.num_transactions = ledger.transactions.length;
 
-        async_callback(null, to_return);
+//         async_callback(null, to_return);
 
-    } catch (e) {
-        async_callback(e);
-    }
+//     } catch (e) {
+//         async_callback(e);
+//     }
 
-}, function(err, results) {
+// }, function(err, results) {
 
-    fs.writeFile('transaction_history.json', )
+//     fs.writeFile('transaction_history.json', )
 
-});
+// });
 
 
 
