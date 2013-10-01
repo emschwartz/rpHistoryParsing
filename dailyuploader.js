@@ -182,7 +182,7 @@ function uploadToS3 (day_str, daily_package, callback) {
         stream: daily_package_stream
     }, function(err, body){
         if (err) {
-            winston.error("Error uploading daily package", day_str, "trying again");
+            winston.error("Error uploading daily package", day_str, "trying again", err);
             setImmediate(function(){
                 uploadToS3(day_str, daily_package, callback);
             });
