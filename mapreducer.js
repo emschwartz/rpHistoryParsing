@@ -10,9 +10,7 @@ var MAX_ITERATORS = 1000;
 
 var rq = new RippledQuerier(MAX_ITERATORS);
 
-var headers = "first_ledger_index, last_ledger_index, first_closing_time, last_closing_time, num_ledgers, num_transactions\n";
 
-fs.writeFileSync("tx_history.csv", headers);
 
 function applyToChunksOfTime(time_chunk_type, time_chunk_multiple, start_time, stop_time, iterator, callback) {
 
@@ -42,15 +40,51 @@ function applyToChunksOfTime(time_chunk_type, time_chunk_multiple, start_time, s
 
 }
 
+
+var headers = "first_ledger_index, 
+               last_ledger_index, 
+               first_closing_time, 
+               last_closing_time, 
+               num_ledgers, 
+               num_transactions,
+               Payment,
+               OfferCreate,
+               OfferCancel,
+               TrustSet\n";
+
+fs.writeFileSync("tx_history.csv", headers);
+
 applyToChunksOfTime("days", 1, 
     "2013-01-01 00:00:00 +00:00", 
     "2013-09-29 00:00:00 +00:00", 
     function(ledgers, async_callback){
 
-        var num_transactions = 0;
+        // var num_transactions = 0;
+
+        // for (var r = 0, len = ledgers.length; r < len; r++) {
+        //     num_transactions += ledgers[r].transactions.length;
+        // }
+
+        var transaction_counts = {
+            Payment: 0,
+            OfferCreate:0,
+            TrustSet: 0,
+            OfferCancel: 0
+        }
+
+        var total_transactions = 0;
 
         for (var r = 0, len = ledgers.length; r < len; r++) {
-            num_transactions += ledgers[r].transactions.length;
+            var led = ledgers[r];
+            for (var t = 0, trans = led.transactions.length; t < trans; t++) {
+                total_transactions++;
+                var type = led.transactions[t].TransactionType;
+                if (transaction_counts.hasOwnProperty(type)) {
+                    transaction_counts[type] = transaction_counts[type] + 1;
+                } else {
+                    winston.info("Found unknown TransactionType:", type);
+                }
+            }
         }
 
         var row = ledgers[0].ledger_index + ", " +
@@ -58,7 +92,11 @@ applyToChunksOfTime("days", 1,
                   ledgers[0].close_time_human + ", " +
                   ledgers[ledgers.length - 1].close_time_human + ", " +
                   ledgers.length + ", " +
-                  num_transactions + "\n";
+                  total_transactions + ", " +
+                  transaction_counts.Payment + ", " +
+                  transaction_counts.OfferCreate + ", " +
+                  transaction_counts.OfferCancel + ", " +
+                  transaction_counts.TrustSet + "\n";
 
 
         fs.appendFile("tx_history.csv", row, async_callback);
