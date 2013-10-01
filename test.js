@@ -21,6 +21,9 @@ var MAX_UPLOADERS = 25;
 
 var rq = new RippledQuerier(1000);
 
+rq.getLedger(0);
+rq.getLedger(1);
+
 // rq.getLedger(1297768);
 // 1379087
 // 1428745
