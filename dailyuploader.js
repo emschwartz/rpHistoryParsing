@@ -104,7 +104,7 @@ function clusterAndUploadNextDay(prev_day_str) {
 // getNextDay gets a day's worth of ledgers from the RippledQuerier
 function getNextDay(start_day, callback) {
 
-    rq.getLedgersForTimeRange(moment(start_day), moment(start_day).add('days', 1), function(err, ledgers) {
+    rq.getLedgersForTimeRange(moment(start_day), moment(start_day).add('days', 1).subtract('seconds', 20), function(err, ledgers) {
         if (err) {
             winston.error("Error getting day of ledgers", err);
             callback(err);
