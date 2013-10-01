@@ -59,15 +59,37 @@ var rq = new RippledQuerier(1000);
 
 
 
-rq.getLedgerRange(1900000, 2000000, function(err, results){
-    if (err) {
-        winston.error(err);
-        return;
+// rq.getLedgerRange(1900000, 2000000, function(err, results){
+//     if (err) {
+//         winston.error(err);
+//         return;
+//     }
+
+//     winston.info(results.length);
+
+// });
+
+
+rq.mapOverLedgerRange(1900000, 2000000, function(ledger, async_callback) {
+
+    try {
+
+        var to_return = {};
+        to_return.close_time = ledger.close_time_human;
+        to_return.num_transactions = ledger.transactions.length;
+
+        async_callback(null, to_return);
+
+    } catch (e) {
+        async_callback(e);
     }
 
-    winston.info(results.length);
+}, function(err, results) {
+
+    fs.writeFile('transaction_history.json', )
 
 });
+
 
 
 

@@ -367,6 +367,7 @@ function RippledQuerier(max_iterators) {
     var rq = {};
 
     rq.FIRST_LEDGER = FIRST_LEDGER;
+    rq.FIRST_INDEX = FIRST_LEDGER;
     rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
 
     rq.getLatestLedgerIndex = function(callback) {
@@ -404,8 +405,6 @@ function RippledQuerier(max_iterators) {
 
         getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
     };
-
-    // rq.runFnOnEachTimeBlock = function(time_block_type, )
 
     return rq;
 
