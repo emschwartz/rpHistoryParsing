@@ -10,13 +10,12 @@ var MAX_ITERATORS = 1000;
 
 var rq = new RippledQuerier(MAX_ITERATORS);
 
-var headers = "ledger_index, closing_time, num_transactions\n";
+var headers = "first_ledger_index, last_ledger_index, first_closing_time, last_closing_time, num_ledgers, num_transactions\n";
 
 fs.writeFileSync("tx_history.csv", headers);
 
 function applyToChunksOfTime(time_chunk_type, time_chunk_multiple, start_time, stop_time, iterator, callback) {
 
-    if ()
 
     if (start_time > stop_time) {
         callback();
@@ -42,6 +41,34 @@ function applyToChunksOfTime(time_chunk_type, time_chunk_multiple, start_time, s
         });
 
 }
+
+applyToChunksOfTime("days", 1, 
+    "2013-01-01 00:00:00 +00:00", 
+    "2013-09-29 00:00:00 +00:00", 
+    function(ledgers, async_callback){
+
+        var num_transactions = 0;
+
+        for (var r = 0, len = ledgers.length; r++) {
+            num_transactions += ledgers[r].transactions.length;
+        }
+
+        var row = ledgers[0].ledger_index + ", " +
+                  ledgers[ledgers.length - 1].ledger_index + ", " +
+                  ledgers[0].close_time_human + ", " +
+                  ledgers[ledgers.length - 1].close_time_human + ", " +
+                  ledgers.length + ", " +
+                  num_transactions + "\n";
+
+
+        fs.appendFile("tx_history.csv", row, async_callback);
+
+}, function(err){
+    if (err) {
+        winston.error(err);
+        return;
+    }
+});
 
 
 
