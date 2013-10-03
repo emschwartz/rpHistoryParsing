@@ -180,21 +180,31 @@ function uploadToS3 (day_str, daily_package, callback) {
         client: client,
         objectName: '/daily-packages/' + day_str + '.txt',
         stream: daily_package_stream
-    }, function(err, body){
-        if (err) {
-            winston.error("Error uploading daily package", day_str, "trying again", err);
-            setImmediate(function(){
-                uploadToS3(day_str, daily_package, callback);
-            });
-            return;
-        }
+    }
+    // , function(err, body){
+    //     if (err) {
+    //         winston.error("Error uploading daily package", day_str, "trying again", err);
+    //         setImmediate(function(){
+    //             uploadToS3(day_str, daily_package, callback);
+    //         });
+    //         return;
+    //     }
 
+    //     winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
+
+    //     updateS3Manifest(day_str);
+
+    //     callback(null, day_str);
+
+    // }
+    );
+
+    upload.on("completed", function(res){
         winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
 
         updateS3Manifest(day_str);
 
         callback(null, day_str);
-
     });
 
 }
