@@ -29,7 +29,7 @@ var FIRST_DAY = moment(FIRST_DAY_STR + MIDNIGHT_UTC);
 // Run the script
 var rq = new RippledQuerier(MAX_ITERATORS);
 
-clusterAndUploadNextDay("2013-07-23");
+clusterAndUploadNextDay("2013-07-22");
 
 
 // clusterAndUploadNextDay gets the next day of ledgers from the RippledQuerier,
@@ -60,14 +60,14 @@ function clusterAndUploadNextDay(prev_day_str) {
         }
 
 
-        packageDay(ledgers, function(err, daily_package) {
+        packageDay(ledgers, function(err, daily_packages) {
             if (err) {
                 winston.error("Error packaging daily ledgers:", err);
                 return;
             }
 
 
-            uploadToS3(this_day.format("YYYY-MM-DD"), daily_package, function(err, day_str) {
+            uploadToS3(this_day.format("YYYY-MM-DD"), daily_packages, function(err, day_str) {
                 if (err) {
                     winston.error("Error uploading daily ledgers:", err);
                     return;
@@ -129,9 +129,6 @@ function packageDay(ledgers, callback) {
 
 
     // } else {
-
-    
-
     callback(null, daily_packages);
 
 }
@@ -141,10 +138,14 @@ function uploadToS3 (day_str, daily_packages, callback) {
 
     // winston.info("daily_package.length", daily_package.length);
 
+    winston.info("uploading", day_str, "in", daily_packages.length, "packages");
+
     async.eachSeries(daily_packages, function(daily_package_obj, async_callback){
 
         var daily_package = daily_package_obj.txt;
         var part = daily_package_obj.packet;
+
+        winston.info("uploading part", part);
 
         var daily_package_stream = streamifier.createReadStream(daily_package);
 
@@ -163,9 +164,6 @@ function uploadToS3 (day_str, daily_packages, callback) {
 
             // updateS3Manifest(day_str);
             async_callback(null);
-
-            
-
         });
 
     }, function(err){
@@ -173,7 +171,7 @@ function uploadToS3 (day_str, daily_packages, callback) {
             callback(err);
             return;
         }
-        updateS3Manifest(day_str);
+        // updateS3Manifest(day_str);
         callback(null, day_str);
     });
 
