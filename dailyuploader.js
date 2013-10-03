@@ -173,6 +173,8 @@ function packageDay(ledgers, callback) {
 
 function uploadToS3 (day_str, daily_package, callback) {
 
+    winston.info("daily_package.length", daily_package.length);
+
     var daily_package_stream = streamifier.createReadStream(daily_package);
 
     var upload = new MultiPartUpload({
