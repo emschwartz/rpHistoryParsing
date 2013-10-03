@@ -84,7 +84,16 @@ function uploadNextBatch(batch_start, batch_size) {
                     winston.error("Error uploading ledger", err);
                 } else {
                     updateS3Manifest(batch_end - 1);
-                    uploadNextBatch(batch_end, batch_size);
+
+                    if (batch_end - batch_start <= 2) {
+                        setTimeout(function(){
+                            uploadNextBatch(batch_end, batch_size);
+                        }, 10000);
+                    } else {
+                        setImmediate(function(){
+                            uploadNextBatch(batch_end, batch_size);
+                        });
+                    }
                 }
             });
 
