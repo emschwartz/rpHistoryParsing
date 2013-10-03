@@ -207,6 +207,10 @@ function uploadToS3 (day_str, daily_package, callback) {
         callback(null, day_str);
     });
 
+    upload.on("error", function(err){
+        winston.error(err);
+    });
+
 }
 
 
