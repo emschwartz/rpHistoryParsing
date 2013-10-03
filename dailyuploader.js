@@ -121,6 +121,15 @@ function getNextDay(start_day, callback) {
 // packageDay aggregates ledgers into a string where each ledger is separated by a newline
 function packageDay(ledgers, callback) {
 
+    // var num_ledgers = ledgers.length;
+    // var leds_per_packet = 10000;
+
+    // if (num_ledgers > leds_per_packet) {
+
+
+
+    // } else {
+
     var daily_txt = '';
 
     for (var i = 0, len = ledgers.length; i < len; i++){
@@ -173,45 +182,44 @@ function packageDay(ledgers, callback) {
 
 function uploadToS3 (day_str, daily_package, callback) {
 
-    winston.info("daily_package.length", daily_package.length);
+    // winston.info("daily_package.length", daily_package.length);
 
     var daily_package_stream = streamifier.createReadStream(daily_package);
 
     var upload = new MultiPartUpload({
-        tmpDir: '/mnt/tmp',
+        tmpDir: '/mnt/tmp/mpu',
         client: client,
         objectName: '/daily-packages/' + day_str + '.txt',
         stream: daily_package_stream
-    }
-    // , function(err, body){
-    //     if (err) {
-    //         winston.error("Error uploading daily package", day_str, "trying again", err);
-    //         setImmediate(function(){
-    //             uploadToS3(day_str, daily_package, callback);
-    //         });
-    //         return;
-    //     }
+    }, function(err, body){
+        if (err) {
+            winston.error("Error uploading daily package", day_str, "trying again", err);
+            setImmediate(function(){
+                uploadToS3(day_str, daily_package, callback);
+            });
+            return;
+        }
 
-    //     winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
-
-    //     updateS3Manifest(day_str);
-
-    //     callback(null, day_str);
-
-    // }
-    );
-
-    upload.on("completed", function(res){
         winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
 
         updateS3Manifest(day_str);
 
         callback(null, day_str);
-    });
 
-    upload.on("error", function(err){
-        winston.error(err);
-    });
+    }
+    );
+
+    // upload.on("completed", function(res){
+    //     winston.info("Daily package", day_str, "saved to S3 at:", body.Location);
+
+    //     updateS3Manifest(day_str);
+
+    //     callback(null, day_str);
+    // });
+
+    // upload.on("error", function(err){
+    //     winston.error(err);
+    // });
 
 }
 
