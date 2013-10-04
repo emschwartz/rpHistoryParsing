@@ -27,6 +27,8 @@ saveBatch(2000000);
 
 
 function saveBatch (batch_start, callback) {
+    if (!callback) callback = printCallback;
+    
     rq.getLatestLedgerIndex(function(err, latest_ledger_index){
 
         var batch_end = Math.min(latest_ledger_index, batch_start + BATCH_SIZE);
@@ -61,6 +63,14 @@ function saveBatch (batch_start, callback) {
         });
 
     });
+}
+
+function printCallback(err, result) {
+    if (err) {
+        winston.error(err);
+    } else {
+        winston.info(result);
+    }
 }
 
 // rq.getLedger(ledger_index, function(err, ledger){
