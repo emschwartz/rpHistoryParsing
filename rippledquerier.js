@@ -56,11 +56,15 @@ function getRawLedger(dbs, ledger_index, callback) {
                 return;
             }
 
-            var raw_ledger = rows[0];
+            var raw_ledger;
 
-            if (rows.length > 1) {
+            if (rows.length === 0) {
+                raw_ledger = rows[0];
+            } else if (rows.length > 1) {
+                raw_ledger = _.max(rows, function(row) { return row.TransSetHash });
+
                 raw_ledger.conflicting_ledger_headers = [];
-                for (var r = 1; r < rows.length; r++) {
+                for (var r = 0; r < rows.length; r++) {
                     raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
             }
