@@ -147,9 +147,12 @@ function parseLedger(raw_ledger, raw_txs) {
     }
 
     ledger.conflicting_ledger_headers = [];
-    _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
-        ledger.conflicting_ledger_headers.push(parseLedger(conflicting_header, null));
-    });
+    if (raw_ledger.conflicting_ledger_headers 
+        && raw_ledger.conflicting_ledger_headers.length > 0) {
+        _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
+            ledger.conflicting_ledger_headers.push(parseLedger(conflicting_header, null));
+        });
+    }
 
     return ledger;
 
