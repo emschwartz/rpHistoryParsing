@@ -71,9 +71,9 @@ function getRawLedger(dbs, ledger_index, callback) {
                 raw_ledger = sorted_rows[0];
 
                 raw_ledger.conflicting_ledger_headers = [];
-                for (var r = 1; r < rows.length; r++) {
-                    if (raw_ledger.LedgerHash !== rows[r].LedgerHash);
-                        raw_ledger.conflicting_ledger_headers.push(rows[r]);
+                for (var r = 1; r < sorted_rows.length; r++) {
+                    if (raw_ledger.LedgerHash !== sorted_rows[r].LedgerHash);
+                        raw_ledger.conflicting_ledger_headers.push(sorted_rows[r]);
                 }
             }
 
