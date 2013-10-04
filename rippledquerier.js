@@ -157,7 +157,7 @@ function parseLedger(raw_ledger, raw_txs) {
     }
 
     ledger.conflicting_ledger_headers = [];
-    if (raw_ledger.conflicting_ledger_headers !== undefined 
+    if (raw_ledger.conflicting_ledger_headers 
         && raw_ledger.conflicting_ledger_headers.length > 0) {
         var heads = raw_ledger.conflicting_ledger_headers;
         for (var ch = 0; ch < heads.length; ch++){
