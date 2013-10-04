@@ -70,6 +70,7 @@ function getRawLedger(dbs, ledger_index, callback) {
                     if (raw_ledger.LedgerHash !== rows[r].LedgerHash);
                         raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
+                winston.info("raw_ledger has", raw_ledger.conflicting_ledger_headers.length, "conflicting headers");
             }
 
             winston.info(raw_ledger);
@@ -154,8 +155,7 @@ function parseLedger(raw_ledger, raw_txs) {
     winston.info("parsed ledger up to here", ledger);
 
     ledger.conflicting_ledger_headers = [];
-    if (raw_ledger.conflicting_ledger_headers 
-        && raw_ledger.conflicting_ledger_headers.length > 0) {
+    if (raw_ledger.conflicting_ledger_headers.length > 0) {
         _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
             var parsed_conflict_header = parseLedger(conflicting_header, null);
             ledger.conflicting_ledger_headers.push(parsed_conflict_header);
