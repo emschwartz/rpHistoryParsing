@@ -61,7 +61,7 @@ function getRawLedger(dbs, ledger_index, callback) {
             if (rows.length === 0) {
                 raw_ledger = rows[0];
             } else if (rows.length > 1) {
-                var sorted_rows = _.sort(rows, function(row) {return row.TransSetHash;});
+                var sorted_rows = _.sortBy(rows, function(row) {return row.TransSetHash;});
 
                 winston.info(JSON.stringify(sorted_rows));
 
