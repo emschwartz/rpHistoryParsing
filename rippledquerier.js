@@ -106,9 +106,6 @@ function getRawTxForLedger(dbs, ledger_index, callback) {
 
 function parseLedger(raw_ledger, raw_txs) {
 
-
-    winston.info("Parsing ledger:", raw_ledger.LedgerSeq);
-
     var ledger;
 
     ledger = {
