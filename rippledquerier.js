@@ -18,6 +18,7 @@ var FIRST_CLOSING_TIME = 410325670;
 
 
 // printCallback is used as the default callback function
+
 function printCallback(err, result) {
     if (err) {
         winston.error(err);
@@ -27,12 +28,14 @@ function printCallback(err, result) {
 }
 
 // rpEpochFromTimestamp converts the ripple epochs to a javascript timestamp
+
 function rpEpochFromTimestamp(timestamp) {
     return timestamp / 1000 - 0x386D4380;
 }
 
 
 // getRawLedger gets the raw (encoded) ledger blob from the ledb database 
+
 function getRawLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -53,18 +56,24 @@ function getRawLedger(dbs, ledger_index, callback) {
                 return;
             }
 
+            var raw_ledger = rows[0];
+
             if (rows.length > 1) {
-                winston.error("dbs.ledb has more than 1 entry for ledger_index:", ledger_index, "continuing anyway");
+                raw_ledger.conflicting_ledger_headers = [];
+                for (var r = 1; r < rows.length; r++) {
+                    raw_ledger.conflicting_ledger_headers.push(rows[r]);
+                }
             }
 
             // winston.info("for ledger", ledger_index, "got", rows);
 
             if (!callback) winston.error("callback is not defined");
-            callback(null, rows[0]);
+            callback(null, raw_ledger);
         });
 }
 
 // getRawTxForLedger gets the raw tx blobs from the txdb database
+
 function getRawTxForLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -81,7 +90,8 @@ function getRawTxForLedger(dbs, ledger_index, callback) {
 }
 
 // parseLedger parses the raw ledger and associated raw txs into a single json ledger
-function parseLedger(raw_ledger, raw_txs, callback) {
+
+function parseLedger(raw_ledger, raw_txs) {
 
     // winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
 
@@ -90,25 +100,24 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
     var ledger;
 
-    try {
-        ledger = {
-            accepted: true,
-            account_hash: raw_ledger.AccountSetHash,
-            close_time_rpepoch: raw_ledger.ClosingTime,
-            close_time_timestamp: ripple.utils.toTimestamp(raw_ledger.ClosingTime),
-            close_time_human: moment(ripple.utils.toTimestamp(raw_ledger.ClosingTime)).format("YYYY-MM-DD HH:mm:ss Z"),
-            close_time_resolution: raw_ledger.CloseTimeRes,
-            closed: true,
-            hash: raw_ledger.LedgerHash,
-            ledger_hash: raw_ledger.LedgerHash,
-            ledger_index: raw_ledger.LedgerSeq,
-            parent_hash: raw_ledger.PrevHash,
-            total_coins: raw_ledger.TotalCoins,
-            transaction_hash: raw_ledger.TransSetHash
-        };
+    ledger = {
+        accepted: true,
+        account_hash: raw_ledger.AccountSetHash,
+        close_time_rpepoch: raw_ledger.ClosingTime,
+        close_time_timestamp: ripple.utils.toTimestamp(raw_ledger.ClosingTime),
+        close_time_human: moment(ripple.utils.toTimestamp(raw_ledger.ClosingTime)).format("YYYY-MM-DD HH:mm:ss Z"),
+        close_time_resolution: raw_ledger.CloseTimeRes,
+        closed: true,
+        hash: raw_ledger.LedgerHash,
+        ledger_hash: raw_ledger.LedgerHash,
+        ledger_index: raw_ledger.LedgerSeq,
+        parent_hash: raw_ledger.PrevHash,
+        total_coins: raw_ledger.TotalCoins,
+        transaction_hash: raw_ledger.TransSetHash
+    };
 
-        // winston.info("ledger up to here:", ledger);
-
+    // winston.info("ledger up to here:", ledger);
+    if (raw_txs !== null) {
         var transactions = _.map(raw_txs, function(raw_tx) {
 
             // Parse tx
@@ -135,20 +144,19 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         });
 
         ledger.transactions = transactions;
-        
-        // winston.info("parsed ledger", ledger);
-        
-    } catch (err) {
-        winston.error("Error parsing ledger:", err);
-        callback(err);
-        return;
     }
 
-    callback(null, ledger);
+    ledger.conflicting_ledger_headers = [];
+    _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
+        ledger.conflicting_ledger_headers.push(parseLedger(conflicting_header, null));
+    });
+
+    return ledger;
 
 }
 
 // getLedger gets the PARSED ledger (and associated transactions) corresponding to the ledger_index
+
 function getLedger(dbs, ledger_index, callback) {
     if (!callback) callback = printCallback;
 
@@ -176,6 +184,7 @@ function getLedger(dbs, ledger_index, callback) {
 }
 
 // getLedgerRange gets the PARSED ledgers for the given range of indices
+
 function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
@@ -188,7 +197,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
 
     // winston.info("getting ledger range from:", start, "to", end, "max_iterators", max_iterators);
 
-    async.mapLimit(indices, max_iterators, function(ledger_index, async_callback){
+    async.mapLimit(indices, max_iterators, function(ledger_index, async_callback) {
         getLedger(dbs, ledger_index, async_callback);
     }, function(err, ledgers) {
         if (err) {
@@ -206,6 +215,7 @@ function getLedgerRange(dbs, start, end, max_iterators, callback) {
 }
 
 // getLedgersForRpEpochRange gets the PARSED ledgers that closed between the given ripple epoch times
+
 function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
@@ -244,6 +254,7 @@ function getLedgersForRpEpochRange(dbs, start_epoch, end_epoch, max_iterators, c
 
 
 // getLatestLedgerIndex gets the most recent ledger index in the ledger db
+
 function getLatestLedgerIndex(dbs, callback) {
     if (!callback) callback = printCallback;
 
@@ -258,6 +269,7 @@ function getLatestLedgerIndex(dbs, callback) {
 
 
 // searchLedgerByClosingTime finds the ledger index of the ledger that closed nearest to the given rpepoch
+
 function searchLedgerByClosingTime(dbs, rpepoch, callback) {
     if (!callback) callback = printCallback;
 
@@ -272,7 +284,7 @@ function searchLedgerByClosingTime(dbs, rpepoch, callback) {
             return;
         }
 
-        getRawLedger(dbs, latest_index, function(err, latest_ledger){
+        getRawLedger(dbs, latest_index, function(err, latest_ledger) {
             if (err) {
                 callback(err);
                 return;
@@ -295,6 +307,7 @@ function searchLedgerByClosingTime(dbs, rpepoch, callback) {
 
 // dbRecursiveSearch is like a binary search but with 20 divisions each time instead of 2
 // (because querying the db is slower than iterating through 20 results)
+
 function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
     if (!callback) callback = printCallback;
 
@@ -338,7 +351,7 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
         for (var i = 0; i < rows.length - 1; i++) {
             // winston.info("rows[i][index]",rows[i][index], "rows[i][key]", rows[i][key], "val", val, "rows[i][index]", rows[i][index], "rows[i + 1][key]", rows[i + 1][key]);
             if (rows[i][key] <= val && val < rows[i + 1][key]) {
-                setImmediate(function(){
+                setImmediate(function() {
                     dbRecursiveSearch(db, table, index, rows[i][index], rows[i + 1][index], key, val, callback);
                 });
                 return;

@@ -17,8 +17,9 @@ var client = knox.createClient({
 
 var MAX_UPLOADERS = 25;
 
+rq.getLedger(1252259);
 
-console.log(moment().diff(moment().subtract('days', 1).add('seconds', 20)));
+// console.log(moment().diff(moment().subtract('days', 1).add('seconds', 20)));
 
 // var rq = new RippledQuerier(1000);
 
