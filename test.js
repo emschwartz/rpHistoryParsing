@@ -5,7 +5,7 @@ var winston = require('winston'),
     async = require('async'),
     knox = require('knox'),
     diff = require('deep-diff'),
-    RippledQuerier = require('./rippledquerier').RippledQuerier;
+    RippledQuerier = require('./rippledquerier');
 
 var config = require('./config');
 

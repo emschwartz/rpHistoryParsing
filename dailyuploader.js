@@ -6,7 +6,7 @@ var winston = require('winston'),
     knox = require('knox'),
     streamifier = require('streamifier'),
     MultiPartUpload = require('knox-mpu'),
-    RippledQuerier = require('./rippledquerier').RippledQuerier;
+    RippledQuerier = require('./rippledquerier');
 
 var config = require('./config');
 
