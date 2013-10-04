@@ -61,19 +61,19 @@ function getRawLedger(dbs, ledger_index, callback) {
             if (rows.length === 0) {
                 raw_ledger = rows[0];
             } else if (rows.length > 1) {
-                var sorted_rows = rows.sort(function(row1, row2) {
+                rows.sort(function(row1, row2) {
                     if (row1.TransSetHash > row2.TransSetHash) {
                         return -1;
                     } else {
                         return 1;
                     }});
 
-                raw_ledger = sorted_rows[0];
+                raw_ledger = rows[0];
 
                 raw_ledger.conflicting_ledger_headers = [];
-                for (var r = 1; r < sorted_rows.length; r++) {
-                    if (raw_ledger.LedgerHash !== sorted_rows[r].LedgerHash);
-                        raw_ledger.conflicting_ledger_headers.push(sorted_rows[r]);
+                for (var r = 1; r < rows.length; r++) {
+                    if (raw_ledger.LedgerHash !== rows[r].LedgerHash);
+                        raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
             }
 
