@@ -75,10 +75,7 @@ function getRawLedger(dbs, ledger_index, callback) {
                     if (raw_ledger.LedgerHash !== rows[r].LedgerHash);
                         raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
-                winston.info("raw_ledger has", raw_ledger.conflicting_ledger_headers.length, "conflicting headers");
             }
-
-            winston.info(raw_ledger);
 
             // winston.info("for ledger", ledger_index, "got", rows);
 
