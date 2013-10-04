@@ -11,24 +11,15 @@ var RippledQuerier = require('./rippledquerier'),
 var winston = require('winston');
 
 var MAX_ITERATORS = 1000;
-var BATCH_SIZE = 1000;
+var BATCH_SIZE = 10000;
 
 
-// db.getDoc("cc0a5edcc25f1a1ec960c1dc8a2a2030", function(err, doc){
-//     if (err) {
-//         winston.error(err);
-//         return;
-//     }
-
-//     winston.info(doc);
-// });
-
-saveBatch(2000000);
+saveNextBatch(32570);
 
 
-function saveBatch (batch_start, callback) {
+function saveNextBatch (batch_start, callback) {
     if (!callback) callback = printCallback;
-    
+
     rq.getLatestLedgerIndex(function(err, latest_ledger_index){
 
         var batch_end = Math.min(latest_ledger_index, batch_start + BATCH_SIZE);
@@ -37,7 +28,7 @@ function saveBatch (batch_start, callback) {
 
         rq.getLedgerRange(batch_start, batch_end, function(err, ledgers){
             if (err) {
-                winston.error("Error saving batch from", batch_start, "to", batch_end, ":", err);
+                winston.error("Error getting batch from", batch_start, "to", batch_end, ":", err);
                 return;
             }
 
@@ -53,11 +44,11 @@ function saveBatch (batch_start, callback) {
 
             }, function(err){
                 if (err) {
-                    winston.error("Error saving batch from", batch_start, "to", batch_end, ":", err);
+                    winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
                     return;
                 }
 
-                callback(null, batch_end);
+                saveNextBatch(batch_end);
             });
 
         });
@@ -72,20 +63,3 @@ function printCallback(err, result) {
         winston.info(result);
     }
 }
-
-// rq.getLedger(ledger_index, function(err, ledger){
-//     if (err) {
-//         winston.error(err);
-//         return;
-//     }
-
-//     db.saveDoc(ledger_index, ledger, function(err, ok){
-//         if (err) {
-//             winston.error(err);
-//             return;
-//         }
-//         winston.info("Ledger", ledger_index, "saved to CouchDB");
-//     });
-
-// });
-
