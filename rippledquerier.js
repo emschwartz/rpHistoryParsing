@@ -68,6 +68,8 @@ function getRawLedger(dbs, ledger_index, callback) {
                         return 1;
                     }});
 
+                winston.info("rows", rows);
+
                 raw_ledger = rows[0];
 
                 winston.info(raw_ledger);
@@ -78,10 +80,7 @@ function getRawLedger(dbs, ledger_index, callback) {
                         raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
             }
-
-            // winston.info("for ledger", ledger_index, "got", rows);
-
-            if (!callback) winston.error("callback is not defined");
+            
             callback(null, raw_ledger);
         });
 }
@@ -186,8 +185,6 @@ function getLedger(dbs, ledger_index, callback) {
             callback(err);
             return;
         }
-
-        winston.info("raw_ledger", raw_ledger);
 
         getRawTxForLedger(dbs, ledger_index, function(err, raw_txs) {
             if (err) {
