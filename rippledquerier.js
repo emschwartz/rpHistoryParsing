@@ -155,7 +155,7 @@ function parseLedger(raw_ledger, raw_txs) {
     winston.info("parsed ledger up to here", ledger);
 
     ledger.conflicting_ledger_headers = [];
-    if (raw_ledger.conflicting_ledger_headers !== null 
+    if (raw_ledger.conflicting_ledger_headers !== undefined 
         && raw_ledger.conflicting_ledger_headers.length > 0) {
         _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
             var parsed_conflict_header = parseLedger(conflicting_header, null);
