@@ -60,6 +60,7 @@ function getRawLedger(dbs, ledger_index, callback) {
 
             if (rows.length === 0) {
                 raw_ledger = rows[0];
+                winston.info(rows);
             } else if (rows.length > 1) {
                 rows.sort(function(row1, row2) {
                     if (row1.TransSetHash > row2.TransSetHash) {
