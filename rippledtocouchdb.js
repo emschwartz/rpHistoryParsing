@@ -6,4 +6,11 @@ var couchdb = require('felix-couchdb'),
 var winston = require('winston');
 
 
-winston.info(db.getDoc("aecd76d84ad9af8fdcb6c39cfb000bde"));
+db.getDoc("cc0a5edcc25f1a1ec960c1dc8a2a2030", function(err, doc){
+    if (err) {
+        winston.error(err);
+        return;
+    }
+
+    winston.info(doc);
+});
