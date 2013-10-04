@@ -162,7 +162,7 @@ function parseLedger(raw_ledger, raw_txs) {
         var heads = raw_ledger.conflicting_ledger_headers;
         for (var ch = 0; ch < heads.length; ch++){
             ledger.conflicting_ledger_headers.push(parseLedger(heads[ch], null));
-        };
+        }
     }
 
     // winston.info(ledger);
