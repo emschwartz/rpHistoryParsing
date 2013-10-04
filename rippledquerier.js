@@ -93,10 +93,7 @@ function getRawTxForLedger(dbs, ledger_index, callback) {
 
 function parseLedger(raw_ledger, raw_txs) {
 
-    // winston.info("Parsing ledger:", raw_ledger.LedgerSeq, "which has this many txs:", raw_txs.length);
-
-    if (!raw_ledger || !raw_txs)
-        winston.error("raw_ledger", raw_ledger, "raw_txs", raw_txs);
+    winston.info("Parsing ledger:", raw_ledger.LedgerSeq);
 
     var ledger;
 
@@ -155,6 +152,8 @@ function parseLedger(raw_ledger, raw_txs) {
             ledger.conflicting_ledger_headers.push(parsed_conflict_header);
         });
     }
+
+    winston.info(ledger);
 
     return ledger;
 
