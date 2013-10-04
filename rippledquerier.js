@@ -177,7 +177,8 @@ function getLedger(dbs, ledger_index, callback) {
                 return;
             }
 
-            parseLedger(raw_ledger, raw_txs, callback);
+            var parsed_ledger = parseLedger(raw_ledger, raw_txs);
+            callback(null, parsed_ledger);
 
         });
     });
