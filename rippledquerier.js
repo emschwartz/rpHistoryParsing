@@ -68,11 +68,7 @@ function getRawLedger(dbs, ledger_index, callback) {
                         return 1;
                     }});
 
-                winston.info("rows", rows);
-
                 raw_ledger = rows[0];
-
-                winston.info(raw_ledger);
 
                 raw_ledger.conflicting_ledger_headers = [];
                 for (var r = 1; r < rows.length; r++) {
