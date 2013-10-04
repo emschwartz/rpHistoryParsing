@@ -66,6 +66,15 @@ function clusterAndUploadNextDay(prev_day_str) {
             return;
         }
 
+        // wait until next day is full
+        var last_close_time = moment(ledgers[ledgers.length-1].close_time_human);
+        if (last_close_time.diff(this_day) < 86400000) {
+            setTimeout(function(){
+                clusterAndUploadNextDay(prev_day_str);
+            }, 86400000 - last_close_time.diff(this_day));
+            return;
+        }
+
         winston.info("Got this many ledgers:", ledgers.length);
 
         if (ledgers.length === 0) {
