@@ -63,13 +63,15 @@ function getRawLedger(dbs, ledger_index, callback) {
             } else if (rows.length > 1) {
                 raw_ledger = _.max(rows, function(row) { return row.TransSetHash });
 
-                winston.info(raw_ledger);
+                // winston.info(raw_ledger);
 
                 raw_ledger.conflicting_ledger_headers = [];
                 for (var r = 0; r < rows.length; r++) {
                     raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
             }
+
+            winston.info(raw_ledger);
 
             // winston.info("for ledger", ledger_index, "got", rows);
 
