@@ -25,7 +25,7 @@
     "winston": "~0.7.2",
     "ripple-lib": "~0.7",
     "felix-couchdb": "~1.0.7",
-    "queue": "1.0.1"
+    "queue-async": "~1.0.4"
   },
   "engines": {
     "node": ">=0.10"
