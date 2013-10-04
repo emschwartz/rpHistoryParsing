@@ -154,8 +154,6 @@ function parseLedger(raw_ledger, raw_txs) {
         ledger.transactions = transactions;
     }
 
-    // winston.info("parsed ledger up to here", ledger);
-
     ledger.conflicting_ledger_headers = [];
     if (raw_ledger.conflicting_ledger_headers !== undefined 
         && raw_ledger.conflicting_ledger_headers.length > 0) {
