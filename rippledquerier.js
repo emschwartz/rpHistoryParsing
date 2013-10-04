@@ -157,11 +157,10 @@ function parseLedger(raw_ledger, raw_txs) {
     ledger.conflicting_ledger_headers = [];
     if (raw_ledger.conflicting_ledger_headers !== undefined 
         && raw_ledger.conflicting_ledger_headers.length > 0) {
-        _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
-            var parsed_conflict_header = parseLedger(conflicting_header, null);
-            ledger.conflicting_ledger_headers.push(parsed_conflict_header);
-            return;
-        });
+        var heads = raw_ledger.conflicting_ledger_headers;
+        for (var ch = 0; ch < heads.length; ch++){
+            ledger.conflicting_ledger_headers.push(parseLedger(heads[ch], null));
+        };
     }
 
     // winston.info(ledger);
