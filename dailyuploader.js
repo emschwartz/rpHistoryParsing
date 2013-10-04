@@ -68,7 +68,7 @@ function clusterAndUploadNextDay(prev_day_str) {
 
         // wait until next day is full
         var last_close_time = moment(ledgers[ledgers.length-1].close_time_human);
-        if (last_close_time.diff(this_day) < 86400000) {
+        if (last_close_time.diff(this_day) < 86300000) {
             setTimeout(function(){
                 winston.info("Got incomplete day for", this_day.format("YYYY-MM-DD"), "waiting", 86400000 - last_close_time.diff(this_day), "ms");
                 clusterAndUploadNextDay(prev_day_str);
