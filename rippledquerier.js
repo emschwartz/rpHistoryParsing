@@ -61,13 +61,14 @@ function getRawLedger(dbs, ledger_index, callback) {
             if (rows.length === 0) {
                 raw_ledger = rows[0];
             } else if (rows.length > 1) {
-                raw_ledger = _.max(rows, function(row) { return row.TransSetHash });
+                var sorted_rows = _.sort(rows, function(row) {return row.TransSetHash;});
 
-                // winston.info(raw_ledger);
+                winston.info(JSON.stringify(sorted_rows));
+
+                raw_ledger = sorted_rows[0];
 
                 raw_ledger.conflicting_ledger_headers = [];
-                for (var r = 0; r < rows.length; r++) {
-                    winston.info(rows[r].LedgerHash);
+                for (var r = 1; r < rows.length; r++) {
                     if (raw_ledger.LedgerHash !== rows[r].LedgerHash);
                         raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
