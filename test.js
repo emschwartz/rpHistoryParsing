@@ -19,7 +19,7 @@ var MAX_UPLOADERS = 25;
 
 var rq = new RippledQuerier(1000);
 
-rq.getLedger(1252259);
+rq.getLedgerRange(32570, 42570);
 
 
 // console.log(moment().diff(moment().subtract('days', 1).add('seconds', 20)));
