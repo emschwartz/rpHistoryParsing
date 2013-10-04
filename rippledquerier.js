@@ -113,7 +113,6 @@ function parseLedger(raw_ledger, raw_txs) {
         transaction_hash: raw_ledger.TransSetHash
     };
 
-    // winston.info("ledger up to here:", ledger);
     if (raw_txs !== null) {
         var transactions = _.map(raw_txs, function(raw_tx) {
 
