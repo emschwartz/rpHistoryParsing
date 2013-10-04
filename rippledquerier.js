@@ -150,7 +150,9 @@ function parseLedger(raw_ledger, raw_txs) {
     if (raw_ledger.conflicting_ledger_headers 
         && raw_ledger.conflicting_ledger_headers.length > 0) {
         _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
-            ledger.conflicting_ledger_headers.push(parseLedger(conflicting_header, null));
+            var parsed_conflict_header = parseLedger(conflicting_header, null);
+            winston.info("Conflicting header:", parsed_conflict_header);
+            ledger.conflicting_ledger_headers.push(parsed_conflict_header);
         });
     }
 
