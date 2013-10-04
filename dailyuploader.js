@@ -70,6 +70,7 @@ function clusterAndUploadNextDay(prev_day_str) {
         var last_close_time = moment(ledgers[ledgers.length-1].close_time_human);
         if (last_close_time.diff(this_day) < 86400000) {
             setTimeout(function(){
+                winston.info("Got incomplete day for", this_day.format("YYYY-MM-DD"), "waiting", 86400000 - last_close_time.diff(this_day), "ms");
                 clusterAndUploadNextDay(prev_day_str);
             }, 86400000 - last_close_time.diff(this_day));
             return;
