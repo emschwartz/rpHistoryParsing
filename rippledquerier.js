@@ -67,6 +67,7 @@ function getRawLedger(dbs, ledger_index, callback) {
 
                 raw_ledger.conflicting_ledger_headers = [];
                 for (var r = 0; r < rows.length; r++) {
+                    winston.info(rows[r].LedgerHash);
                     if (raw_ledger.LedgerHash !== rows[r].LedgerHash);
                         raw_ledger.conflicting_ledger_headers.push(rows[r]);
                 }
