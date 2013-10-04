@@ -152,7 +152,7 @@ function parseLedger(raw_ledger, raw_txs) {
         ledger.transactions = transactions;
     }
 
-    winston.info("parsed ledger up to here", ledger);
+    // winston.info("parsed ledger up to here", ledger);
 
     ledger.conflicting_ledger_headers = [];
     if (raw_ledger.conflicting_ledger_headers !== undefined 
@@ -160,6 +160,7 @@ function parseLedger(raw_ledger, raw_txs) {
         _.each(raw_ledger.conflicting_ledger_headers, function(conflicting_header) {
             var parsed_conflict_header = parseLedger(conflicting_header, null);
             ledger.conflicting_ledger_headers.push(parsed_conflict_header);
+            return;
         });
     }
 
