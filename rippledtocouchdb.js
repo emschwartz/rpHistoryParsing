@@ -3,5 +3,7 @@ var couchdb = require('felix-couchdb'),
     db = client.db('rpparsedhistory'),
     queue = require('queue-async');
 
+var winston = require('winston');
+
 
 winston.info(db.getDoc("aecd76d84ad9af8fdcb6c39cfb000bde"));
