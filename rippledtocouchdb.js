@@ -27,8 +27,10 @@ db.changes({
         return;
     }
 
+    winston.info(res);
     var last_saved_index = parseInt(res.results.id, 10);
-    saveNextBatch(last_saved_index + 1);
+    winston.info(last_saved_index);
+    // saveNextBatch(last_saved_index + 1);
 });
 
 // db.view("dd1", "last_transaction", function(err, ))
