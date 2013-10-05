@@ -14,9 +14,22 @@ var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 10000;
 
 
-if (process.argv.length === 3) {
-    saveNextBatch(parseInt(process.argv[2]), 10);
-}
+// if (process.argv.length === 3) {
+//     saveNextBatch(parseInt(process.argv[2]), 10);
+// }
+
+db.changes({
+    limit: 1,
+    descending: true
+}, function(err, res){
+    if (err) {
+        winston.error("Error getting last ledger saved");
+        return;
+    }
+
+    var last_saved_index = parseInt(res.results.id, 10);
+    saveNextBatch(last_saved_index + 1);
+});
 
 // db.view("dd1", "last_transaction", function(err, ))
 
