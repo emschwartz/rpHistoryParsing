@@ -28,7 +28,7 @@ db.changes({
     }
 
     winston.info(JSON.stringify(res));
-    var last_saved_index = parseInt(res.results.id, 10);
+    var last_saved_index = parseInt(res.results[0].id, 10);
     winston.info(last_saved_index);
     // saveNextBatch(last_saved_index + 1);
 });
