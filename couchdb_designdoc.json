@@ -1,0 +1,23 @@
+{
+    "_id": "rphistory_designdoc",
+    "language": "javascript",
+    "views": {
+        "all": {
+            "map": "function(doc) { emit(doc); }",
+        },
+        "by_index": {
+            "map": "function(doc) { emit(doc.ledger_index, doc); }"
+        },
+        "by_transactions": {
+            "map": "function(doc) { emit(doc.transactions.length, doc); }"
+        },
+        "total_transactions": {
+            "map": "function(doc) { emit(doc.ledger_index, doc.transactions.length); }",
+            "reduce": "function(keys, values) { return sum(values); }"
+        },
+        "last_index": {
+            "map": "function(doc) { emit(doc.ledger_index, doc); }",
+            "reduce": "function(keys) { emit(Math.max(keys)); }"
+        }
+    }
+}
