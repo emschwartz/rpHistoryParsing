@@ -64,7 +64,16 @@ function saveNextBatch (batch_start) {
                     return;
                 }
 
-                saveNextBatch(batch_end);
+                if (batch_end - batch_start > 2)
+                    setImmediate(function(){
+                        saveNextBatch(batch_end);
+                    });
+                else {
+                    winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
+                    setTimeout(function(){
+                        saveNextBatch(batch_end);
+                    }, 10000);
+                }
             });
 
         });
