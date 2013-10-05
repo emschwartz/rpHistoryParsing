@@ -22,7 +22,6 @@ if (process.argv.length === 3) {
 
 
 function saveNextBatch (batch_start) {
-    if (!callback) callback = printCallback;
 
     rq.getLatestLedgerIndex(function(err, latest_ledger_index){
 
