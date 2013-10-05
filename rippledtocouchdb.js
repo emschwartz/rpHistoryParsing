@@ -25,6 +25,8 @@ function saveNextBatch (batch_start) {
 
     rq.getLatestLedgerIndex(function(err, latest_ledger_index){
 
+        winston.info("latest_ledger_index", latest_ledger_index, "batch_start + BATCH_SIZE", (batch_start + BATCH_SIZE));
+
         var batch_end = Math.min(latest_ledger_index, (batch_start + BATCH_SIZE));
         winston.info("Saving batch from", batch_start, "to", batch_end);
         var incides = _.range(batch_start, batch_end);
