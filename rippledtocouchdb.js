@@ -14,10 +14,14 @@ var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 10000;
 
 
-saveNextBatch(32570);
+if (process.argv.length === 3) {
+    saveNextBatch(process.argv[2]);
+}
+
+// db.view("dd1", "last_transaction", function(err, ))
 
 
-function saveNextBatch (batch_start, callback) {
+function saveNextBatch (batch_start) {
     if (!callback) callback = printCallback;
 
     rq.getLatestLedgerIndex(function(err, latest_ledger_index){
