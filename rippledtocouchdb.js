@@ -53,37 +53,25 @@ function saveNextBatch (batch_start) {
                 return ledger;
             });
 
-            winston.info(JSON.stringify(docs));
+            // winston.info(JSON.stringify(docs));
 
-            // db.bulkDocs({docs: docs},
+            db.bulkDocs({docs: docs}, function(err){
+                if (err) {
+                    winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
+                    return;
+                }
 
-            // // async.eachLimit(ledgers, MAX_ITERATORS, function(ledger, async_callback){
-
-            // //     db.saveDoc(ledger.ledger_index, ledger, function(err, ok){
-            // //         if (err) {
-            // //             async_callback(err);
-            // //             return;
-            // //         }
-            // //         async_callback(null);
-            // //     });
-
-            // function(err){
-            //     if (err) {
-            //         winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
-            //         return;
-            //     }
-
-            //     if (batch_end - batch_start > 2)
-            //         setImmediate(function(){
-            //             saveNextBatch(batch_end);
-            //         });
-            //     else {
-            //         winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
-            //         setTimeout(function(){
-            //             saveNextBatch(batch_end);
-            //         }, 10000);
-            //     }
-            // });
+                if (batch_end - batch_start > 1)
+                    setImmediate(function(){
+                        saveNextBatch(batch_end);
+                    });
+                else {
+                    winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
+                    setTimeout(function(){
+                        saveNextBatch(batch_end);
+                    }, 10000);
+                }
+            });
 
         });
 
