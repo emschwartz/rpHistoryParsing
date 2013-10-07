@@ -1,5 +1,5 @@
 var couchdb = require('felix-couchdb'),
-    client = couchdb.createClient(5984, 'localhost'),
+    client = couchdb.createClient(5984, '0.0.0.0'),
     db = client.db('rphistory'),
     queue = require('queue-async'),
     async = require('async'),
