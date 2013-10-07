@@ -48,7 +48,7 @@ function saveNextBatch (batch_start) {
                 return;
             }
 
-            var docs = _.map(ledger, function(ledger){
+            var docs = _.map(ledgers, function(ledger){
                 ledger._id = ledger.ledger_index;
                 return ledger;
             });
