@@ -1,8 +1,12 @@
-var couchdb = require('felix-couchdb'),
-    client = couchdb.createClient(5984, '0.0.0.0'),
-    db = client.db('rphistory'),
-    queue = require('queue-async'),
-    async = require('async'),
+// var couchdb = require('felix-couchdb'),
+//     client = couchdb.createClient(5984, '0.0.0.0'),
+//     db = client.db('rphistory'),
+var nano = require('nano')('http://0.0.0.0:5984'),
+    db = nano.use('rphistory');
+
+var config = require('./config');
+
+var async = require('async'),
     _ = require('lodash');
 
 var RippledQuerier = require('./rippledquerier'),
@@ -18,17 +22,27 @@ var BATCH_SIZE = 1000;
 //     saveNextBatch(parseInt(process.argv[2]), 10);
 // }
 
-db.changes({
-    limit: 1,
-    descending: true
-}, function(err, res){
+nano.auth(config.couchdb_username, config.couchdb_password, function(err){
+
     if (err) {
-        winston.error("Error getting last ledger saved");
+        winston.error("Error connecting to couchdb:", err);
         return;
     }
 
-    var last_saved_index = parseInt(res.results[0].id, 10);
-    saveNextBatch(last_saved_index + 1);
+    db.changes({
+        limit: 1,
+        descending: true
+    }, function(err, res){
+        if (err) {
+            winston.error("Error getting last ledger saved");
+            return;
+        }
+
+        var last_saved_index = parseInt(res.results[0].id, 10);
+        saveNextBatch(last_saved_index + 1);
+    });
+
+
 });
 
 // db.view("dd1", "last_transaction", function(err, ))

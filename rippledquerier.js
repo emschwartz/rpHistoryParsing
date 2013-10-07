@@ -194,7 +194,8 @@ function getLedger(dbs, ledger_index, callback) {
 }
 
 // getLedgerRange gets the PARSED ledgers for the given range of indices
-
+// TODO make this more efficient by getting and parsing batches
+// instead of using mapLimit and getLedger
 function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 

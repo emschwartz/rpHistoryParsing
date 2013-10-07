@@ -1,9 +1,16 @@
 {
-    "_id": "rphistory_designdoc",
+    "_id": "_design/rphistory",
     "language": "javascript",
+    "validate_doc_update": "function(newDoc, oldDoc, userCtx, secObj) {
+          if (userCtx.roles.indexOf('_admin') !== -1 || userCtx.roles.indexOf('write') !== -1) {
+                return;
+            } else {
+             throw({forbidden: 'You do not have write access to this database'});
+            }
+        }",
     "views": {
         "all": {
-            "map": "function(doc) { emit(doc); }",
+            "map": "function(doc) { emit(doc); }"
         },
         "by_index": {
             "map": "function(doc) { emit(doc.ledger_index, doc); }"
@@ -12,12 +19,16 @@
             "map": "function(doc) { emit(doc.transactions.length, doc); }"
         },
         "total_transactions": {
-            "map": "function(doc) { emit(doc.ledger_index, doc.transactions.length); }",
-            "reduce": "function(keys, values) { return sum(values); }"
+            "map": "function(doc) { emit(doc.transactions.length); }",
+            "reduce": "function(keys, values) { return sum(keys); }"
         },
         "last_index": {
             "map": "function(doc) { emit(doc.ledger_index, doc); }",
             "reduce": "function(keys) { emit(Math.max(keys)); }"
         }
+        // ,
+        // "gateways": {
+        //     "map": "function(doc) {  }"
+        // }
     }
 }
