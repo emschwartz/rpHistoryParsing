@@ -27,25 +27,18 @@ var BATCH_SIZE = 1000;
 // }
 
 
+
+db.changes({
+    limit: 1,
+    descending: true
+}, function(err, res){
     if (err) {
-        winston.error("Error connecting to couchdb:", err);
+        winston.error("Error getting last ledger saved");
         return;
     }
 
-    db.changes({
-        limit: 1,
-        descending: true
-    }, function(err, res){
-        if (err) {
-            winston.error("Error getting last ledger saved");
-            return;
-        }
-
-        var last_saved_index = parseInt(res.results[0].id, 10);
-        saveNextBatch(last_saved_index + 1);
-    });
-
-
+    var last_saved_index = parseInt(res.results[0].id, 10);
+    saveNextBatch(last_saved_index + 1);
 });
 
 // db.view("dd1", "last_transaction", function(err, ))
