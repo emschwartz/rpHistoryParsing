@@ -1,9 +1,7 @@
 // var couchdb = require('felix-couchdb'),
 //     client = couchdb.createClient(5984, '0.0.0.0'),
 //     db = client.db('rphistory'),
-var nano = require('nano')('http://0.0.0.0:5984'),
-    db = nano.use('rphistory');
-
+var nano = require('nano')('http://0.0.0.0:5984');
 var config = require('./config');
 
 var async = require('async'),
@@ -29,7 +27,7 @@ nano.auth(config.couchdb_username, config.couchdb_password, function(err){
         return;
     }
 
-    db.changes({
+    db.changes('rphistory', {
         limit: 1,
         descending: true
     }, function(err, res){
@@ -69,7 +67,7 @@ function saveNextBatch (batch_start) {
 
             // winston.info(JSON.stringify(docs));
 
-            db.bulkDocs({docs: docs}, function(err){
+            db.bulk('rphistory', {docs: docs}, function(err){
                 if (err) {
                     winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
                     return;
