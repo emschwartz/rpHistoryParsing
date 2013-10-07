@@ -11,7 +11,7 @@ var RippledQuerier = require('./rippledquerier'),
 var winston = require('winston');
 
 var MAX_ITERATORS = 1000;
-var BATCH_SIZE = 10000;
+var BATCH_SIZE = 1000;
 
 
 // if (process.argv.length === 3) {
