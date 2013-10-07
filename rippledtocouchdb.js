@@ -1,3 +1,8 @@
+var winston = require('winston'),
+    async = require('async'),
+    _ = require('lodash');
+
+
 // var couchdb = require('felix-couchdb'),
 //     client = couchdb.createClient(5984, '0.0.0.0'),
 //     db = client.db('rphistory'),
@@ -7,13 +12,9 @@ var db = require('nano')('http://' + config.couchdb_username + ':' + config.couc
 winston.info('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphistory');
 winston.info(db);
 
-var async = require('async'),
-    _ = require('lodash');
 
 var RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
-
-var winston = require('winston');
 
 var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 1000;
