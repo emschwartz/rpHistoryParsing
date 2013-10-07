@@ -2,13 +2,9 @@
 //     client = couchdb.createClient(5984, '0.0.0.0'),
 //     db = client.db('rphistory'),
 var config = require('./config');
-var db = require('nano')({
-    'url': 'http://0.0.0.0:5984/rphistory',
-    'auth': {
-        'user': config.couchdb_username,
-        'pass': config.couchdb_password
-    }
-});
+var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphistory');
+
+winston.info(db);
 
 var async = require('async'),
     _ = require('lodash');
