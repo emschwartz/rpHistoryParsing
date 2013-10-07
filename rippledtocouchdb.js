@@ -9,10 +9,6 @@ var winston = require('winston'),
 var config = require('./config');
 var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphistory');
 
-winston.info('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphistory');
-winston.info(db);
-
-
 var RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
 
