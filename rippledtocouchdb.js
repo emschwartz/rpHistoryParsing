@@ -33,7 +33,7 @@ db.changes({
     descending: true
 }, function(err, res){
     if (err) {
-        winston.error("Error getting last ledger saved");
+        winston.error("Error getting last ledger saved:", err);
         return;
     }
 
