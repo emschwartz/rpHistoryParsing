@@ -43,7 +43,7 @@ function saveNextBatch (batch_start) {
     rq.getLatestLedgerIndex(function(err, latest_ledger_index){
 
         var batch_end = Math.min(latest_ledger_index, (batch_start + BATCH_SIZE));
-        winston.info("Saving batch from", batch_start, "to", batch_end);
+        // winston.info("Saving batch from", batch_start, "to", batch_end);
         var incides = _.range(batch_start, batch_end);
 
         rq.getLedgerRange(batch_start, batch_end, function(err, ledgers){
@@ -64,13 +64,15 @@ function saveNextBatch (batch_start) {
                     winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
                     return;
                 }
+                winston.info("Saved ledgers", batch_start, "to", batch_end, "to CouchDB");
+
 
                 if (batch_end - batch_start > 1)
                     setImmediate(function(){
                         saveNextBatch(batch_end);
                     });
                 else {
-                    winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
+                    // winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
                     setTimeout(function(){
                         saveNextBatch(batch_end);
                     }, 10000);
