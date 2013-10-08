@@ -25,7 +25,7 @@ var BATCH_SIZE = 1000;
 db.changes({
     limit: 1,
     descending: true
-}, function(err, res){
+}, function(err, res) {
     if (err) {
         winston.error("Error getting last ledger saved:", err);
         return;
@@ -38,42 +38,55 @@ db.changes({
 // db.view("dd1", "last_transaction", function(err, ))
 
 
-function saveNextBatch (batch_start) {
+function saveNextBatch(batch_start) {
 
-    rq.getLatestLedgerIndex(function(err, latest_ledger_index){
+    rq.getLatestLedgerIndex(function(err, latest_ledger_index) {
 
         var batch_end = Math.min(latest_ledger_index, (batch_start + BATCH_SIZE));
-        // winston.info("Saving batch from", batch_start, "to", batch_end);
+
+        if (batch_start === batch_end) {
+            setTimeout(function() {
+                saveNextBatch(batch_end);
+            }, 10000);
+            return;
+        }
+
         var incides = _.range(batch_start, batch_end);
 
-        rq.getLedgerRange(batch_start, batch_end, function(err, ledgers){
+        rq.getLedgerRange(batch_start, batch_end, function(err, ledgers) {
             if (err) {
                 winston.error("Error getting batch from", batch_start, "to", batch_end, ":", err);
                 return;
             }
 
-            var docs = _.map(ledgers, function(ledger){
+            var docs = _.map(ledgers, function(ledger) {
                 ledger._id = String(ledger.ledger_index);
                 return ledger;
             });
 
             // winston.info(JSON.stringify(docs));
 
-            db.bulk({docs: docs}, function(err){
+            db.bulk({
+                docs: docs
+            }, function(err) {
                 if (err) {
                     winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
                     return;
                 }
-                winston.info("Saved ledgers", batch_start, "to", batch_end, "to CouchDB");
+
+                if (batch_end - batch_start === 1)
+                    winston.info("Saved ledger", batch_start, "to CouchDB");
+                else
+                    winston.info("Saved ledgers", batch_start, "to", batch_end, "to CouchDB");
 
 
                 if (batch_end - batch_start > 1)
-                    setImmediate(function(){
+                    setImmediate(function() {
                         saveNextBatch(batch_end);
                     });
                 else {
                     // winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
-                    setTimeout(function(){
+                    setTimeout(function() {
                         saveNextBatch(batch_end);
                     }, 10000);
                 }
