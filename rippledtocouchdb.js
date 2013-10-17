@@ -32,6 +32,7 @@ db.changes({
     }
 
     var last_saved_index = parseInt(res.results[0].id, 10);
+    winston.info("Starting from index:", last_saved_index);
     saveNextBatch(last_saved_index + 1);
 });
 
