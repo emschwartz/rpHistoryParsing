@@ -32,20 +32,18 @@ db.changes({
     }
 
     // find last saved ledger amongst couchdb changes stream
-    lastSavedIndexLoop:
+    var last_saved_index;
     for (var r = 0; r < res.results.length; r++) {
-
-        var last_saved_index;
-
         try {
             last_saved_index = parseInt(res.results[r].id, 10);
+            break;
         } catch (e) {
-            continue lastSavedIndexLoop;
+            continue;
         }
-
-        saveNextBatch(last_saved_index + 1);
-        return;
     }
+
+    saveNextBatch(last_saved_index + 1);
+    return;
 });
 
 
