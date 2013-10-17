@@ -33,12 +33,17 @@ db.changes({
 
     // find last saved ledger amongst couchdb changes stream
     for (var r = 0; r < res.results.length; r++) {
-        var parsed_id = JSON.parse(res.results[r].id);
-        if (typeof parsed_id === "number") {
-            var last_saved_index = parseInt(parsed_res, 10);
-            saveNextBatch(last_saved_index + 1);
-            return;
+
+        var last_saved_index;
+
+        try {
+            last_saved_index = parseInt(res.results[r].id, 10);
+        } catch (e) {
+            continue;
         }
+
+        saveNextBatch(last_saved_index + 1);
+        return;
     }
 });
 
