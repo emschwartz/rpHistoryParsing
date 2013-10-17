@@ -23,21 +23,24 @@ var BATCH_SIZE = 1000;
 
 
 db.changes({
-    limit: 1,
+    limit: 20,
     descending: true
 }, function(err, res) {
     if (err) {
         winston.error("Error getting last ledger saved:", err);
         return;
     }
-    winston.info("Last saved ledger", res);
 
-    var last_saved_index = parseInt(res.results[0].id, 10);
-    winston.info("Starting from index:", last_saved_index);
-    saveNextBatch(last_saved_index + 1);
+    // find last saved ledger amongst couchdb changes stream
+    for (var r = 0; r < res.results.length; r++) {
+        var parsed_id = JSON.parse(res.results[r].id);
+        if (typeof parsed_id === "number") {
+            var last_saved_index = parseInt(parsed_res, 10);
+            saveNextBatch(last_saved_index + 1);
+            return;
+        }
+    }
 });
-
-// db.view("dd1", "last_transaction", function(err, ))
 
 
 function saveNextBatch(batch_start) {
@@ -56,8 +59,6 @@ function saveNextBatch(batch_start) {
             }, 10000);
             return;
         }
-
-        winston.info("Exporting batch from", batch_start, "to", batch_end);
 
         var incides = _.range(batch_start, batch_end);
 
