@@ -42,6 +42,8 @@ db.changes({
         }
     }
 
+    winston.info("Starting from last saved index:", last_saved_index);
+
     saveNextBatch(last_saved_index + 1);
     return;
 });
