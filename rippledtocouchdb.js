@@ -33,6 +33,9 @@ db.changes({
 
     winston.info(JSON.stringify(res));
 
+    winston.info(JSON.parse(res.results[0].id));
+    winston.info(JSON.parse(res.results[3].id));
+
     // find last saved ledger amongst couchdb changes stream
     var last_saved_index;
     for (var r = 0; r < res.results.length; r++) {
