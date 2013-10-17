@@ -41,6 +41,10 @@ db.changes({
 function saveNextBatch(batch_start) {
 
     rq.getLatestLedgerIndex(function(err, latest_ledger_index) {
+        if (err) {
+            winston.error("Error getting last ledger index:", err);
+            return;
+        }
 
         var batch_end = Math.min(latest_ledger_index, (batch_start + BATCH_SIZE));
 
@@ -50,6 +54,8 @@ function saveNextBatch(batch_start) {
             }, 10000);
             return;
         }
+
+        winston.info("Exporting batch from", batch_start, "to", batch_end);
 
         var incides = _.range(batch_start, batch_end);
 
