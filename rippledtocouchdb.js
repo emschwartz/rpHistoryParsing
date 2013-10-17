@@ -30,6 +30,7 @@ db.changes({
         winston.error("Error getting last ledger saved:", err);
         return;
     }
+    winston.info("Last saved ledger", res);
 
     var last_saved_index = parseInt(res.results[0].id, 10);
     winston.info("Starting from index:", last_saved_index);
