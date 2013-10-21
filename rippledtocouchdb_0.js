@@ -48,10 +48,10 @@ var BATCH_SIZE = 1;
 //     return;
 // });
 
-saveNextBatch(0);
+saveNextBatch();
 
 
-function saveNextBatch(batch_start) {
+function saveNextBatch() {
 
     // rq.getLatestLedgerIndex(function(err, latest_ledger_index) {
     //     if (err) {
@@ -68,15 +68,17 @@ function saveNextBatch(batch_start) {
         //     return;
         // }
 
-        var batch_end = 1;
+        // var batch_end = 1;
 
-        var incides = _.range(batch_start, batch_end);
 
-        rq.getLedgerRange(batch_start, batch_end, function(err, ledgers) {
+        rq.getLedger(0, function(err, ledger) {
             if (err) {
                 winston.error("Error getting batch from", batch_start, "to", batch_end, ":", err);
                 return;
             }
+
+            var ledgers = [];
+            ledgers.push(ledger);
 
             var docs = _.map(ledgers, function(ledger) {
                 ledger._id = String(ledger.ledger_index);
