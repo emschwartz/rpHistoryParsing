@@ -48,6 +48,8 @@ var BATCH_SIZE = 1;
 //     return;
 // });
 
+rq.getLedger(0);
+
 saveNextBatch();
 
 
