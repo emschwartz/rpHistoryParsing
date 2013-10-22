@@ -22,24 +22,24 @@ var BATCH_SIZE = 1000;
 
 
 
-db.changes({
-    limit: 20,
-    descending: true
-}, function(err, res) {
-    if (err) {
-        winston.error("Error getting last ledger saved:", err);
-        return;
-    }
+// db.changes({
+//     limit: 20,
+//     descending: true
+// }, function(err, res) {
+//     if (err) {
+//         winston.error("Error getting last ledger saved:", err);
+//         return;
+//     }
 
-    // find last saved ledger amongst couchdb changes stream
-    var last_saved_index = 2900000;
+//     // find last saved ledger amongst couchdb changes stream
+//     var last_saved_index = 2900000;
 
-    winston.info("Starting from last saved index:", last_saved_index);
+//     winston.info("Starting from last saved index:", last_saved_index);
 
-    saveNextBatch(last_saved_index + 1);
-    return;
-});
-
+//     saveNextBatch(last_saved_index + 1);
+//     return;
+// });
+saveNextBatch(2900000);
 
 function saveNextBatch(batch_start) {
 
