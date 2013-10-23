@@ -1,45 +1,22 @@
-function (keys, values, rereduce) {
+function (keys, values) {
 
-    if (rereduce) {
+    var currencies = {};
 
-        var accounts = Object.keys(values);
-        var trustlines = {};
-        for (var a = 0, len = accounts.length; a < len; a++) {
-            trustlines.push(values[accounts[a]]);
+    for (var v = 0, vlen = values.length; v < vlen; v++) {
+        var currs = Object.keys(values[v]);
+        for (var c = 0; c < currs.length; c++) {
+            var currency = currs[c];
+            if (typeof currencies[currency] === "undefined")
+                currencies[currency] = {"inc_lines": 0, "out_lines": 0, "balance_change": 0};
+
+            if (typeof values[v][currency].inc_lines === "number")
+                currencies[currency].inc_lines += values[v][currency].inc_lines;
+            if (typeof values[v][currency].out_lines === "number")
+                currencies[currency].out_lines += values[v][currency].out_lines;
+            if (typeof values[v][currency].balance_change === "number")
+                currencies[currency].balance_change += values[v][currency].balance_change;
         }
-        return compactRows(accounts, trustlines);
-
-    } else {
-
-        return compactRows(keys, values);
-        
     }
 
-    function compactRows (accounts, partial_lines) {
-        var acct_lines = {};
-
-        for (var k = 0, num_accts = accounts.length; k < num_accts; k++) {
-            var acct = accounts[k],
-                partial_line = partial_lines[k],
-                currencies = Object.keys(partial_line);
-
-            if (typeof acct_lines[acct] === "undefined")
-                acct_lines[acct] = {};
-
-            for (var c = 0; c < currencies.length; c++) {
-                var curr = currencies[c];
-                if (typeof acct_lines[acct][curr] === "undefined")
-                    acct_lines[acct][curr] = {"inc_lines": 0, "out_lines": 0, "balance_change": 0};
-
-                if (typeof partial_line[curr].inc_lines === "number")
-                    acct_lines[acct][curr].inc_lines += partial_line[curr].inc_lines;
-                if (typeof partial_line[curr].out_lines === "number")
-                    acct_lines[acct][curr].out_lines += partial_line[curr].out_lines;
-                if (typeof partial_line[curr].balance_change === "number")
-                    acct_lines[acct][curr].balance_change += partial_line[curr].balance_change;
-            }
-        }
-
-        return acct_lines;
-    }
+    return currencies;
 }
