@@ -11,18 +11,18 @@ function(doc) {
                     low_party = cnode.NewFields.LowLimit.issuer;
 
                 if (parseFloat(cnode.NewFields.LowLimit.value) > 0) {
-                    emit([high_party, currency], {"incoming": 1});
-                    emit([low_party, currency], {"outgoing": 1});
+                    emit([currency, high_party], {"incoming": 1});
+                    emit([currency, low_party], {"outgoing": 1});
                 }
 
                 if (parseFloat(cnode.NewFields.HighLimit.value) > 0) {
-                    emit([low_party, currency], {"incoming": 1});
-                    emit([high_party, currency], {"outgoing": 1});
+                    emit([currency, low_party], {"incoming": 1});
+                    emit([currency, high_party], {"outgoing": 1});
                 }
 
                 if (parseFloat(cnode.NewFields.Balance.value) !== 0) {
-                    emit([high_party, currency], {"balance_change": 0 - parseFloat(cnode.NewFields.Balance.value)});
-                    emit([low_party, currency], {"balance_change": parseFloat(cnode.NewFields.Balance.value)});
+                    emit([currency, high_party], {"balance_change": 0 - parseFloat(cnode.NewFields.Balance.value)});
+                    emit([currency, low_party], {"balance_change": parseFloat(cnode.NewFields.Balance.value)});
                 }
 
             } else if (tx.metaData.AffectedNodes[n].hasOwnProperty("ModifiedNode") && tx.metaData.AffectedNodes[n].ModifiedNode.LedgerEntryType === "RippleState") {
@@ -38,8 +38,8 @@ function(doc) {
                             trusting_party = mnode.FinalFields.HighLimit.issuer,
                             trusted_party = mnode.FinalFields.LowLimit.issuer;
 
-                        emit([trusted_party, currency], {"incoming": 1});
-                        emit([trusting_party, currency], {"outgoing": 1});
+                        emit([currency, trusted_party], {"incoming": 1});
+                        emit([currency, trusting_party], {"outgoing": 1});
                     }
 
                     // removing trust line
@@ -49,8 +49,8 @@ function(doc) {
                             trusting_party = mnode.FinalFields.HighLimit.issuer,
                             trusted_party = mnode.FinalFields.LowLimit.issuer;
 
-                        emit([trusted_party, currency], {"incoming": -1});
-                        emit([trusting_party, currency], {"outgoing": -1});
+                        emit([currency, trusted_party], {"incoming": -1});
+                        emit([currency, trusting_party], {"outgoing": -1});
                     }
 
                 }
@@ -66,8 +66,8 @@ function(doc) {
                             trusting_party = mnode.FinalFields.LowLimit.issuer,
                             trusted_party = mnode.FinalFields.HighLimit.issuer;
 
-                        emit([trusted_party, currency], {"incoming": 1});
-                        emit([trusting_party, currency], {"outgoing": 1});
+                        emit([currency, trusted_party], {"incoming": 1});
+                        emit([currency, trusting_party], {"outgoing": 1});
                     }
 
                     // removing trust line
@@ -77,8 +77,8 @@ function(doc) {
                             trusting_party = mnode.FinalFields.LowLimit.issuer,
                             trusted_party = mnode.FinalFields.HighLimit.issuer;
 
-                        emit([trusted_party, currency], {"incoming": -1});
-                        emit([trusting_party, currency], {"outgoing": -1});
+                        emit([currency, trusted_party], {"incoming": -1});
+                        emit([currency, trusting_party], {"outgoing": -1});
                     }
 
                 }
@@ -90,8 +90,8 @@ function(doc) {
                         low_party = mnode.FinalFields.LowLimit.issuer,
                         high_party = mnode.FinalFields.HighLimit.issuer;
 
-                    emit([low_party, currency], {"balance_change": (mnode.FinalFields.Balance.value - mnode.PreviousFields.Balance.value)});
-                    emit([high_party, currency], {"balance_change": (0 - (mnode.FinalFields.Balance.value - mnode.PreviousFields.Balance.value))});
+                    emit([currency, low_party], {"balance_change": (mnode.FinalFields.Balance.value - mnode.PreviousFields.Balance.value)});
+                    emit([currency, high_party], {"balance_change": (0 - (mnode.FinalFields.Balance.value - mnode.PreviousFields.Balance.value))});
 
                 }
             }
