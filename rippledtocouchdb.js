@@ -32,15 +32,20 @@ db.changes({
     }
 
     // find last saved ledger amongst couchdb changes stream
-    var last_saved_index;
+    var filtered_indexes = [];
+
     for (var r = 0; r < res.results.length; r++) {
         try {
-            last_saved_index = JSON.parse(res.results[r].id, 10);
-            break;
+            var index = JSON.parse(res.results[r].id, 10);
+            if (typeof index === "number")
+                filtered_indexes.push(index);
         } catch (e) {
             continue;
         }
     }
+
+    filtered_indexes.sort(function(a, b){return b-a;});
+    var last_saved_index = filtered_indexes[0];
 
     winston.info("Starting from last saved index:", last_saved_index);
 
