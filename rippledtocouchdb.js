@@ -16,12 +16,6 @@ var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 1000;
 
 
-// if (process.argv.length === 3) {
-//     saveNextBatch(parseInt(process.argv[2]), 10);
-// }
-
-
-
 db.changes({
     limit: 20,
     descending: true
@@ -64,7 +58,7 @@ function saveNextBatch(batch_start) {
 
         var batch_end = Math.min(latest_ledger_index, (batch_start + BATCH_SIZE));
 
-        if (batch_start === batch_end) {
+        if (batch_start >= batch_end) {
             setTimeout(function() {
                 saveNextBatch(batch_end);
             }, 10000);
