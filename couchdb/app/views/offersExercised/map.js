@@ -1,7 +1,8 @@
 function(doc) {
 
     var time = new Date(doc.close_time_timestamp),
-        datetime = [time.getUTCFullYear(), time.getUTCMonth(), time.getUTCDate(), time.getUTCHours(), time.getUTCMinutes(), time.getUTCSeconds()]; // include time.getUTCMinutes(), time.getUTCSeconds() for greater granularity
+        timestamp = [time.getUTCFullYear(), time.getUTCMonth(), time.getUTCDate(), 
+                     time.getUTCHours(), time.getUTCMinutes(), time.getUTCSeconds()];
 
     for (var t = 0, txs = doc.transactions.length; t < txs; t++) {
 
@@ -10,6 +11,9 @@ function(doc) {
             var tx = doc.transactions[t],
                 meta = tx.metaData,
                 affNodes = meta.AffectedNodes;
+
+            if (meta.TransactionResult !== "tesSUCCESS") 
+                continue;
 
             for (var n = 0, num_nodes = affNodes.length; n < num_nodes; n++) {
                 var node;
@@ -43,8 +47,8 @@ function(doc) {
                     }
 
                     // key includes full date/time to enable searching by time
-                    emit([pay_curr, get_curr].concat(datetime), [pay_amnt, get_amnt]);
-                    emit([get_curr, pay_curr].concat(datetime), [get_amnt, pay_amnt]);
+                    emit([pay_curr, get_curr].concat(timestamp), [pay_amnt, get_amnt]);
+                    emit([get_curr, pay_curr].concat(timestamp), [get_amnt, pay_amnt]);
 
                 }
             }
