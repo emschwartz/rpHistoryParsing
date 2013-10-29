@@ -7,7 +7,7 @@ var winston = require('winston'),
 //     client = couchdb.createClient(5984, '0.0.0.0'),
 //     db = client.db('rphistory'),
 var config = require('./config');
-var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphist');
+var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphistory');
 
 var RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
@@ -15,37 +15,32 @@ var RippledQuerier = require('./rippledquerier'),
 var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 1000;
 
+saveNextBatch(32570);
+// db.list({
+//     limit: 20,
+//     descending: true
+// }, function(err, res) {
+//     if (err) {
+//         winston.error("Error getting last ledger saved:", err);
+//         return;
+//     }
 
-db.list({
-    limit: 20,
-    descending: true
-}, function(err, res) {
-    if (err) {
-        winston.error("Error getting last ledger saved:", err);
-        return;
-    }
+//     // find last saved ledger amongst couchdb changes stream
+//     var filtered_indexes = [];
 
-    // find last saved ledger amongst couchdb changes stream
-    var filtered_indexes = [];
+//     for (var r = 0; r < res.results.length; r++) {
+//         if (typeof res.results[r].id === "number")
+//             filtered_indexes.push(index);
+//     }
 
-    if (typeof res.results === "undefined") {
-        saveNextBatch(32570);
-        return;
-    }
-    
-    for (var r = 0; r < res.results.length; r++) {
-        if (typeof res.results[r].id === "number")
-            filtered_indexes.push(index);
-    }
+//     filtered_indexes.sort(function(a, b){return b-a;});
+//     var last_saved_index = filtered_indexes[0];
 
-    filtered_indexes.sort(function(a, b){return b-a;});
-    var last_saved_index = filtered_indexes[0];
+//     winston.info("Starting from last saved index:", last_saved_index);
 
-    winston.info("Starting from last saved index:", last_saved_index);
-
-    saveNextBatch(last_saved_index + 1);
-    return;
-});
+//     saveNextBatch(last_saved_index + 1);
+//     return;
+// });
 
 
 function saveNextBatch(batch_start) {
