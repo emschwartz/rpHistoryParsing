@@ -141,6 +141,23 @@ function parseLedger(raw_ledger, raw_txs) {
             var meta_serialized_obj = new ripple.SerializedObject(meta_buffer_array);
             var parsed_meta = meta_serialized_obj.to_json();
 
+            for (var n = 0, nlen = parsed_meta.AffectedNodes.length; n < nlen; n++) {
+                var node = parsed_meta.AffectedNodes[n].CreatedNode 
+                            || parsed_meta.AffectedNodes[n].ModifiedNode
+                            || parsed_meta.AffectedNodes[n].DeletedNode;
+                if (node.ModifiedNode.LedgerEntryType === "Offer") {
+
+                    var BookDirectory = node.FinalFields.BookDirectory || node.CreatedFields.BookDirectory;
+                    var offer_price = ripple.Amount.from_quality(BookDirectory).to_json();
+                    if (typeof offer_price.issuer === "undefined") {
+                        node.offer_price = offer_price.value;
+                    } else {
+                        node.offer_price = offer_price;
+                    }
+
+                }
+            }
+
             parsed_tx.metaData = parsed_meta;
             return parsed_tx;
 
