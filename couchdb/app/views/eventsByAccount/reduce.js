@@ -6,15 +6,23 @@ function (keys, values) {
             Payment: 0,
             OfferCreate: 0,
             OfferCancel: 0,
-            TrustSet: 0
+            TrustSet: 0,
+            Incoming_Payment: 0
         };
         var total = 0;
 
         for (var v = 0, vlen = values.length; v < vlen; v++) {
             var tx = values[v];
-            if (types.hasOwnProperty(tx.TransactionType)) {
-                types[tx.TransactionType] += 1;
-                total += 1;
+
+            if (tx.Account === keys[v][0]) {
+                // tx initiated by this account
+
+                if (types.hasOwnProperty(tx.TransactionType)) {
+                    types[tx.TransactionType] += 1;
+                    total += 1;
+                }
+            } else if (tx.TransactionType === "Payment" && tx.Destination === keys[v][0]) {
+                types[Incoming_Payment] += 1;
             }
         }
 

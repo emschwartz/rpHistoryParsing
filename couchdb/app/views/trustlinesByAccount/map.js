@@ -20,12 +20,12 @@ function(doc) {
 
                 if (parseFloat(cnode.NewFields.LowLimit.value) > 0) {
                     emit([high_party, currency].concat(timestamp), {"incoming": 1});
-                    emit([low_party, currency].concat(timestamp), {"outgoing": 1});
+                    emit([low_party, currency].concat(timestamp), {"outgoing": 1, "trusted_parties": [high_party]});
                 }
 
                 if (parseFloat(cnode.NewFields.HighLimit.value) > 0) {
                     emit([low_party, currency].concat(timestamp), {"incoming": 1});
-                    emit([high_party, currency].concat(timestamp), {"outgoing": 1});
+                    emit([high_party, currency].concat(timestamp), {"outgoing": 1, "trusted_parties": [high_party]});
                 }
 
                 if (parseFloat(cnode.NewFields.Balance.value) !== 0) {
@@ -47,7 +47,7 @@ function(doc) {
                             trusted_party = mnode.FinalFields.LowLimit.issuer;
 
                         emit([trusted_party, currency].concat(timestamp), {"incoming": 1});
-                        emit([trusting_party, currency].concat(timestamp), {"outgoing": 1});
+                        emit([trusting_party, currency].concat(timestamp), {"outgoing": 1, "trusted_parties": [high_party]});
                     }
 
                     // removing trust line
@@ -58,7 +58,7 @@ function(doc) {
                             trusted_party = mnode.FinalFields.LowLimit.issuer;
 
                         emit([trusted_party, currency].concat(timestamp), {"incoming": -1});
-                        emit([trusting_party, currency].concat(timestamp), {"outgoing": -1});
+                        emit([trusting_party, currency].concat(timestamp), {"outgoing": -1, "trusted_parties": [high_party]});
                     }
 
                 }
@@ -75,7 +75,7 @@ function(doc) {
                             trusted_party = mnode.FinalFields.HighLimit.issuer;
 
                         emit([trusted_party, currency].concat(timestamp), {"incoming": 1});
-                        emit([trusting_party, currency].concat(timestamp), {"outgoing": 1});
+                        emit([trusting_party, currency].concat(timestamp), {"outgoing": 1, "trusted_parties": [high_party]});
                     }
 
                     // removing trust line
@@ -86,7 +86,7 @@ function(doc) {
                             trusted_party = mnode.FinalFields.HighLimit.issuer;
 
                         emit([trusted_party, currency].concat(timestamp), {"incoming": -1});
-                        emit([trusting_party, currency].concat(timestamp), {"outgoing": -1});
+                        emit([trusting_party, currency].concat(timestamp), {"outgoing": -1, "trusted_parties": [high_party]});
                     }
 
                 }
