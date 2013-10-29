@@ -26,15 +26,14 @@ db.list({
     }
 
     // find last saved ledger amongst couchdb changes stream
-    var filtered_indexes = [];
+    var last_saved_index;
 
     for (var r = 0; r < res.results.length; r++) {
-        if (parseInt(res.results[r].id, 10) > 0)
-            filtered_indexes.push(index);
-    }
-
-    filtered_indexes.sort(function(a, b){return b-a;});
-    var last_saved_index = filtered_indexes[0];
+        if (parseInt(res.results[r].id, 10) > 0) {
+            last_saved_index  = parseInt(res.results[r].id, 10);
+            break;
+        }
+    }    
 
     winston.info("Starting from last saved index:", last_saved_index);
 
