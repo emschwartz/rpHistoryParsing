@@ -28,6 +28,11 @@ db.list({
     // find last saved ledger amongst couchdb changes stream
     var filtered_indexes = [];
 
+    if (typeof res.results === "undefined") {
+        saveNextBatch(32570);
+        return;
+    }
+    
     for (var r = 0; r < res.results.length; r++) {
         if (typeof res.results[r].id === "number")
             filtered_indexes.push(index);
