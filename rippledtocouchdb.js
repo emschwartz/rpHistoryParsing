@@ -7,7 +7,7 @@ var winston = require('winston'),
 //     client = couchdb.createClient(5984, '0.0.0.0'),
 //     db = client.db('rphistory'),
 var config = require('./config');
-var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphistory');
+var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphist');
 
 var RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
@@ -16,7 +16,7 @@ var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 1000;
 
 
-db.changes({
+db.list({
     limit: 20,
     descending: true
 }, function(err, res) {
@@ -29,13 +29,8 @@ db.changes({
     var filtered_indexes = [];
 
     for (var r = 0; r < res.results.length; r++) {
-        try {
-            var index = JSON.parse(res.results[r].id, 10);
-            if (typeof index === "number")
-                filtered_indexes.push(index);
-        } catch (e) {
-            continue;
-        }
+        if (typeof res.results[r].id === "number")
+            filtered_indexes.push(index);
     }
 
     filtered_indexes.sort(function(a, b){return b-a;});
@@ -74,7 +69,7 @@ function saveNextBatch(batch_start) {
             }
 
             var docs = _.map(ledgers, function(ledger) {
-                ledger._id = String(ledger.ledger_index);
+                ledger._id = ledger.ledger_index;
                 return ledger;
             });
 
