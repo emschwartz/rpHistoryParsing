@@ -15,8 +15,8 @@ var RippledQuerier = require('./rippledquerier'),
 var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 1000;
 
-saveNextBatch(32570);
-db.changes({
+// saveNextBatch(32570);
+db.list({
     limit: 20,
     descending: true
 }, function(err, res) {
@@ -27,6 +27,11 @@ db.changes({
 
     // find last saved ledger amongst couchdb changes stream
     var filtered_indexes = [];
+
+    if (typeof res.results === "undefined" || res.results.length === 0) {
+        saveNextBatch(32570);
+        return;
+    }
 
     for (var r = 0; r < res.results.length; r++) {
         if (typeof res.results[r].id === "number")
