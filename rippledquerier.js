@@ -154,9 +154,9 @@ function parseLedger(raw_ledger, raw_txs) {
                             BookDirectory = node.NewFields.BookDirectory;
 
                         if (typeof BookDirectory === "string") {
-                            var offer_price = ripple.Amount.from_quality(BookDirectory).to_json();
+                            var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
                             
-                            node.offer_price = exchange_rate.value;
+                            node.exchange_rate = exchange_rate.value;
 
 
                             console.log(JSON.stringify({ledger_index: ledger.ledger_index, node: node}));
