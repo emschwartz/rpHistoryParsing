@@ -93,7 +93,7 @@ function saveNextBatch(batch_start) {
                 endkey: addLeadingZeros(batch_end)
             }, function(err, res){
                 if (err || res) {
-                    console.log("err", err, "res", res);
+                    console.log("err", err, "res", JSON.stringify(res));
                     return;
                 }
 
