@@ -162,7 +162,7 @@ function parseLedger(raw_ledger, raw_txs) {
                                 node.offer_price = offer_price;
                             }
 
-                            console.log("ledger_index": ledger.ledger_index, "node": node});
+                            console.log(JSON.stringify({"ledger_index": ledger.ledger_index, "node": node}));
                         }
 
                 }
