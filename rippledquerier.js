@@ -159,9 +159,9 @@ function parseLedger(raw_ledger, raw_txs) {
                             node.offer_price = exchange_rate.value;
 
 
-                            console.log(JSON.stringify({"ledger_index": ledger.ledger_index, "node": node}));
+                            console.log(JSON.stringify({ledger_index: ledger.ledger_index, node: node}));
                         } else {
-                            console.log("This doesn't have a BookDirectory entry: " + JSON.stringify({"ledger_index": ledger.ledger_index, "BookDirectory": BookDirectory}));
+                            console.log("This doesn't have a BookDirectory entry: " + JSON.stringify({ledger_index: ledger.ledger_index, BookDirectory: BookDirectory}));
                         }
 
                 }
