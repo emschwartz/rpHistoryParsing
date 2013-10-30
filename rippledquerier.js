@@ -163,6 +163,8 @@ function parseLedger(raw_ledger, raw_txs) {
                             }
 
                             console.log(JSON.stringify({"ledger_index": ledger.ledger_index, "node": node}));
+                        } else {
+                            console.log(JSON.stringify({"ledger_index": ledger.ledger_index, "BookDirectory": BookDirectory}));
                         }
 
                 }
