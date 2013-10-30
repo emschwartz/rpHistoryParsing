@@ -156,15 +156,12 @@ function parseLedger(raw_ledger, raw_txs) {
                         if (typeof BookDirectory === "string") {
                             var offer_price = ripple.Amount.from_quality(BookDirectory).to_json();
                             
-                            if (typeof offer_price.issuer === "undefined") {
-                                node.offer_price = offer_price.value;
-                            } else {
-                                node.offer_price = offer_price;
-                            }
+                            node.offer_price = exchange_rate.value;
+
 
                             console.log(JSON.stringify({"ledger_index": ledger.ledger_index, "node": node}));
                         } else {
-                            console.log(JSON.stringify({"ledger_index": ledger.ledger_index, "BookDirectory": BookDirectory}));
+                            console.log("This doesn't have a BookDirectory entry: " + JSON.stringify({"ledger_index": ledger.ledger_index, "BookDirectory": BookDirectory}));
                         }
 
                 }
