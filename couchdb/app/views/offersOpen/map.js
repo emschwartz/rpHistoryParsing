@@ -13,26 +13,19 @@ function(doc) {
 
             if (tx.metaData.AffectedNodes[n].hasOwnProperty("CreatedNode")) {
                 var cnode = tx.metaData.AffectedNodes[n].CreatedNode;
-
                 if (cnode.LedgerEntryType === "Offer") {
 
                 }
-
-                // emit(timestamp, cnode.NewFields.Account);
             } else if () {
                 var mnode = tx.metaData.AffectedNodes[n].ModifiedNode;
-
                 if (mnode.LedgerEntryType === "Offer") {
                     
                 }
-
             } else if () {
                 var dnode = tx.metaData.AffectedNodes[n].DeletedNode;
-
                 if (dnode.LedgerEntryType === "Offer") {
                     
                 }
-
             }
         }
     }
