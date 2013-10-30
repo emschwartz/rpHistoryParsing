@@ -79,6 +79,9 @@ function saveNextBatch(batch_start) {
                 return;
             }
 
+            var batch_start = batch_start,
+                batch_end = batch_end;
+
             db.list({
                 startkey: addLeadingZeros(batch_start),
                 endkey: addLeadingZeros(batch_end)
