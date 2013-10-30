@@ -145,7 +145,7 @@ function parseLedger(raw_ledger, raw_txs) {
                 var node = parsed_meta.AffectedNodes[n].CreatedNode 
                             || parsed_meta.AffectedNodes[n].ModifiedNode
                             || parsed_meta.AffectedNodes[n].DeletedNode;
-                if (node.ModifiedNode.LedgerEntryType === "Offer") {
+                if (node.LedgerEntryType === "Offer") {
 
                     var BookDirectory = node.FinalFields.BookDirectory || node.CreatedFields.BookDirectory;
                     var offer_price = ripple.Amount.from_quality(BookDirectory).to_json();
