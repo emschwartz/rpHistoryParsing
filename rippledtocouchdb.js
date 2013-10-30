@@ -104,7 +104,7 @@ function saveNextBatch(batch_start) {
                     return;
                 }
 
-                if (res && res.docs) {
+                if (res) {
                     console.log(JSON.stringify(res.docs));
                 } else {
                     finishBatch(batch_start, batch_end);
