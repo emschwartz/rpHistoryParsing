@@ -148,22 +148,15 @@ function parseLedger(raw_ledger, raw_txs) {
                 if (node.LedgerEntryType === "Offer") {
 
                     var BookDirectory; 
-                        if (node.hasOwnProperty("FinalFields"))
-                            BookDirectory = node.FinalFields.BookDirectory;
-                        else if (node.hasOwnProperty("NewFields"))
-                            BookDirectory = node.NewFields.BookDirectory;
+                    if (node.hasOwnProperty("FinalFields"))
+                        BookDirectory = node.FinalFields.BookDirectory;
+                    else if (node.hasOwnProperty("NewFields"))
+                        BookDirectory = node.NewFields.BookDirectory;
 
-                        if (typeof BookDirectory === "string") {
-                            var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
-                            
-                            node.exchange_rate = exchange_rate.value;
-
-
-                            console.log(JSON.stringify({ledger_index: ledger.ledger_index, node: node}));
-                        } else {
-                            console.log("This doesn't have a BookDirectory entry: " + JSON.stringify({ledger_index: ledger.ledger_index, BookDirectory: BookDirectory}));
-                        }
-
+                    if (typeof BookDirectory === "string") {
+                        var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
+                        node.exchange_rate = exchange_rate.value;
+                    }
                 }
             }
 
