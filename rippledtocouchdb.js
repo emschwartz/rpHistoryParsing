@@ -43,6 +43,14 @@ db.changes({
     return;
 });
 
+function addLeadingZeros (number, digits) {
+    var num_str = String(number);
+    while(num_str.length < digits) {
+        num_str = "0" + num_str;
+    }
+    return num_str;
+}
+
 
 function saveNextBatch(batch_start) {
 
@@ -69,22 +77,17 @@ function saveNextBatch(batch_start) {
                 return;
             }
 
-            var docs = [],
-                ids = [];
-            _.each(ledgers, function(ledger) {
+            var docs = _.map(ledgers, function(ledger) {
                 var led_num = String(ledger.ledger_index);
-                var padding = "0000000000";
-                var id = padding.substring(0, padding.length - led_num.length) + led_num;
+                var id = addLeadingZeros(led_num, 10);
                 ledger._id = id;
-                docs.push(ledger);
-                ids.push({"_id": id});
+                return ledger;
             });
 
             // winston.info(JSON.stringify(docs));
-
             db.list({
-                startkey: batch_start,
-                endkey: batch_end
+                startkey: addLeadingZeros(batch_start),
+                endkey: addLeadingZeros(batch_end)
             }, function(err, res){
                 if (err || res) {
                     console.log("err", err, "res", res);
