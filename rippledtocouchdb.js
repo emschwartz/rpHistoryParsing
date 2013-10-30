@@ -84,6 +84,7 @@ function saveNextBatch(batch_start) {
                 return ledger;
             });
 
+            console.log("start": addLeadingZeros(batch_start));
             // winston.info(JSON.stringify(docs));
             db.list({
                 startkey: addLeadingZeros(batch_start),
