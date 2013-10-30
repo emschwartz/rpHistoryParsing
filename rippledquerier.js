@@ -161,6 +161,8 @@ function parseLedger(raw_ledger, raw_txs) {
                             } else {
                                 node.offer_price = offer_price;
                             }
+
+                            console.log("ledger_index": ledger.ledger_index, "node": node});
                         }
 
                 }
