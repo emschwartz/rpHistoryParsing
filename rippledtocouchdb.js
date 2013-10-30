@@ -78,14 +78,7 @@ function saveNextBatch(batch_start) {
 
             // winston.info(JSON.stringify(docs));
 
-            db.bulk({
-                docs: docs
-            }, function(err) {
-                if (err) {
-                    winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
-                    return;
-                }
-
+            function finishBatch (batch_start, batch_end) {
                 if (batch_end - batch_start === 1)
                     winston.info("Saved ledger", batch_start, "to CouchDB");
                 else
@@ -101,6 +94,24 @@ function saveNextBatch(batch_start) {
                         saveNextBatch(batch_end);
                     }, 10000);
                 }
+            }
+
+            db.bulk({
+                docs: docs
+            }, function(err, res) {
+                if (err) {
+                    winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
+                    return;
+                }
+
+                if (res && res.docs) {
+                    console.log(JSON.stringify(res.docs));
+                } else {
+                    finishBatch(batch_start, batch_end);
+                }
+
+
+                
             });
 
         });
