@@ -79,13 +79,12 @@ function saveNextBatch(batch_start) {
                 return;
             }
 
-            var batch_start = batch_start,
-                batch_end = batch_end;
-
             db.list({
                 startkey: addLeadingZeros(batch_start),
                 endkey: addLeadingZeros(batch_end)
             }, function(err, res){
+
+                console.log("batch_start", batch_start);
 
                 var docs = _.map(ledgers, function(ledger) {
                     var led_num = String(ledger.ledger_index);
