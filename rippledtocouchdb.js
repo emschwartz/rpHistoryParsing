@@ -82,8 +82,9 @@ function saveNextBatch(batch_start) {
 
             // winston.info(JSON.stringify(docs));
 
-            db.bulk({
-                docs: ids
+            db.list({
+                startkey: batch_start,
+                endkey: batch_end
             }, function(err, res){
                 if (err || res) {
                     console.log("err", err, "res", res);
