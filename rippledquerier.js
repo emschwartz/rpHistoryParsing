@@ -151,7 +151,7 @@ function parseLedger(raw_ledger, raw_txs) {
                         if (node.hasOwnProperty("FinalFields"))
                             BookDirectory = node.FinalFields.BookDirectory;
                         else if (node.hasOwnProperty("CreatedFields"))
-                            node.CreatedFields.BookDirectory;
+                            BookDirectory = node.CreatedFields.BookDirectory;
 
                         if (typeof BookDirectory === "string") {
                             var offer_price = ripple.Amount.from_quality(BookDirectory).to_json();
