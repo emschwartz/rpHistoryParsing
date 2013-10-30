@@ -97,8 +97,6 @@ function saveNextBatch(batch_start) {
                         var id = row.id,
                             rev = row.value.rev;
 
-                            console.log("index", parseInt(id, 10) - batch_start, "id", id, "rev", rev, "docs[parseInt(id, 10) - batch_start]", docs[parseInt(id, 10) - batch_start], "docs[parseInt(id, 10) - batch_start]._id", docs[parseInt(id, 10) - batch_start]._id);
-
                         if (parseInt(id, 10) - batch_start > 0 
                             && parseInt(id, 10) - batch_start < docs.length
                             && docs[parseInt(id, 10) - batch_start]._id === id) {
