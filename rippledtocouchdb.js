@@ -99,13 +99,16 @@ function saveNextBatch(batch_start) {
 
                             console.log("index", parseInt(id, 10) - batch_start, "id", id, "rev", rev, "docs[parseInt(id, 10) - batch_start]", docs[parseInt(id, 10) - batch_start], "docs[parseInt(id, 10) - batch_start]._id", docs[parseInt(id, 10) - batch_start]._id);
 
-                        if (docs[parseInt(id, 10) - batch_start]._id === id) {
+                        if (parseInt(id, 10) - batch_start > 0 
+                            && parseInt(id, 10) - batch_start < docs.length
+                            && docs[parseInt(id, 10) - batch_start]._id === id) {
                             docs[parseInt(id, 10) - batch_start]._rev = rev;
                         } else {
                             var doc_index = _.findIndex(docs, function(doc){
                                 return doc._id === id;
                             });
-                            docs[doc_index]._rev = rev;
+                            if (doc_index >= 0)
+                                docs[doc_index]._rev = rev;
                         }
                     });
                 }
