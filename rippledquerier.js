@@ -156,6 +156,8 @@ function parseLedger(raw_ledger, raw_txs) {
                     if (typeof BookDirectory === "string") {
                         var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
                         node.exchange_rate = exchange_rate.value;
+
+                        console.log("added exchange_rate to ledger_index: " + ledger.ledger_index);
                     }
                 }
             }
