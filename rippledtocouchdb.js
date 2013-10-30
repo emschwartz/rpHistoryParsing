@@ -69,18 +69,21 @@ function saveNextBatch(batch_start) {
                 return;
             }
 
-            var docs = _.map(ledgers, function(ledger) {
+            var docs = [],
+                ids = [];
+            _.each(ledgers, function(ledger) {
                 var led_num = String(ledger.ledger_index);
                 var padding = "0000000000";
-                ledger._id = padding.substring(0, padding.length - led_num.length) + led_num;
-                return ledger;
+                var id = padding.substring(0, padding.length - led_num.length) + led_num;
+                ledger._id = id;
+                docs.push(ledger);
+                ids.push(id);
             });
 
             // winston.info(JSON.stringify(docs));
 
             db.bulk({
-                startkey: batch_start,
-                endkey: batch_end
+                docs: ids
             }, function(err, res){
                 if (err || res) {
                     console.log("err", err, "res", res);
