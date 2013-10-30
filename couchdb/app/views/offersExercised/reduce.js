@@ -4,8 +4,17 @@ function (keys, values, rereduce) {
 
         var stats = {};
         var first = values[0],
+            first_price;
+        if (values[0].length === 3)
+            first_price = first[2];
+        else
             first_price = first[0]/first[1];
+
         var last = values[values.length - 1],
+            last_price;
+        if (values[0].length === 3)
+            last_price = last[2];
+        else
             last_price = last[0]/last[1];
 
         stats.high = first_price;
@@ -19,6 +28,10 @@ function (keys, values, rereduce) {
 
         for (var v = 1, vlen = values.length; v < vlen; v++) {
             var trade = values[v],
+                rate; 
+            if (trade.length === 3)
+                rate = trade[2];
+            else
                 rate = trade[0]/trade[1];
             
             stats.high = Math.max(stats.high, rate);

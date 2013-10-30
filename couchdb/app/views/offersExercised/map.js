@@ -47,8 +47,8 @@ function(doc) {
                     }
 
                     // key includes full date/time to enable searching by time
-                    emit([pay_curr, get_curr].concat(timestamp), [pay_amnt, get_amnt]);
-                    emit([get_curr, pay_curr].concat(timestamp), [get_amnt, pay_amnt]);
+                    emit([pay_curr, get_curr].concat(timestamp), [pay_amnt, get_amnt, node.exchange_rate]);
+                    emit([get_curr, pay_curr].concat(timestamp), [get_amnt, pay_amnt, 1 / node.exchange_rate]);
 
                 }
             }

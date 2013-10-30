@@ -2,13 +2,14 @@ function(head, req) {
     var view = req.path.slice(2 + req.path.indexOf("_list"))[0];
     if (view === "eventsByAccount") {
 
-        var include_stats = false;
-        if (req.query.include_stats)
-            include_stats = true;
+        var stream = false;
+        if (req.query.stream || req.query.include_stats)
+            stream = true;
 
         var constituents = {
             "users": [],
             "gateways": [],
+            // "hot_wallets": [],
             "market_makers": [],
             "merchants": []
         };
@@ -18,35 +19,42 @@ function(head, req) {
 
             if (row.value.TrustSet > 100) {
                 // gateway
-                if (!include_stats) {
+                if (!stream) {
                     constituents.gateways.push(acct);
                 } else {
                     send({type: "gateway", acct: acct, stats: row.value});
                 }
+            // } else if (row.value.Payment > 200 && row.value.TrustSet < 100){
+            //     // hot wallet
+            //     if (!stream) {
+            //         constituents.hot_wallets.push(acct);
+            //     } else {
+            //         send({type: "hot_wallet", acct: acct, stats: row.value});
+            //     }
             } else if (row.value.OfferCreate + row.value.OfferCancel > 100) {
                 // market maker
-                if (!include_stats) {
+                if (!stream) {
                     constituents.market_makers.push(acct);
                 } else {
                     send({type: "market_maker", acct: acct, stats: row.value});
                 }
             } else if (row.value.Incoming_Payment > 200) {
                 // merchant
-                if (!include_stats) {
+                if (!stream) {
                     constituents.merchants.push(acct);
                 } else {
                     send({type: "merchant", acct: acct, stats: row.value});
                 }
             } else {
                 // other
-                if (!include_stats) {
+                if (!stream) {
                     constituents.users.push(acct);
                 } else {
                     send({type: "user", acct: acct, stats: row.value});
                 }
             }
         }
-        if (!include_stats)
+        if (!stream)
             send(JSON.stringify(constituents));
     } else {
         send('Error, this view can only be used with the view "eventsByAccount"');
