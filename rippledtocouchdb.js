@@ -92,9 +92,17 @@ function saveNextBatch(batch_start) {
                 startkey: addLeadingZeros(batch_start),
                 endkey: addLeadingZeros(batch_end)
             }, function(err, res){
-                if (err || res) {
-                    console.log("err", err, "res", JSON.stringify(res));
-                    return;
+                if (res && res.rows && res.rows.length > 0) {
+                    _.each(res.rows, function(row){
+                        var id = row.value.id,
+                            rev = row.value.rev;
+
+                        if (docs[parseInt(id, 10) - batch_start]._id === id) {
+                            docs[parseInt(id, 10) - batch_start]._rev = rev;
+                        } else {
+                            console.log("problem");
+                        }
+                    });
                 }
 
                 // db.bulk({
