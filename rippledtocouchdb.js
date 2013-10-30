@@ -84,7 +84,6 @@ function saveNextBatch(batch_start) {
                 endkey: addLeadingZeros(batch_end)
             }, function(err, res){
 
-                console.log("batch_start", batch_start);
 
                 var docs = _.map(ledgers, function(ledger) {
                     var led_num = String(ledger.ledger_index);
@@ -97,6 +96,9 @@ function saveNextBatch(batch_start) {
                     _.each(res.rows, function(row){
                         var id = row.value.id,
                             rev = row.value.rev;
+
+                        console.log("batch_start", batch_start);
+
 
                             console.log("parseInt(id, 10) - batch_start", parseInt(id, 10) - batch_start);
                         if (docs[parseInt(id, 10) - batch_start]._id === id) {
