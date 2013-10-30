@@ -32,7 +32,7 @@ db.changes({
             last_saved_index = parseInt(res.results[r].id, 10) - BATCH_SIZE * 10;  
             // go back further in case there was a problem and the last batch wasn't saved properly
             if (last_saved_index < 32570)
-                last_saved_index = 32570;
+                last_saved_index = 32569;
             break;
         }
     }    
