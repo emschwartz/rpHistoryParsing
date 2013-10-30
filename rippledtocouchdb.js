@@ -44,6 +44,8 @@ db.changes({
 });
 
 function addLeadingZeros (number, digits) {
+    if (typeof digits === "undefined")
+        digits = 10;
     var num_str = String(number);
     while(num_str.length < digits) {
         num_str = "0" + num_str;
