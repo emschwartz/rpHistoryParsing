@@ -79,24 +79,24 @@ function saveNextBatch(batch_start) {
                 return;
             }
 
-            var docs = _.map(ledgers, function(ledger) {
-                var led_num = String(ledger.ledger_index);
-                var id = addLeadingZeros(led_num, 10);
-                ledger._id = id;
-                return ledger;
-            });
-
-            console.log("start: " + addLeadingZeros(batch_start));
-            // winston.info(JSON.stringify(docs));
             db.list({
                 startkey: addLeadingZeros(batch_start),
                 endkey: addLeadingZeros(batch_end)
             }, function(err, res){
+
+                var docs = _.map(ledgers, function(ledger) {
+                    var led_num = String(ledger.ledger_index);
+                    var id = addLeadingZeros(led_num, 10);
+                    ledger._id = id;
+                    return ledger;
+                });
+
                 if (res && res.rows && res.rows.length > 0) {
                     _.each(res.rows, function(row){
                         var id = row.value.id,
                             rev = row.value.rev;
 
+                            console.log("parseInt(id, 10) - batch_start", parseInt(id, 10) - batch_start);
                         if (docs[parseInt(id, 10) - batch_start]._id === id) {
                             docs[parseInt(id, 10) - batch_start]._rev = rev;
                         } else {
