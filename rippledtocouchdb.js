@@ -94,10 +94,9 @@ function saveNextBatch(batch_start) {
 
                 if (res && res.rows && res.rows.length > 0) {
                     _.each(res.rows, function(row){
-                        var id = row.value.id,
+                        var id = row.id,
                             rev = row.value.rev;
 
-                        console.log("batch_start", batch_start);
 
 
                             console.log("parseInt(id, 10) - batch_start", parseInt(id, 10) - batch_start);
