@@ -77,7 +77,7 @@ function saveNextBatch(batch_start) {
                 var id = padding.substring(0, padding.length - led_num.length) + led_num;
                 ledger._id = id;
                 docs.push(ledger);
-                ids.push(id);
+                ids.push({"_id": id});
             });
 
             // winston.info(JSON.stringify(docs));
