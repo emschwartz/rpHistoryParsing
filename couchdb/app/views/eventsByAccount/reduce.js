@@ -21,12 +21,13 @@ function (keys, values) {
                     types[tx.TransactionType] += 1;
                     total += 1;
                 }
-            } else if (tx.TransactionType === "Payment" && tx.Destination === keys[v][0]) {
+            } 
+            else if (tx.TransactionType === "Payment" && tx.Destination === keys[v][0]) {
                 types[Incoming_Payment] += 1;
             }
         }
 
-        types.Total = total;
+        types.Total_Initiated = total;
         return types;
 
     } else {

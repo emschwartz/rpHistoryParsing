@@ -34,7 +34,7 @@ function(doc) {
                         pay_amnt = node.PreviousFields.TakerPays.value - node.FinalFields.TakerPays.value;
                     } else {
                         pay_curr = ["XRP"];
-                        pay_amnt = (node.PreviousFields.TakerPays - node.FinalFields.TakerPays) / 1000000; // convert from drops
+                        pay_amnt = (node.PreviousFields.TakerPays - node.FinalFields.TakerPays) / 1000000.0; // convert from drops
                     }
 
                     var get_curr, get_amnt;
@@ -43,7 +43,7 @@ function(doc) {
                         get_amnt = node.PreviousFields.TakerGets.value - node.FinalFields.TakerGets.value;
                     } else {
                         get_curr = ["XRP"];
-                        get_amnt = (node.PreviousFields.TakerGets - node.FinalFields.TakerGets) / 1000000;
+                        get_amnt = (node.PreviousFields.TakerGets - node.FinalFields.TakerGets) / 1000000.0;
                     }
 
                     // key includes full date/time to enable searching by time
