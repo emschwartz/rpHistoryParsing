@@ -26,15 +26,20 @@ function(doc) {
                     continue;
                 }
 
-                if (node.PreviousFields.hasOwnProperty("TakerPays") && node.PreviousFields.hasOwnProperty("TakerGets")) {
+                // TakerPays and TakerGets were modified, meaning the offer was taken
+                if (node.PreviousFields.hasOwnProperty("TakerPays") 
+                    && node.PreviousFields.hasOwnProperty("TakerGets")) {
 
                     var pay_curr, pay_amnt;
+                    var exchange_rate = node.exchange_rate;
+
                     if (typeof node.PreviousFields.TakerPays === "object") {
                         pay_curr = [node.PreviousFields.TakerPays.currency, node.PreviousFields.TakerPays.issuer];
                         pay_amnt = node.PreviousFields.TakerPays.value - node.FinalFields.TakerPays.value;
                     } else {
                         pay_curr = ["XRP"];
                         pay_amnt = (node.PreviousFields.TakerPays - node.FinalFields.TakerPays) / 1000000.0; // convert from drops
+                        exchange_rate = exchange_rate / 1000000.0;
                     }
 
                     var get_curr, get_amnt;
@@ -44,11 +49,11 @@ function(doc) {
                     } else {
                         get_curr = ["XRP"];
                         get_amnt = (node.PreviousFields.TakerGets - node.FinalFields.TakerGets) / 1000000.0;
+                        exchange_rate = exchange_rate * 1000000.0;
                     }
 
-                    // key includes full date/time to enable searching by time
-                    emit([pay_curr, get_curr].concat(timestamp), [pay_amnt, get_amnt, node.exchange_rate]);
-                    emit([get_curr, pay_curr].concat(timestamp), [get_amnt, pay_amnt, 1 / node.exchange_rate]);
+                    emit([pay_curr, get_curr].concat(timestamp), [pay_amnt, get_amnt, exchange_rate]);
+                    emit([get_curr, pay_curr].concat(timestamp), [get_amnt, pay_amnt, 1 / exchange_rate]);
 
                 }
             }

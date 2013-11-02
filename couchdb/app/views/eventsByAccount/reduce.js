@@ -1,4 +1,4 @@
-function (keys, values) {
+function (keys, values, rereduce) {
 
     if (!rereduce) {
 
