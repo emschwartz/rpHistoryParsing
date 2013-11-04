@@ -4,11 +4,11 @@ function(keys, values, rereduce) {
     // key [account, year, month, day, hour, minute, second]
     // value balance
 
-    var most_recent = [], 
+    var most_recent = [],
         acct_balance;
 
     for (var a = 0, num_keys = keys.length; a < num_keys; a++) {
-      var timestamp = keys[a].slice(1);
+      var timestamp = keys[a][0].slice(1);
 
       if (timestamp > most_recent) {
         most_recent = timestamp;
@@ -24,7 +24,7 @@ function(keys, values, rereduce) {
         acct_balance;
 
     for (var a = 0, num_vals = values.length; a < num_vals; a++) {
-      var timestamp = values[a].slice(1);
+      var timestamp = values[a][0].slice(1);
 
       if (timestamp > most_recent) {
         most_recent = timestamp;
@@ -32,7 +32,7 @@ function(keys, values, rereduce) {
       }
     }
 
-    return [acct_balance].concat(most_recent);
+    return [acct_balance]; //.concat(most_recent);
 
   }
 }

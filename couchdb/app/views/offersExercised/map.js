@@ -12,7 +12,7 @@ function(doc) {
                 meta = tx.metaData,
                 affNodes = meta.AffectedNodes;
 
-            if (meta.TransactionResult !== "tesSUCCESS") 
+            if (meta.TransactionResult !== "tesSUCCESS")
                 continue;
 
             for (var n = 0, num_nodes = affNodes.length; n < num_nodes; n++) {

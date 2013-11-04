@@ -1,0 +1,37 @@
+function (keys, values, rereduce) {
+
+    if (!rereduce) {
+
+        var results = {
+            change: 0,
+            latest_time: [],
+            latest: 0
+        };
+
+        for (var v = 0, vlen = values.length; v < vlen; v++) {
+            var time = keys[v][0].slice(3);
+            if (time > results.latest_time) {
+                results.latest_time = time;
+                results.latest = values[v][1];
+            }
+
+            results.change += values[v][0];
+        }
+        return results;
+
+    } else {
+
+        var results = values[0];
+
+        for (var v = 1, vlen = values.length; v < vlen; v++) {
+            var segment = values[v];
+            if (segment.latest_time > results.latest_time) {
+                results.latest_time = segment.latest_time;
+                results.latest = segment.latest;
+            }
+            results += segment.change;
+        }
+
+        return results;
+    }
+}
