@@ -33,8 +33,11 @@ function(doc) {
                         low_party = mnode.FinalFields.LowLimit.issuer,
                         high_party = mnode.FinalFields.HighLimit.issuer;
 
-                    emit([low_party, currency, high_party].concat(timestamp), [(mnode.FinalFields.Balance.value - mnode.PreviousFields.Balance.value), mnode.FinalFields.Balance.value]);
-                    emit([high_party, currency, low_party].concat(timestamp), [(0 - (mnode.FinalFields.Balance.value - mnode.PreviousFields.Balance.value)), (0 - mnode.FinalFields.Balance.value)]);
+                    var final_bal = parseFloat(mnode.FinalFields.Balance.value),
+                        prev_bal = parseFloat(mnode.PreviousFields.Balance.value);
+
+                    emit([low_party, currency, high_party].concat(timestamp), [(final_bal - prev_bal), final_bal]);
+                    emit([high_party, currency, low_party].concat(timestamp), [(0 - (final_bal - prev_bal)), (0 - final_bal)]);
 
                 }
             }

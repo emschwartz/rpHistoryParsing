@@ -10,7 +10,8 @@ function (keys, values, rereduce) {
 
         for (var v = 0, vlen = values.length; v < vlen; v++) {
             var time = keys[v][0].slice(3);
-            if (time > results.latest_time) {
+            if (lessThan(results.latest_time, time)) {
+            // if (time > results.latest_time) {
                 results.latest_time = time;
                 results.latest = values[v][1];
             }
@@ -25,7 +26,8 @@ function (keys, values, rereduce) {
 
         for (var v = 1, vlen = values.length; v < vlen; v++) {
             var segment = values[v];
-            if (segment.latest_time > results.latest_time) {
+            if (lessThan(results.latest_time, segment.latest_time)) {
+            // if (segment.latest_time > results.latest_time) {
                 results.latest_time = segment.latest_time;
                 results.latest = segment.latest;
             }
@@ -33,5 +35,17 @@ function (keys, values, rereduce) {
         }
 
         return results;
+    }
+
+    function lessThan (arr1, arr2) {
+        if (arr1.length !== arr2.length)
+            return false;
+
+        for (var i = 0; i < arr1.length; i++) {
+            if (arr1[i] < arr2[i])
+                return true;
+        }
+
+        return false;
     }
 }
