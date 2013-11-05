@@ -1,40 +1,45 @@
-function (keys, values, rereduce) {
+function(keys, values, rereduce) {
 
     if (!rereduce) {
 
-        var stats = {};
-        var first_price = (typeof values[0][2] === "number" ? values[0][2] : (values[0][0] / values[0][1]));
 
-        stats.open_time = keys[0][0].slice(2);
-        stats.open = first_price;
-        stats.close_time = keys[0][0].slice(2);
-        stats.close = first_price;
+        var first_price = (typeof values[0][2] === "number" ? values[0][2] : (values[0][0] / values[0][1])),
+            first_time = keys[0][0].slice(2);
 
-        stats.high = first_price;
-        stats.low = first_price;
+        // initial values
+        var stats = {
+            open_time: first_time,
+            close_time: first_time,
 
-        stats.curr1_vwav_numerator = 0;
-        stats.curr1_volume = 0;
-        stats.curr2_volume = 0;
+            open: first_price,
+            close: first_price,
+            high: first_price,
+            low: first_price,
 
-        stats.num_trades = 0;
+            curr1_vwav_numerator: 0,
+            curr1_volume: 0,
+            curr2_volume: 0,
+            num_trades: 0
+        };
 
+        // compute stats for this set of values outputted by the map fn
         for (var v = 0, vlen = values.length; v < vlen; v++) {
-            var trade = values[v];
-            var rate = (typeof trade[2] === "number" ? trade[2] : (trade[0] / trade[1]));
-            
-            if (lessThan(keys[v][0].slice(2), stats.open_time)) {
-                stats.open_time = keys[v][0].slice(2);
-                stats.open = rate;
+            var trade = values[v],
+                trade_time = keys[v][0].slice(2),
+                trade_rate = (typeof trade[2] === "number" ? trade[2] : (trade[0] / trade[1]));
+
+            if (lessThan(trade_time, stats.open_time)) {
+                stats.open_time = trade_time;
+                stats.open = trade_rate;
             }
-            if (lessThan(keys[v][0].slice(2), stats.close_time)) {
-                stats.close_time = keys[v][0].slice(2);
-                stats.close = rate;
+            if (lessThan(stats.close_time, trade_time)) {
+                stats.close_time = trade_time;
+                stats.close = trade_rate;
             }
 
-            stats.high = Math.max(stats.high, rate);
-            stats.low = Math.min(stats.low, rate);
-            stats.curr1_vwav_numerator += rate * trade[0];
+            stats.high = Math.max(stats.high, trade_rate);
+            stats.low = Math.min(stats.low, trade_rate);
+            stats.curr1_vwav_numerator += trade_rate * trade[0];
             stats.curr1_volume += trade[0];
             stats.curr2_volume += trade[1];
             stats.num_trades++;
@@ -48,6 +53,7 @@ function (keys, values, rereduce) {
 
         var stats = values[0];
 
+        // update the stats for each of the segments of results
         for (var v = 1, vlen = values.length; v < vlen; v++) {
             var segment = values[v];
 
@@ -67,7 +73,6 @@ function (keys, values, rereduce) {
             stats.curr1_volume += segment.curr1_volume;
             stats.curr2_volume += segment.curr2_volume;
             stats.num_trades += segment.num_trades;
-
         }
 
         stats.volume_weighted_avg = stats.curr1_vwav_numerator / stats.curr1_volume;
@@ -76,13 +81,18 @@ function (keys, values, rereduce) {
 
     }
 
-    function lessThan (arr1, arr2) {
+    function lessThan(arr1, arr2) {
         if (arr1.length !== arr2.length)
             return false;
 
         for (var i = 0; i < arr1.length; i++) {
-            if (arr1[i] < arr2[i])
+            if (arr1[i] < arr2[i]) {
                 return true;
+            } else if (arr1[i] > arr2[i]) {
+                return false;
+            } else {
+                continue;
+            }
         }
 
         return false;
