@@ -4,8 +4,8 @@ function(keys, values, rereduce) {
 
         var results = {
             change: 0,
-            latest_time: [],
-            latest: 0
+            latest_time: keys[0][0].slice(3),
+            latest: values[0][1]
         };
 
         for (var v = 0, vlen = values.length; v < vlen; v++) {
