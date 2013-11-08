@@ -14,7 +14,7 @@ var BATCH_SIZE = 1000;
 
 
 // run with no arguments or with ledger index to start from
-if (process.argc < 3) {
+if (process.argv.length < 3) {
 
     db.changes({
         limit: 20,
@@ -49,7 +49,7 @@ if (process.argc < 3) {
         return;
     });
 
-} else if (process.argc === 3) {
+} else if (process.argv.length === 3) {
 
     var last_saved_index = parseInt(process.argv[2]);
     saveNextBatch(last_saved_index);
