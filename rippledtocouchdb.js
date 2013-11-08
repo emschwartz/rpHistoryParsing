@@ -27,15 +27,20 @@ db.changes({
     // find last saved ledger amongst couchdb changes stream
     var last_saved_index;
 
-    for (var r = 0; r < res.results.length; r++) {
-        if (parseInt(res.results[r].id, 10) > 0) {
-            last_saved_index = parseInt(res.results[r].id, 10) - BATCH_SIZE * 10;  
-            // go back further in case there was a problem and the last batch wasn't saved properly
-            if (last_saved_index < 32570)
-                last_saved_index = 32569;
-            break;
-        }
-    }    
+    if (res && res.results && res.results.length > 0) {
+
+        for (var r = 0; r < res.results.length; r++) {
+            if (parseInt(res.results[r].id, 10) > 0) {
+                last_saved_index = parseInt(res.results[r].id, 10) - BATCH_SIZE * 10;  
+                // go back further in case there was a problem and the last batch wasn't saved properly
+                if (last_saved_index < 32570)
+                    last_saved_index = 32569;
+                break;
+            }
+        }    
+    } else {
+        last_saved_index = 32569;
+    }
 
     winston.info("Starting from last saved index:", last_saved_index);
 
