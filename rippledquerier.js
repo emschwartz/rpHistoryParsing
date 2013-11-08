@@ -182,7 +182,7 @@ function parseLedger(raw_ledger, raw_txs) {
     if (ledger_json_hash === ledger.transaction_hash) {
         return ledger;
     } else {
-        throw(new Error("Hash of parsed ledger does not match hash in ledger header. \n  Actual: " + ledger_json_hash + "\n  Expected: " + ledger.transaction_hash));
+        throw(new Error("Hash of parsed ledger does not match hash in ledger header. \n  Actual: " + ledger_json_hash + "\n  Expected: " + ledger.transaction_hash + "\nLedger: " + JSON.stringify(ledger)));
     }
 
 }
