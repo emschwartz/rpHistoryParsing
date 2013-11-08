@@ -2,10 +2,6 @@ var winston = require('winston'),
     async = require('async'),
     _ = require('lodash');
 
-
-// var couchdb = require('felix-couchdb'),
-//     client = couchdb.createClient(5984, '0.0.0.0'),
-//     db = client.db('rphistory'),
 var config = require('./config');
 var db = require('nano')('http://' + config.couchdb.username + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port + '/' + config.couchdb.database);
 
@@ -15,38 +11,51 @@ var RippledQuerier = require('./rippledquerier'),
 var MAX_ITERATORS = 1000;
 var BATCH_SIZE = 1000;
 
-db.changes({
-    limit: 20,
-    descending: true
-}, function(err, res) {
-    if (err) {
-        winston.error("Error getting last ledger saved:", err);
+
+
+// run with no arguments or with ledger index to start from
+if (process.argc < 3) {
+
+    db.changes({
+        limit: 20,
+        descending: true
+    }, function(err, res) {
+        if (err) {
+            winston.error("Error getting last ledger saved:", err);
+            return;
+        }
+
+        // find last saved ledger amongst couchdb changes stream
+        var last_saved_index;
+
+        if (res && res.results && res.results.length > 0) {
+
+            for (var r = 0; r < res.results.length; r++) {
+                if (parseInt(res.results[r].id, 10) > 0) {
+                    last_saved_index = parseInt(res.results[r].id, 10) - BATCH_SIZE * 10;  
+                    // go back further in case there was a problem and the last batch wasn't saved properly
+                    if (last_saved_index < 32570)
+                        last_saved_index = 32569;
+                    break;
+                }
+            }    
+        } else {
+            last_saved_index = 32569;
+        }
+
+        winston.info("Starting from last saved index:", last_saved_index);
+
+        saveNextBatch(last_saved_index + 1);
         return;
-    }
+    });
 
-    // find last saved ledger amongst couchdb changes stream
-    var last_saved_index;
+} else if (process.argc === 3) {
 
-    if (res && res.results && res.results.length > 0) {
-
-        for (var r = 0; r < res.results.length; r++) {
-            if (parseInt(res.results[r].id, 10) > 0) {
-                last_saved_index = parseInt(res.results[r].id, 10) - BATCH_SIZE * 10;  
-                // go back further in case there was a problem and the last batch wasn't saved properly
-                if (last_saved_index < 32570)
-                    last_saved_index = 32569;
-                break;
-            }
-        }    
-    } else {
-        last_saved_index = 32569;
-    }
-
-    winston.info("Starting from last saved index:", last_saved_index);
-
-    saveNextBatch(last_saved_index + 1);
+    var last_saved_index = parseInt(process.argv[2]);
+    saveNextBatch(last_saved_index);
     return;
-});
+
+}
 
 function addLeadingZeros (number, digits) {
     if (typeof digits === "undefined")
