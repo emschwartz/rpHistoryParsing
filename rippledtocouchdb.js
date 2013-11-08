@@ -7,7 +7,7 @@ var winston = require('winston'),
 //     client = couchdb.createClient(5984, '0.0.0.0'),
 //     db = client.db('rphistory'),
 var config = require('./config');
-var db = require('nano')('http://' + config.couchdb_username + ':' + config.couchdb_password + '@0.0.0.0:5984/rphist');
+var db = require('nano')('http://' + config.couchdb.username + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port + '/' + config.couchdb.database);
 
 var RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
