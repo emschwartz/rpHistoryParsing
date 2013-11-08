@@ -6,9 +6,9 @@ var sqlite3 = require('sqlite3').verbose(),
     _ = require('lodash'),
     async = require('async');
 
+var Ledger = require('./node_modules/ripple-lib/src/js/ripple/ledger').Ledger;
 
 var config = require('./config');
-
 
 var FIRST_LEDGER = 32570;
 var FIRST_CLOSING_TIME = 410325670;
@@ -112,7 +112,6 @@ function parseLedger(raw_ledger, raw_txs) {
         close_time_human: moment(ripple.utils.toTimestamp(raw_ledger.ClosingTime)).format("YYYY-MM-DD HH:mm:ss Z"),
         close_time_resolution: raw_ledger.CloseTimeRes,
         closed: true,
-        hash: raw_ledger.LedgerHash,
         ledger_hash: raw_ledger.LedgerHash,
         ledger_index: raw_ledger.LedgerSeq,
         parent_hash: raw_ledger.PrevHash,
@@ -177,9 +176,14 @@ function parseLedger(raw_ledger, raw_txs) {
         }
     }
 
-    // winston.info(ledger);
+    // use 
+    var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
 
-    return ledger;
+    if (ledger_json_hash === ledger.transaction_hash) {
+        return ledger;
+    } else {
+        throw(new Error("Hash of parsed ledger does not match hash in ledger header. \n  Actual: " + ledger_json_hash + "\n  Expected: " + ledger.transaction_hash));
+    }
 
 }
 
