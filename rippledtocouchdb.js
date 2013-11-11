@@ -68,7 +68,7 @@ function addLeadingZeros (number, digits) {
 }
 
 
-function saveNextBatch(batch_start) {
+function saveNextBatch(batch_start, previous_ledger_hash) {
 
     rq.getLatestLedgerIndex(function(err, latest_ledger_index) {
         if (err) {
@@ -93,7 +93,34 @@ function saveNextBatch(batch_start) {
                 return;
             }
 
-            // first list docs to get couchdb _rev to update docs already in db
+            // TODO check that each ledger's ledger_hash === the previous_hash of the following ledger
+            ledgers.sort(function(a, b){
+                return a.ledger_index - b.ledger_index;
+            });
+
+            var previous_hash, start_index;
+            if (previous_ledger_hash) {
+                previous_hash = previous_ledger_hash;
+                start_index = 0;
+            } else {
+                previous_hash = ledgers[0].ledger_hash;
+                start_index = 1;
+            }
+            
+            for (var led = start_index, len = ledgers.length; led < len; led++) {
+                if (ledgers[led].parent_hash !== previous_hash)
+                    throw(new Error("Error in chain of ledger hashes:" + 
+                                    "\n  Previous Ledger Hash: " + previous_hash + 
+                                    "\n  This Ledger's Parent Hash: " + ledgers[led].parent_hash + 
+                                    "\n  Ledger: " + JSON.stringify(ledgers[led])));
+                else
+                    previous_hash = ledgers[led].ledger_hash;
+            }
+
+            var last_ledger_hash = ledgers[ledgers.length - 1].ledger_hash;
+
+
+            // list docs to get couchdb _rev to update docs already in db
             db.list({
                 startkey: addLeadingZeros(batch_start),
                 endkey: addLeadingZeros(batch_end)
@@ -125,7 +152,7 @@ function saveNextBatch(batch_start) {
                     });
                 }
 
-                // bulk update docs
+                // bulk update/add docs
                 db.bulk({
                     docs: docs
                 }, function(err) {
@@ -141,12 +168,12 @@ function saveNextBatch(batch_start) {
 
                     if (batch_end - batch_start > 1)
                         setImmediate(function() {
-                            saveNextBatch(batch_end);
+                            saveNextBatch(batch_end, last_ledger_hash);
                         });
                     else {
                         // winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
                         setTimeout(function() {
-                            saveNextBatch(batch_end);
+                            saveNextBatch(batch_end, last_ledger_hash);
                         }, 10000);
                     }
                 });
