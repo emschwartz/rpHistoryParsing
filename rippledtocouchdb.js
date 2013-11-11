@@ -1,154 +1,206 @@
 var winston = require('winston'),
     async = require('async'),
-    _ = require('lodash');
-
-var config = require('./config');
-var db = require('nano')('http://' + config.couchdb.username + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port + '/' + config.couchdb.database);
-
-var RippledQuerier = require('./rippledquerier'),
+    _ = require('lodash'),
+    config = require('./config'),
+    db = require('nano')('http://' + config.couchdb.username + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port + '/' + config.couchdb.database),
+    RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
 
-var MAX_ITERATORS = 1000;
-var BATCH_SIZE = 1000;
+var MAX_ITERATORS = 1000,
+    BATCH_SIZE = 1000;
 
 
 
-// run with no arguments or with ledger index to start from
+/**
+ * rippledtocouchdb pulls ledger snapshots from a local rippled
+ * and inserts them into a CouchDB instance
+ *
+ * run with no command line arguments to start from last saved ledger
+ * run with 1 command line argument to give starting ledger index value
+ */
 if (process.argv.length < 3) {
 
     db.changes({
+
         limit: 20,
         descending: true
+
     }, function(err, res) {
+
         if (err) {
-            winston.error("Error getting last ledger saved:", err);
+            winston.error('Error getting last ledger saved:', err);
             return;
         }
 
         // find last saved ledger amongst couchdb changes stream
-        var last_saved_index;
-
+        var lastSavedIndex;
         if (res && res.results && res.results.length > 0) {
 
             for (var r = 0; r < res.results.length; r++) {
                 if (parseInt(res.results[r].id, 10) > 0) {
-                    last_saved_index = parseInt(res.results[r].id, 10) - BATCH_SIZE * 10;  
-                    // go back further in case there was a problem and the last batch wasn't saved properly
-                    if (last_saved_index < 32570)
-                        last_saved_index = 32569;
+
+                    // go back beyond the last apparent saved index
+                    // in case there 
+                    lastSavedIndex = parseInt(res.results[r].id, 10) - BATCH_SIZE * 5;  
+                    
+                    if (lastSavedIndex < 32570) {
+                        lastSavedIndex = 32569;
+                    }
+
                     break;
                 }
             }    
+
         } else {
-            last_saved_index = 32569;
+
+            lastSavedIndex = 32569;
+
         }
 
-        winston.info("Starting from last saved index:", last_saved_index);
+        winston.info("Starting from last saved index:", lastSavedIndex + 1);
 
-        saveNextBatch(last_saved_index + 1);
+        saveNextBatch(lastSavedIndex + 1);
+
         return;
+
     });
 
 } else if (process.argv.length === 3) {
 
-    var last_saved_index = parseInt(process.argv[2]);
-    saveNextBatch(last_saved_index);
+    var lastSavedIndex = parseInt(process.argv[2]);
+
+    saveNextBatch(lastSavedIndex);
+
     return;
 
 }
 
+
+/**
+ * addLeadingZeros converts numbers to strings and pads them with
+ * leading zeros up to the given number of digits
+ */
+
 function addLeadingZeros (number, digits) {
+
     if (typeof digits === "undefined")
         digits = 10;
-    var num_str = String(number);
-    while(num_str.length < digits) {
-        num_str = "0" + num_str;
+
+    var numStr = String(number);
+
+    while(numStr.length < digits) {
+        numStr = "0" + numStr;
     }
-    return num_str;
+
+    return numStr;
+
 }
 
 
-function saveNextBatch(batch_start, previous_ledger_hash) {
+/**
+ * saveNextBatch gets a batch of BATCH_SIZE number of ledgers,
+ * parses them, and adds them into CouchDB
+ *
+ * note that prevLedgerHash is optional
+ */
 
-    rq.getLatestLedgerIndex(function(err, latest_ledger_index) {
+function saveNextBatch(batchStart, prevLedgerHash) {
+
+    rq.getLatestLedgerIndex(function(err, latestLedgerIndex) {
         if (err) {
             winston.error("Error getting last ledger index:", err);
             return;
         }
 
-        var batch_end = Math.min(latest_ledger_index, (batch_start + BATCH_SIZE));
-
-        if (batch_start >= batch_end) {
+        var batchEnd = Math.min(latestLedgerIndex, (batchStart + BATCH_SIZE));
+        if (batchStart >= batchEnd) {
             setTimeout(function() {
-                saveNextBatch(batch_end);
+                saveNextBatch(batchEnd);
             }, 10000);
             return;
         }
 
-        var incides = _.range(batch_start, batch_end);
-
-        rq.getLedgerRange(batch_start, batch_end, function(err, ledgers) {
+        // get ledgers
+        rq.getLedgerRange(batchStart, batchEnd, function(err, ledgers) {
             if (err) {
-                winston.error("Error getting batch from", batch_start, "to", batch_end, ":", err);
+                winston.error("Error getting batch from", batchStart, "to", batchEnd, ":", err);
                 return;
             }
 
-            // TODO check that each ledger's ledger_hash === the previous_hash of the following ledger
+
+            // verify the chain of ledger headers is unbroken
             ledgers.sort(function(a, b){
                 return a.ledger_index - b.ledger_index;
             });
 
-            var previous_hash, start_index;
-            if (previous_ledger_hash) {
-                previous_hash = previous_ledger_hash;
+            var previousHash, start_index;
+            if (prevLedgerHash) {
+                previousHash = prevLedgerHash;
                 start_index = 0;
             } else {
-                previous_hash = ledgers[0].ledger_hash;
+                previousHash = ledgers[0].ledger_hash;
                 start_index = 1;
             }
             
             for (var led = start_index, len = ledgers.length; led < len; led++) {
-                if (ledgers[led].parent_hash !== previous_hash)
+
+                if (ledgers[led].parent_hash !== previousHash) {
+
                     throw(new Error("Error in chain of ledger hashes:" + 
-                                    "\n  Previous Ledger Hash: " + previous_hash + 
+                                    "\n  Previous Ledger Hash: " + previousHash + 
                                     "\n  This Ledger's Parent Hash: " + ledgers[led].parent_hash + 
                                     "\n  Ledger: " + JSON.stringify(ledgers[led])));
-                else
-                    previous_hash = ledgers[led].ledger_hash;
+                
+                } else {
+
+                    previousHash = ledgers[led].ledger_hash;
+
+                }
             }
 
-            var last_ledger_hash = ledgers[ledgers.length - 1].ledger_hash;
+            var lastLedgerHash = ledgers[ledgers.length - 1].ledger_hash;
 
 
-            // list docs to get couchdb _rev to update docs already in db
+            // list docs to get couchdb _rev to update docs already in db (CouchDB requirement)
             db.list({
-                startkey: addLeadingZeros(batch_start),
-                endkey: addLeadingZeros(batch_end)
+
+                startkey: addLeadingZeros(batchStart),
+                endkey: addLeadingZeros(batchEnd)
+
             }, function(err, res){
 
                 var docs = _.map(ledgers, function(ledger) {
-                    var led_num = String(ledger.ledger_index);
-                    var id = addLeadingZeros(led_num, 10);
-                    ledger._id = id;
+
+                    ledger._id = addLeadingZeros(ledger.ledger_index, 10);
+
                     return ledger;
+
                 });
 
                 if (err || res && res.rows && res.rows.length > 0) {
+
                     _.each(res.rows, function(row){
+
                         var id = row.id,
                             rev = row.value.rev;
 
-                        if (parseInt(id, 10) - batch_start > 0 
-                            && parseInt(id, 10) - batch_start < docs.length
-                            && docs[parseInt(id, 10) - batch_start]._id === id) {
-                            docs[parseInt(id, 10) - batch_start]._rev = rev;
+                        if (parseInt(id, 10) - batchStart > 0 
+                            && parseInt(id, 10) - batchStart < docs.length
+                            && docs[parseInt(id, 10) - batchStart]._id === id) {
+
+                            docs[parseInt(id, 10) - batchStart]._rev = rev;
+
                         } else {
-                            var doc_index = _.findIndex(docs, function(doc){
+
+                            var docIndex = _.findIndex(docs, function(doc){
                                 return doc._id === id;
                             });
-                            if (doc_index >= 0)
-                                docs[doc_index]._rev = rev;
+
+                            if (docIndex >= 0) {
+                                docs[docIndex]._rev = rev;
+                            }
                         }
+
                     });
                 }
 
@@ -157,36 +209,36 @@ function saveNextBatch(batch_start, previous_ledger_hash) {
                     docs: docs
                 }, function(err) {
                     if (err) {
-                        winston.error("Error saving batch from", batch_start, "to", batch_end, ":", JSON.stringify(err));
+                        winston.error("Error saving batch from", batchStart, "to", batchEnd, ":", JSON.stringify(err));
                         return;
                     }
 
-                    if (batch_end - batch_start === 1)
-                        winston.info("Saved ledger", batch_start, "to CouchDB");
-                    else
-                        winston.info("Saved ledgers", batch_start, "to", batch_end, "to CouchDB");
+                    if (batchEnd - batchStart === 1) {
 
-                    if (batch_end - batch_start > 1)
+                        winston.info("Saved ledger", batchStart, "to CouchDB");
+
+                    } else {
+
+                        winston.info("Saved ledgers", batchStart, "to", batchEnd, "to CouchDB");
+                    
+                    }
+
+                    // if the batch had only 1 ledger, start next batch immediately, otherwise pause for 10 sec
+                    if (batchEnd - batchStart > 1)
+
                         setImmediate(function() {
-                            saveNextBatch(batch_end, last_ledger_hash);
+                            saveNextBatch(batchEnd, lastLedgerHash);
                         });
+
                     else {
-                        // winston.info("Only got", (batch_end - batch_start), "ledgers, waiting 10 sec before continuing");
+
                         setTimeout(function() {
-                            saveNextBatch(batch_end, last_ledger_hash);
+                            saveNextBatch(batchEnd, lastLedgerHash);
                         }, 10000);
+
                     }
                 });
             });
         });
-
     });
-}
-
-function printCallback(err, result) {
-    if (err) {
-        winston.error(err);
-    } else {
-        winston.info(result);
-    }
 }
