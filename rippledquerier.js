@@ -253,7 +253,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
             servers: [{
                 host:    's1.ripple.com',
                 port:    443,
-                secure:  true,
+                secure:  true
             }]
         });
 
