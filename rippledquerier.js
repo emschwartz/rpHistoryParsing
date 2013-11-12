@@ -286,18 +286,19 @@ function parseLedger(raw_ledger, raw_txs, callback) {
                             || affNode.ModifiedNode
                             || affNode.DeletedNode;
 
-                            if (node.LedgerEntryType === "Offer") {
+                        if (node.LedgerEntryType === "Offer") {
 
-                        var BookDirectory; 
-                        if (node.hasOwnProperty("FinalFields")) {
-                            BookDirectory = node.FinalFields.BookDirectory;
-                        } else if (node.hasOwnProperty("NewFields")) {
-                            BookDirectory = node.NewFields.BookDirectory;
-                        }
+                            var BookDirectory; 
+                            if (node.hasOwnProperty("FinalFields")) {
+                                BookDirectory = node.FinalFields.BookDirectory;
+                            } else if (node.hasOwnProperty("NewFields")) {
+                                BookDirectory = node.NewFields.BookDirectory;
+                            }
 
-                        if (typeof BookDirectory === "string") {
-                            var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
-                            node.exchange_rate = exchange_rate.value;
+                            if (typeof BookDirectory === "string") {
+                                var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
+                                node.exchange_rate = exchange_rate.value;
+                            }
                         }
                     });
                 });
