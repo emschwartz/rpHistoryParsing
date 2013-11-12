@@ -242,7 +242,29 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     
     } else {
 
-        callback(new Error("Hash of parsed ledger does not match hash in ledger header. \n  Actual:   " + ledger_json_hash + "\n  Expected: " + ledger.transaction_hash + "\n  Ledger: " + JSON.stringify(ledger)));
+        // try getting ledger with API call instead of from rippled database
+
+        // var remote = new Remote({
+        //     // see the API Reference for available options
+        //     trusted:        true,
+        //     local_signing:  true,
+        //     local_fee:      true,
+        //     fee_cushion:     1.5,
+        //     servers: [{
+        //         host:    's1.ripple.com',
+        //         port:    443,
+        //         secure:  true,
+        //     }]
+        // });
+
+        // remote.connect(function() {
+            
+        // });
+
+        callback(new Error("Hash of parsed ledger does not match hash in ledger header." + 
+                            "\n  Actual:   " + ledger_json_hash + 
+                            "\n  Expected: " + ledger.transaction_hash + 
+                            "\n  Ledger: " + JSON.stringify(ledger)));
     }
 
 }
@@ -269,7 +291,14 @@ function getLedger(dbs, ledger_index, callback) {
                 return;
             }
 
-            parseLedger(raw_ledger, raw_txs, callback);
+            parseLedger(raw_ledger, raw_txs, function(err, parsed_ledger){
+                if (err) {
+                    winston.error("Error parsing ledger:", err);
+                    callback(err);
+                    return;
+                }
+                callback(null, parsed_ledger);
+            });
 
         });
     });
