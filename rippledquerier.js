@@ -30,6 +30,9 @@ function RippledQuerier(max_iterators) {
     rq.FIRST_INDEX = FIRST_LEDGER;
     rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
 
+
+    // RippledQuerier functions
+
     rq.getLatestLedgerIndex = function(callback) {
         getLatestLedgerIndex(dbs, callback);
     };
@@ -163,13 +166,13 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     var ledger;
 
     ledger = {
-        accepted: true,
+        // accepted: true,
         account_hash: raw_ledger.AccountSetHash,
         close_time_rpepoch: raw_ledger.ClosingTime,
         close_time_timestamp: ripple.utils.toTimestamp(raw_ledger.ClosingTime),
-        close_time_human: moment(ripple.utils.toTimestamp(raw_ledger.ClosingTime)).format("YYYY-MM-DD HH:mm:ss Z"),
+        close_time_human: moment(ripple.utils.toTimestamp(raw_ledger.ClosingTime)).utc().format("YYYY-MM-DD HH:mm:ss Z"),
         close_time_resolution: raw_ledger.CloseTimeRes,
-        closed: true,
+        // closed: true,
         ledger_hash: raw_ledger.LedgerHash,
         ledger_index: raw_ledger.LedgerSeq,
         parent_hash: raw_ledger.PrevHash,
@@ -225,17 +228,22 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         ledger.transactions = transactions;
     }
 
-    ledger.conflicting_ledger_headers = [];
+    // store conflicting headers if there are multiple headers for a given ledger_index
     if (raw_ledger.conflicting_ledger_headers 
         && raw_ledger.conflicting_ledger_headers.length > 0) {
-        var heads = raw_ledger.conflicting_ledger_headers;
-        for (var ch = 0; ch < heads.length; ch++){
-            ledger.conflicting_ledger_headers.push(parseLedger(heads[ch], null));
-        }
+
+        ledger.conflicting_ledger_headers = [];
+
+        raw_ledger.conflicting_ledger_headers.forEach(function(head){
+
+            ledger.conflicting_ledger_headers.push(parseLedger(head, null));
+
+        });
+
     }
 
+    // check that transaction hash is correct
     var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
-
     if (ledger_json_hash === ledger.transaction_hash) {
 
         callback(null, ledger);
@@ -259,12 +267,54 @@ function parseLedger(raw_ledger, raw_txs, callback) {
             winston.info("Querying rippled for ledger:", ledger.ledger_index);
             remote.request_ledger(ledger.ledger_index, { transactions: true, expand: true }, function(err, res){
 
-                winston.info("res:", JSON.stringify(res));
-                // winston.info("")
-                // callback(new Error("Hash of parsed ledger does not match hash in ledger header." + 
-                //             "\n  Actual:   " + ledger_json_hash + 
-                //             "\n  Expected: " + ledger.transaction_hash + 
-                //             "\n  Ledger: " + JSON.stringify(ledger)));
+                if (err) {
+                    winston.error("Error getting ledger from rippled:", err);
+                    callback(err);
+                    return;
+                }
+
+                // add/edit fields that aren't in rippled's json format
+                var ledger = res.ledger;
+                ledger.close_time_rpepoch = ledger.close_time;
+                ledger.close_time_timestamp = ripple.utils.toTimestamp(ledger.close_time);
+                ledger.close_time_human: moment(ripple.utils.toTimestamp(ledger.close_time)).utc().format("YYYY-MM-DD HH:mm:ss Z");
+
+                // add exchange rate field to metadata entries
+                ledger.transactions.forEach(function(transaction){
+                    transaction.metaData.AffectedNodes.forEach(function(affNode){
+                        var node = affNode.CreatedNode 
+                            || affNode.ModifiedNode
+                            || affNode.DeletedNode;
+
+                            if (node.LedgerEntryType === "Offer") {
+
+                        var BookDirectory; 
+                        if (node.hasOwnProperty("FinalFields")) {
+                            BookDirectory = node.FinalFields.BookDirectory;
+                        } else if (node.hasOwnProperty("NewFields")) {
+                            BookDirectory = node.NewFields.BookDirectory;
+                        }
+
+                        if (typeof BookDirectory === "string") {
+                            var exchange_rate = ripple.Amount.from_quality(BookDirectory).to_json();
+                            node.exchange_rate = exchange_rate.value;
+                        }
+                    });
+                });
+
+
+                var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
+                if (ledger_json_hash === ledger.transaction_hash) {
+
+                    callback(null, ledger);
+
+                } else {
+                    callback(new Error("Hash of parsed ledger does not match hash in ledger header." + 
+                            "\n  Actual:   " + ledger_json_hash + 
+                            "\n  Expected: " + ledger.transaction_hash + 
+                            "\n  Ledger: " + JSON.stringify(ledger)));
+                }
+                
 
             });
 
@@ -311,8 +361,6 @@ function getLedger(dbs, ledger_index, callback) {
 }
 
 // getLedgerRange gets the PARSED ledgers for the given range of indices
-// TODO make this more efficient by getting and parsing batches
-// instead of using mapLimit and getLedger
 function getLedgerRange(dbs, start, end, max_iterators, callback) {
     if (!callback) callback = printCallback;
 
