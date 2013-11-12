@@ -257,7 +257,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         remote.connect(function() {
             
             winston.info("Querying rippled for ledger:", ledger.ledger_index);
-            remote.request_ledger(ledger.ledger_index, { transactions: true }, function(err, res){
+            remote.request_ledger(ledger.ledger_index, { transactions: true, expand: true }, function(err, res){
 
                 winston.info("res:", res);
                 // winston.info("")
