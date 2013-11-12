@@ -277,7 +277,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
                 var ledger = res.ledger;
                 ledger.close_time_rpepoch = ledger.close_time;
                 ledger.close_time_timestamp = ripple.utils.toTimestamp(ledger.close_time);
-                ledger.close_time_human: moment(ripple.utils.toTimestamp(ledger.close_time)).utc().format("YYYY-MM-DD HH:mm:ss Z");
+                ledger.close_time_human = moment(ripple.utils.toTimestamp(ledger.close_time)).utc().format("YYYY-MM-DD HH:mm:ss Z");
 
                 // add exchange rate field to metadata entries
                 ledger.transactions.forEach(function(transaction){
