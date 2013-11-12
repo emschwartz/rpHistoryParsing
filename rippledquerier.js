@@ -259,7 +259,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
             winston.info("Querying rippled for ledger:", ledger.ledger_index);
             remote.request_ledger(ledger.ledger_index, { transactions: true, expand: true }, function(err, res){
 
-                winston.info("res:", res);
+                winston.info("res:", JSON.stringify(res));
                 // winston.info("")
                 // callback(new Error("Hash of parsed ledger does not match hash in ledger header." + 
                 //             "\n  Actual:   " + ledger_json_hash + 
