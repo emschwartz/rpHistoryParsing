@@ -251,8 +251,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     } else {
 
         // try getting ledger with API call instead of from rippled database
-
-        winston.info("Trying to connect to ripple-lib remote");
+        // winston.info("Trying to connect to ripple-lib remote");
 
         var remote = new Remote({
             servers: [{
@@ -278,6 +277,14 @@ function parseLedger(raw_ledger, raw_txs, callback) {
                 ledger.close_time_rpepoch = ledger.close_time;
                 ledger.close_time_timestamp = ripple.utils.toTimestamp(ledger.close_time);
                 ledger.close_time_human = moment(ripple.utils.toTimestamp(ledger.close_time)).utc().format("YYYY-MM-DD HH:mm:ss Z");
+
+                // remove fields that do not appear in format defined above in parseLedger
+                delete ledger.close_time;
+                delete ledger.hash;
+                delete ledger.accepted;
+                delete ledger.totalCoins;
+                delete ledger.closed;
+
 
                 // add exchange rate field to metadata entries
                 ledger.transactions.forEach(function(transaction){
