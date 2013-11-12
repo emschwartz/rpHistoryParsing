@@ -244,12 +244,9 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
         // try getting ledger with API call instead of from rippled database
 
+        winston.info("Trying to connect to ripple-lib remote");
+
         var remote = new Remote({
-            // see the API Reference for available options
-            trusted:        true,
-            local_signing:  true,
-            local_fee:      true,
-            fee_cushion:     1.5,
             servers: [{
                 host:    's1.ripple.com',
                 port:    443,
@@ -260,7 +257,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         remote.connect(function() {
             
             winston.info("Querying rippled for ledger:", ledger.ledger_index);
-            remote.request_ledger(ledger.ledger_index, {transactions: true}, function(err, res){
+            remote.request_ledger(ledger.ledger_index, { transactions: true }, function(err, res){
 
                 winston.info("res:", res);
                 // winston.info("")
