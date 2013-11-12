@@ -1,17 +1,75 @@
 var sqlite3 = require('sqlite3').verbose(),
     winston = require('winston'),
     path = require('path'),
-    ripple = require('ripple-lib'),
     moment = require('moment'),
     _ = require('lodash'),
-    async = require('async');
-
-var Ledger = require('./node_modules/ripple-lib/src/js/ripple/ledger').Ledger;
+    async = require('async'),
+    ripple = require('ripple-lib'),
+    Ledger = require('./node_modules/ripple-lib/src/js/ripple/ledger').Ledger,
+    Remote = ripple.Remote;
 
 var config = require('./config');
 
 var FIRST_LEDGER = 32570;
 var FIRST_CLOSING_TIME = 410325670;
+
+
+function RippledQuerier(max_iterators) {
+
+    if (!max_iterators)
+        max_iterators = 1000;
+
+    var dbs = {
+        ledb: new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db')),
+        txdb: new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'))
+    };
+
+    var rq = {};
+
+    rq.FIRST_LEDGER = FIRST_LEDGER;
+    rq.FIRST_INDEX = FIRST_LEDGER;
+    rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
+
+    rq.getLatestLedgerIndex = function(callback) {
+        getLatestLedgerIndex(dbs, callback);
+    };
+
+    rq.getLedger = function(ledger_index, callback) {
+        getLedger(dbs, ledger_index, callback);
+    };
+
+    rq.searchLedgerByClosingTime = function(rpepoch, callback) {
+        searchLedgerByClosingTime(dbs, rpepoch, callback);
+    };
+
+    rq.getLedgerRange = function(start, end, callback) {
+        getLedgerRange(dbs, start, end, max_iterators, callback);
+    };
+
+    rq.getLedgersForRpEpochRange = function(rp_start, rp_end, callback) {
+        getLedgersForRpEpochRange(dbs, rp_start, rp_end, max_iterators, callback);
+    };
+
+    // rq.getLedgersForTimeRange gets the PARSED ledgers between the two given momentjs-readable times
+    rq.getLedgersForTimeRange = function(start, end, callback) {
+
+        var start_moment = moment(start);
+        // winston.info("start_moment", start_moment.format());
+        var end_moment = moment(end);
+        // winston.info("end_moment", end_moment.format());
+
+        var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
+        // winston.info("start_rpepoch", start_rpepoch);
+        var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
+        // winston.info("end_rpepoch", end_rpepoch);
+
+        getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
+    };
+
+    return rq;
+
+}
+
 
 
 // PRIVATE FUNCTIONS
@@ -100,7 +158,7 @@ function getRawTxForLedger(dbs, ledger_index, callback) {
 
 // parseLedger parses the raw ledger and associated raw txs into a single json ledger
 
-function parseLedger(raw_ledger, raw_txs) {
+function parseLedger(raw_ledger, raw_txs, callback) {
 
     var ledger;
 
@@ -176,13 +234,15 @@ function parseLedger(raw_ledger, raw_txs) {
         }
     }
 
-    // use 
     var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
 
     if (ledger_json_hash === ledger.transaction_hash) {
-        return ledger;
+
+        callback(null, ledger);
+    
     } else {
-        throw(new Error("Hash of parsed ledger does not match hash in ledger header. \n  Actual:   " + ledger_json_hash + "\n  Expected: " + ledger.transaction_hash + "\n  Ledger: " + JSON.stringify(ledger)));
+
+        callback(new Error("Hash of parsed ledger does not match hash in ledger header. \n  Actual:   " + ledger_json_hash + "\n  Expected: " + ledger.transaction_hash + "\n  Ledger: " + JSON.stringify(ledger)));
     }
 
 }
@@ -209,8 +269,7 @@ function getLedger(dbs, ledger_index, callback) {
                 return;
             }
 
-            var parsed_ledger = parseLedger(raw_ledger, raw_txs);
-            callback(null, parsed_ledger);
+            parseLedger(raw_ledger, raw_txs, callback);
 
         });
     });
@@ -396,65 +455,5 @@ function dbRecursiveSearch(db, table, index, start, end, key, val, callback) {
 
 }
 
-
-
-
-// EXPORTS
-
-function RippledQuerier(max_iterators) {
-
-    if (!max_iterators)
-        max_iterators = 1000;
-
-    var dbs = {
-        ledb: new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'ledger.db')),
-        txdb: new sqlite3.Database(path.resolve(config.dbPath || "/ripple/server/db", 'transaction.db'))
-    };
-
-    var rq = {};
-
-    rq.FIRST_LEDGER = FIRST_LEDGER;
-    rq.FIRST_INDEX = FIRST_LEDGER;
-    rq.FIRST_CLOSING_TIME = FIRST_CLOSING_TIME;
-
-    rq.getLatestLedgerIndex = function(callback) {
-        getLatestLedgerIndex(dbs, callback);
-    };
-
-    rq.getLedger = function(ledger_index, callback) {
-        getLedger(dbs, ledger_index, callback);
-    };
-
-    rq.searchLedgerByClosingTime = function(rpepoch, callback) {
-        searchLedgerByClosingTime(dbs, rpepoch, callback);
-    };
-
-    rq.getLedgerRange = function(start, end, callback) {
-        getLedgerRange(dbs, start, end, max_iterators, callback);
-    };
-
-    rq.getLedgersForRpEpochRange = function(rp_start, rp_end, callback) {
-        getLedgersForRpEpochRange(dbs, rp_start, rp_end, max_iterators, callback);
-    };
-
-    // rq.getLedgersForTimeRange gets the PARSED ledgers between the two given momentjs-readable times
-    rq.getLedgersForTimeRange = function(start, end, callback) {
-
-        var start_moment = moment(start);
-        // winston.info("start_moment", start_moment.format());
-        var end_moment = moment(end);
-        // winston.info("end_moment", end_moment.format());
-
-        var start_rpepoch = rpEpochFromTimestamp(start_moment.valueOf());
-        // winston.info("start_rpepoch", start_rpepoch);
-        var end_rpepoch = rpEpochFromTimestamp(end_moment.valueOf());
-        // winston.info("end_rpepoch", end_rpepoch);
-
-        getLedgersForRpEpochRange(dbs, start_rpepoch, end_rpepoch, max_iterators, callback);
-    };
-
-    return rq;
-
-}
 
 module.exports = RippledQuerier;
