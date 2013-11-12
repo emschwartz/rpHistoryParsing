@@ -310,6 +310,8 @@ function parseLedger(raw_ledger, raw_txs, callback) {
                     });
                 });
 
+                winston.info(JSON.stringify(ledger));
+
 
                 var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
                 if (ledger_json_hash === ledger.transaction_hash) {
