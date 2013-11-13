@@ -119,6 +119,7 @@ function getRawLedger(dbs, ledger_index, callback) {
 
       var raw_ledger;
 
+      winston.info(rows.length, "rows for ledger_index", ledger_index);
       if (rows.length === 1) {
 
         raw_ledger = rows[0];
