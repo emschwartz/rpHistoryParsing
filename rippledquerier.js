@@ -310,9 +310,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
                     });
                 });
 
-                winston.info(JSON.stringify(ledger));
-
-
+                // check the transaction hash of the ledger we got from the api call
                 var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
                 if (ledger_json_hash === ledger.transaction_hash) {
 
