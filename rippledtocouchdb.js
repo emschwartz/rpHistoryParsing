@@ -2,12 +2,17 @@ var winston = require('winston'),
     async = require('async'),
     _ = require('lodash'),
     config = require('./config'),
-    db = require('nano')('http://' + config.couchdb.username + ':' + config.couchdb.password + '@' + config.couchdb.host + ':' + config.couchdb.port + '/' + config.couchdb.database),
+    db = require('nano')('http://' + config.couchdb.username + 
+                        ':' + config.couchdb.password + 
+                        '@' + config.couchdb.host + 
+                        ':' + config.couchdb.port + 
+                        '/' + config.couchdb.database),
     RippledQuerier = require('./rippledquerier'),
     rq = new RippledQuerier();
 
 var MAX_ITERATORS = 1000,
     BATCH_SIZE = 1000;
+
 
 
 
@@ -40,7 +45,7 @@ if (process.argv.length < 3) {
                 if (parseInt(res.results[r].id, 10) > 0) {
 
                     // go back beyond the last apparent saved index
-                    // in case there 
+                    // in case there were ledgers that weren't saved
                     lastSavedIndex = parseInt(res.results[r].id, 10) - BATCH_SIZE * 5;  
                     
                     if (lastSavedIndex < 32570) {
