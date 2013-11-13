@@ -73,7 +73,7 @@ if (process.argv.length < 3) {
 } else if (process.argv.length === 3) {
 
   var lastSavedIndex = parseInt(process.argv[2]);
-
+  winston.info("Starting from index:", lastSavedIndex);
   saveNextBatch(lastSavedIndex);
 
   return;
