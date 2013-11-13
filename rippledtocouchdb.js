@@ -154,7 +154,8 @@ function saveNextBatch(batchStart, prevLedgerHash) {
                     throw(new Error("Error in chain of ledger hashes:" + 
                                     "\n  Previous Ledger Hash: " + previousHash + 
                                     "\n  This Ledger's Parent Hash: " + ledgers[led].parent_hash + 
-                                    "\n  Ledger: " + JSON.stringify(ledgers[led])));
+                                    "\n  Ledger: " + JSON.stringify(ledgers[led]) + 
+                                    (led !== 0 ? "\n  Previous Ledger: " + JSON.stringify(ledgers[led-1]) : "")));
                 
                 } else {
 
