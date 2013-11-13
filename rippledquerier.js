@@ -187,7 +187,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     && raw_ledger.conflicting_ledger_headers.length > 0) {
 
     ledger.conflicting_ledger_headers = raw_ledger.conflicting_ledger_headers.slice();
-  
+
   }
 
   if (raw_txs !== null) {
@@ -311,6 +311,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
         var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
         if (ledger_json_hash === ledger.transaction_hash) {
 
+          winston.info(JSON.stringify(ledger));
           callback(null, ledger);
 
         } else {
