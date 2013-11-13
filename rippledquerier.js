@@ -284,6 +284,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
                 delete ledger.accepted;
                 delete ledger.totalCoins;
                 delete ledger.closed;
+                delete ledger.seqNum;
 
 
                 // add exchange rate field to metadata entries
