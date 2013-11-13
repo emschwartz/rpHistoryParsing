@@ -115,7 +115,7 @@ function getRawLedger(dbs, ledger_index, callback) {
             if (rows.length === 0) {
                 callback(new Error("dbs.ledb has no ledger of index: " + ledger_index));
                 return;
-                
+
             } else if (rows.length === 1) {
 
                 var raw_ledger = rows[0];
@@ -147,7 +147,7 @@ function getRawLedger(dbs, ledger_index, callback) {
 
 
                         } else {
-                            winston.error("Error: multiple consecutive ledgers have conflicting headers");
+                            callback(new Error("Error: multiple consecutive ledgers have conflicting headers"));
                             return;
                         }
                     });
