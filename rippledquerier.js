@@ -236,7 +236,7 @@ function parseLedger(raw_ledger, raw_txs, callback) {
 
         raw_ledger.conflicting_ledger_headers.forEach(function(head){
 
-            ledger.conflicting_ledger_headers.push(parseLedger(head, null));
+            ledger.conflicting_ledger_headers.push(head);
 
         });
 
