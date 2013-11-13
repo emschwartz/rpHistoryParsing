@@ -136,11 +136,8 @@ function getRawLedger(dbs, ledger_index, callback) {
         });
 
         raw_ledger = rows[0];
-        raw_ledger.conflicting_ledger_headers = [];
+        raw_ledger.conflicting_ledger_headers = rows;
 
-        for (var r = 1; r < rows.length; r++) {
-            raw_ledger.conflicting_ledger_headers.push(rows[r]);
-        }
       }
 
       callback(null, raw_ledger);
@@ -184,6 +181,14 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     total_coins: raw_ledger.TotalCoins,
     transaction_hash: raw_ledger.TransSetHash
   };
+
+  // store conflicting headers if there are multiple headers for a given ledger_index
+  if (raw_ledger.conflicting_ledger_headers 
+    && raw_ledger.conflicting_ledger_headers.length > 0) {
+
+    ledger.conflicting_ledger_headers = raw_ledger.conflicting_ledger_headers.slice();
+  
+  }
 
   if (raw_txs !== null) {
     var transactions = _.map(raw_txs, function(raw_tx) {
@@ -231,17 +236,6 @@ function parseLedger(raw_ledger, raw_txs, callback) {
     ledger.transactions = transactions;
   }
 
-  // store conflicting headers if there are multiple headers for a given ledger_index
-  if (raw_ledger.conflicting_ledger_headers 
-    && raw_ledger.conflicting_ledger_headers.length > 0) {
-
-    ledger.conflicting_ledger_headers = [];
-
-    raw_ledger.conflicting_ledger_headers.forEach(function(head) {
-      ledger.conflicting_ledger_headers.push(head);
-    });
-
-  }
 
   // check that transaction hash is correct
   var ledger_json_hash = Ledger.from_json(ledger).calc_tx_hash().to_hex();
