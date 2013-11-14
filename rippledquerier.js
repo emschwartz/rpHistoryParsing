@@ -119,6 +119,7 @@ function getRawLedger(dbs, ledger_index, callback) {
       } else if (rows.length === 1) {
 
         var raw_ledger = rows[0];
+        callback(null, raw_ledger);
 
       } else if (rows.length > 1) {
 
