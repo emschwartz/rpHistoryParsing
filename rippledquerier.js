@@ -284,6 +284,10 @@ function getLedgerFromApi( ledgerHash, callback ) {
       delete ledger.closed;
       delete ledger.seqNum;
 
+      // parse ints from strings
+      ledger.ledger_index = parseInt(ledger.ledger_index, 10);
+      ledger.total_coins = parseInt(ledger.total_coins, 10);
+
       // add exchange rate field to metadata entries
       ledger.transactions.forEach( function( transaction ) {
         transaction.metaData.AffectedNodes.forEach( function( affNode ) {
