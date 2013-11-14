@@ -178,7 +178,7 @@ function parseRawLedgerHeader( rawHeader ) {
     total_coins: rawHeader.TotalCoins,
     transaction_hash: rawHeader.TransSetHash
   };
-  
+
 }
 
 
@@ -233,6 +233,7 @@ function parseLedger( rawLedger, raw_txs, callback ) {
 
   } else {
 
+    winston.info("Getting ledger from API because", "\n  ledgerJsonHash:", ledgerJsonHash, "\n  ledger.transaction_hash:", ledger.transaction_hash, "\n\n  Incorrect ledger:", JSON.stringify(ledger));
     getLedgerFromApi( ledger.ledger_hash, callback );
 
   }
