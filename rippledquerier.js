@@ -115,6 +115,7 @@ function getRawLedger( dbs, ledgerIndex, callback ) {
 
         // get the next ledger's parent_hash to determine which of the conflicting
         // ledgers headers here is the correct one
+        winston.info("Multiple rows for index:", ledgerIndex, JSON.stringify(rows));
         dbs.ledb.all( "SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ ledgerIndex + 1 ],
           function( err, nextRows ) {
             if ( err ) {
@@ -125,13 +126,19 @@ function getRawLedger( dbs, ledgerIndex, callback ) {
 
             if ( nextRows.length === 1 ) {
 
+              winston.info("Next rows:", JSON.stringify(nextRows));
+
               var correctHeader = _.find( rows, function( row ) {
                 return row.ledger_hash === nextRows[ 0 ].parent_hash;
               } );
 
+              winston.info("correctHeader:", JSON.stringify(correctHeader));
+
               correctHeader.conflicting_ledger_headers = _.filter( rows, function( row ) {
                 return row.ledger_hash !== nextRows[ 0 ].parent_hash;
               } );
+
+              winston.info("conflicting_ledger_headers:", JSON.stringify(correctHeader.conflicting_ledger_headers));
 
               callback( null, correctHeader );
 
@@ -226,14 +233,14 @@ function parseLedger( rawLedger, raw_txs, callback ) {
 
 
   // check that transaction hash is correct
-  var ledgerJsonHash = Ledger.from_json( ledger ).calc_tx_hash( ).to_hex( );
-  if ( ledgerJsonHash === ledger.transaction_hash ) {
+  var ledgerJsonTxHash = Ledger.from_json( ledger ).calc_tx_hash( ).to_hex( );
+  if ( ledgerJsonTxHash === ledger.transaction_hash ) {
 
     callback( null, ledger );
 
   } else {
 
-    winston.info("Getting ledger from API because", "\n  ledgerJsonHash:", ledgerJsonHash, "\n  ledger.transaction_hash:", ledger.transaction_hash, "\n\n  Incorrect ledger:", JSON.stringify(ledger));
+    winston.info("Getting ledger from API because", "\n  ledgerJsonTxHash:", ledgerJsonTxHash, "\n  ledger.transaction_hash:", ledger.transaction_hash, "\n\n  Incorrect ledger:", JSON.stringify(ledger));
     getLedgerFromApi( ledger.ledger_hash, callback );
 
   }
@@ -293,15 +300,15 @@ function getLedgerFromApi( ledgerHash, callback ) {
       } );
 
       // check the transaction hash of the ledger we got from the api call
-      var ledgerJsonHash = Ledger.from_json( ledger ).calc_tx_hash( ).to_hex( );
-      if ( ledgerJsonHash === ledger.transaction_hash ) {
+      var ledgerJsonTxHash = Ledger.from_json( ledger ).calc_tx_hash( ).to_hex( );
+      if ( ledgerJsonTxHash === ledger.transaction_hash ) {
 
         callback( null, ledger );
 
       } else {
 
         callback( new Error( "Error with ledger from rippled api call, transactions do not hash to expected value" +
-          "\n  Actual:   " + ledgerJsonHash +
+          "\n  Actual:   " + ledgerJsonTxHash +
           "\n  Expected: " + ledger.transaction_hash +
           "\n\n  Ledger: " + JSON.stringify( ledger ) + "\n\n" ) );
 
