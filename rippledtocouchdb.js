@@ -7,7 +7,7 @@ var winston = require('winston'),
             '@' + config.couchdb.host + 
             ':' + config.couchdb.port + 
             '/' + config.couchdb.database),
-  RippledQuerier = require('./rippledQuerier'),
+  RippledQuerier = require('./rippledquerier'),
   rq = new RippledQuerier();
 
 var MAX_ITERATORS = 1000,
