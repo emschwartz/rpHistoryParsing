@@ -113,7 +113,7 @@ function getRawLedger( dbs, ledgerIndex, callback ) {
 
       } else if ( rows.length > 1 ) {
 
-        // get the next ledger's parent_hash to determine which of the conflicting
+        // get the next ledger's PrevHash to determine which of the conflicting
         // ledgers headers here is the correct one
         winston.info("Multiple rows for index:", ledgerIndex, JSON.stringify(rows));
         dbs.ledb.all( "SELECT * FROM Ledgers WHERE LedgerSeq = ?;", [ ledgerIndex + 1 ],
@@ -129,13 +129,13 @@ function getRawLedger( dbs, ledgerIndex, callback ) {
               winston.info("Next rows:", JSON.stringify(nextRows));
 
               var correctHeader = _.find( rows, function( row ) {
-                return row.ledger_hash === nextRows[ 0 ].parent_hash;
+                return row.LedgerHash === nextRows[ 0 ].PrevHash;
               } );
 
               winston.info("correctHeader:", JSON.stringify(correctHeader));
 
               correctHeader.conflicting_ledger_headers = _.filter( rows, function( row ) {
-                return row.ledger_hash !== nextRows[ 0 ].parent_hash;
+                return row.LedgerHash !== nextRows[ 0 ].PrevHash;
               } );
 
               winston.info("conflicting_ledger_headers:", JSON.stringify(correctHeader.conflicting_ledger_headers));
