@@ -7,7 +7,7 @@ var winston = require('winston'),
             '@' + config.couchdb.host + 
             ':' + config.couchdb.port + 
             '/' + config.couchdb.database),
-  RippledQuerier = require('./rippledquerier'),
+  RippledQuerier = require('./rippledQuerier'),
   rq = new RippledQuerier();
 
 var MAX_ITERATORS = 1000,
@@ -154,8 +154,8 @@ function saveNextBatch(batchStart, prevLedgerHash) {
           throw(new Error("Error in chain of ledger hashes:" + 
                   "\n  Previous Ledger Hash: " + previousHash + 
                   "\n  This Ledger's Parent Hash: " + ledgers[led].parent_hash + 
-                  "\n  Ledger: " + JSON.stringify(ledgers[led]) + 
-                  (led !== 0 ? "\n  Previous Ledger: " + JSON.stringify(ledgers[led-1]) : "")));
+                  "\n\n  Ledger: " + JSON.stringify(ledgers[led]) + 
+                  (led !== 0 ? "\n\n  Previous Ledger: " + JSON.stringify(ledgers[led-1]) : "")));
         
         } else {
 
